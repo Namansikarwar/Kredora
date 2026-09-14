@@ -1,0 +1,6 @@
+{
+  "name": "SkillProof",
+  "description": "Evidence-backed skill verification platform with secure authentication and interactive dashboards.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

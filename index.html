@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SkillProof — Don't just claim a skill. Prove it.</title>
+<meta name="description" content="Evidence-backed skill verification platform with secure authentication and interactive dashboards." />
+<meta property="og:title" content="SkillProof — Don't just claim a skill. Prove it." />
+<meta property="og:description" content="Evidence-backed skill verification platform with secure authentication and interactive dashboards." />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary_large_image" />
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+<!-- Tailwind CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          base: "#0a0f1c",
+          surface: "#131a2b",
+          surface2: "#1a2338",
+          borderc: "#232d44",
+          ink: "#e9ecf4",
+          inkdim: "#8b93a9",
+          gold: {
+            DEFAULT: "#f2b544",
+            dim: "#a9863a",
+          },
+          cyan: {
+            DEFAULT: "#4cc9e8",
+          },
+        },
+        fontFamily: {
+          display: ['"Space Grotesk"', "Inter", "sans-serif"],
+          sans: ["Inter", "ui-sans-serif", "sans-serif"],
+          mono: ['"JetBrains Mono"', "ui-monospace", "monospace"],
+        },
+      },
+    },
+  };
+</script>
+
+<link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body class="bg-base text-ink antialiased">
+
+  <!-- ============ NAV ============ -->
+  <header class="fixed top-0 inset-x-0 z-50 border-b border-white/5 bg-base/80 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
+
+      <a href="index.html" class="flex items-center gap-2.5 group">
+        <span class="grid place-items-center w-8 h-8 rounded-lg bg-gradient-to-br from-gold to-amber-600 text-base font-display font-bold text-[13px]">
+          SP
+        </span>
+        <span class="font-display font-semibold text-[17px] tracking-tight text-white">SkillProof</span>
+      </a>
+
+      <nav class="hidden md:flex items-center gap-8 text-sm text-inkdim">
+        <a href="#how-it-works" class="nav-link hover:text-ink transition-colors">How it works</a>
+        <a href="#evidence" class="nav-link hover:text-ink transition-colors">Evidence</a>
+        <a href="#example-profile" class="nav-link hover:text-ink transition-colors">Example profile</a>
+        <a href="#benefits" class="nav-link hover:text-ink transition-colors">Benefits</a>
+      </nav>
+
+      <!-- Dynamic Auth Nav: changes based on login status -->
+      <div class="hidden md:flex items-center gap-3" data-auth-nav>
+        <a href="login.html" class="text-sm text-inkdim hover:text-ink transition-colors px-3 py-2">Log in</a>
+        <a href="signup.html" class="text-sm font-medium bg-gold text-base px-4 py-2 rounded-full hover:bg-amber-300 transition-colors">
+          Sign up
+        </a>
+      </div>
+
+      <!-- Mobile toggle -->
+      <button id="nav-toggle" aria-label="Toggle menu" aria-expanded="false" class="md:hidden p-2 -mr-2 text-ink">
+        <svg id="icon-open" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        <svg id="icon-close" class="w-6 h-6 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+
+    <!-- Mobile menu -->
+    <div id="mobile-menu" class="md:hidden border-t border-white/5 bg-base">
+      <div class="px-5 py-4 flex flex-col gap-1 text-sm">
+        <a href="#how-it-works" class="py-2.5 text-inkdim hover:text-ink">How it works</a>
+        <a href="#evidence" class="py-2.5 text-inkdim hover:text-ink">Evidence</a>
+        <a href="#example-profile" class="py-2.5 text-inkdim hover:text-ink">Example profile</a>
+        <a href="#benefits" class="py-2.5 text-inkdim hover:text-ink">Benefits</a>
+        <div data-mobile-auth-nav>
+          <div class="h-px bg-white/5 my-2"></div>
+          <a href="login.html" class="py-2.5 text-inkdim hover:text-ink">Log in</a>
+          <a href="signup.html" class="mt-1 text-center font-medium bg-gold text-base px-4 py-2.5 rounded-full">Sign up</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+
+    <!-- ============ HERO ============ -->
+    <section class="hero-field relative pt-40 pb-28 px-5 sm:px-8 overflow-hidden">
+      <div class="max-w-7xl mx-auto grid lg:grid-cols-[1.05fr_0.95fr] gap-16 items-center">
+
+        <div>
+          <p class="enter delay-1 inline-flex items-center gap-2 text-xs text-inkdim font-mono border border-borderc rounded-full px-3 py-1.5 mb-7">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+            Now tracking evidence across 4 skill areas
+          </p>
+
+          <h1 class="enter delay-2 font-display font-semibold text-[2.6rem] sm:text-6xl leading-[1.08] tracking-tight text-white">
+            Don't just claim<br />
+            a skill. <span class="ink-underline text-gold">Prove
+              <svg viewBox="0 0 200 20" preserveAspectRatio="none" fill="none" aria-hidden="true"><path d="M2 12C40 4 160 4 198 12" fill="none"/></svg>
+            </span> it.
+          </h1>
+
+          <p class="enter delay-3 mt-6 text-lg text-inkdim max-w-lg leading-relaxed">
+            Resumes list skills. SkillProof verifies them — turning the problems you solve, the projects you ship, and the assessments you pass into a skill profile backed by evidence, not adjectives.
+          </p>
+
+          <div class="enter delay-4 mt-9 flex flex-wrap items-center gap-4">
+            <a href="signup.html" id="hero-cta-btn" class="inline-flex items-center gap-2 bg-gold text-base font-medium px-6 py-3.5 rounded-full hover:bg-amber-300 transition-colors">
+              Build your skill profile
+            </a>
+            <a href="#example-profile" class="inline-flex items-center gap-2 text-ink border border-borderc px-6 py-3.5 rounded-full hover:border-gold/60 hover:text-gold transition-colors">
+              See an example profile
+            </a>
+          </div>
+
+          <div class="enter delay-5 mt-12 flex flex-wrap gap-x-10 gap-y-4 text-sm text-inkdim">
+            <div><span class="font-display text-2xl text-white">340+</span> evidence records logged</div>
+            <div><span class="font-display text-2xl text-white">4</span> skill areas tracked</div>
+            <div><span class="font-display text-2xl text-white">0%</span> self-reported score</div>
+          </div>
+        </div>
+
+        <!-- Hero proof card mockup -->
+        <div class="enter delay-3 relative">
+          <div class="glass-card lift-on-hover rounded-2xl p-6 shadow-2xl shadow-black/40 max-w-sm ml-auto">
+            <div class="flex items-center justify-between mb-6">
+              <div>
+                <p class="text-xs text-inkdim font-mono">Skill profile</p>
+                <p class="font-display font-semibold text-lg text-white">Java</p>
+              </div>
+              <span class="text-xs font-mono text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 px-2.5 py-1 rounded-full">Verified</span>
+            </div>
+
+            <div class="flex items-center gap-5">
+              <div class="score-ring w-24 h-24 rounded-full grid place-items-center shrink-0" style="--pct:82" data-score-ring="82">
+                <div class="score-ring-inner w-[74px] h-[74px] rounded-full grid place-items-center">
+                  <span class="font-display font-semibold text-2xl text-white">82</span>
+                </div>
+              </div>
+              <div class="text-sm text-inkdim space-y-1.5">
+                <p>Confidence: <span class="text-ink">High</span></p>
+                <p>41 problems solved</p>
+                <p>3 projects reviewed</p>
+                <p>4 assessments passed</p>
+              </div>
+            </div>
+
+            <div class="evidence-sample mt-6 rounded-lg px-3.5 py-3 font-mono text-xs text-inkdim">
+              Solved: Merge K Sorted Lists · Hard · 14m 22s
+            </div>
+          </div>
+
+          <div class="glass-card rounded-xl px-4 py-3 max-w-[210px] absolute -bottom-6 -left-4 sm:-left-10 shadow-xl shadow-black/40 hidden sm:block">
+            <p class="text-xs text-inkdim mb-1">Overall skill score</p>
+            <p class="font-display font-semibold text-2xl text-gold">79<span class="text-sm text-inkdim">/100</span></p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============ CORE IDEA ============ -->
+    <section class="py-20 sm:py-24 px-5 sm:px-8 border-t border-white/5">
+      <div class="reveal max-w-3xl mx-auto text-center">
+        <p class="font-display font-semibold text-2xl sm:text-[2.25rem] leading-snug text-white">
+          A skill score means nothing if it's just a claim.
+        </p>
+        <p class="mt-5 text-inkdim text-base sm:text-lg leading-relaxed max-w-xl mx-auto">
+          Every score on SkillProof is backed by evidence, not a self-reported rating — built from what you actually did, not what you say you can do.
+        </p>
+        <div class="mt-8 flex flex-wrap items-center justify-center gap-2.5">
+          <span class="evidence-chip">Coding Problems</span>
+          <span class="evidence-chip">Projects</span>
+          <span class="evidence-chip">Assessments</span>
+          <span class="evidence-chip">Concepts Demonstrated</span>
+          <span class="evidence-chip">GitHub Activity</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ EVIDENCE -> SCORE ============ -->
+    <section id="score-breakdown" class="py-28 px-5 sm:px-8 border-t border-white/5 bg-surface/40">
+      <div class="max-w-7xl mx-auto">
+        <div class="reveal max-w-xl mb-16">
+          <h2 class="font-display font-semibold text-3xl sm:text-4xl text-white tracking-tight">Watch a score get built</h2>
+          <p class="mt-4 text-inkdim leading-relaxed">
+            This is exactly how Naman's Java score adds up — five evidence sources, each with a real weight, no hidden math.
+          </p>
+        </div>
+
+        <div class="reveal grid lg:grid-cols-[1.3fr_0.9fr] gap-6 items-stretch">
+          <div id="score-factor-list" class="glass-card rounded-2xl p-7 sm:p-8 space-y-1">
+            <!-- Factor rows populated by js/main.js from SKILLPROOF_DATA.scoreBreakdown -->
+          </div>
+
+          <div class="glass-card lift-on-hover rounded-2xl p-8 flex flex-col items-center justify-center text-center">
+            <p class="text-xs text-inkdim font-mono mb-6">Total skill score</p>
+            <div class="score-ring w-36 h-36 rounded-full grid place-items-center" data-score-ring="82">
+              <div class="score-ring-inner w-[112px] h-[112px] rounded-full grid place-items-center flex-col">
+                <span class="font-display font-semibold text-4xl text-white" id="breakdown-total-counter">0</span>
+                <span class="text-[11px] text-inkdim -mt-1">out of 100</span>
+              </div>
+            </div>
+            <p class="mt-6 text-sm text-inkdim">Confidence: <span class="text-ink">High</span></p>
+            <p class="mt-1 text-xs font-mono text-emerald-400">Verified evidence trail</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CLAIMS VS PROOF ============ -->
+    <section class="py-28 px-5 sm:px-8 border-t border-white/5">
+      <div class="max-w-7xl mx-auto">
+        <div class="reveal max-w-xl mb-16">
+          <h2 class="font-display font-semibold text-3xl sm:text-4xl text-white tracking-tight">A rating vs. a record</h2>
+          <p class="mt-4 text-inkdim leading-relaxed">Same skill, same student. One of these you have to take on faith.</p>
+        </div>
+
+        <div class="reveal grid md:grid-cols-[1fr_auto_1fr] gap-6 md:gap-8 items-center">
+
+          <div class="resume-card rounded-2xl p-7">
+            <p class="text-xs text-inkdim/70 font-mono mb-6">Traditional resume</p>
+            <p class="font-display text-2xl text-slate-300 mb-2">Java</p>
+            <p class="text-2xl tracking-wide text-slate-500 mb-6">★★★★☆ <span class="text-base align-middle text-slate-400">4/5</span></p>
+            <p class="text-sm text-slate-500 leading-relaxed">Self-reported. No context, no evidence, no way to check.</p>
+          </div>
+
+          <div class="hidden md:grid place-items-center">
+            <span class="w-11 h-11 rounded-full grid place-items-center border border-borderc font-mono text-xs text-inkdim">vs</span>
+          </div>
+          <div class="md:hidden flex items-center gap-3 text-xs font-mono text-inkdim">
+            <span class="flex-1 h-px bg-white/10"></span>vs<span class="flex-1 h-px bg-white/10"></span>
+          </div>
+
+          <div class="glass-card lift-on-hover rounded-2xl p-7">
+            <p class="text-xs text-gold font-mono mb-6">SkillProof</p>
+            <div class="flex items-baseline gap-2 mb-6">
+              <p class="font-display text-2xl text-white">Java</p>
+              <p class="font-display text-3xl text-gold ml-auto">82<span class="text-sm text-inkdim">/100</span></p>
+            </div>
+            <div class="flex flex-wrap gap-2 mb-6">
+              <span class="evidence-chip">41 problems solved</span>
+              <span class="evidence-chip">3 projects reviewed</span>
+              <span class="evidence-chip">4 assessments passed</span>
+              <span class="evidence-chip">6-week activity streak</span>
+            </div>
+            <p class="text-sm text-inkdim leading-relaxed">High confidence — every point traces back to a timestamped record you can open and check.</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ HOW IT WORKS ============ -->
+    <section id="how-it-works" class="py-28 px-5 sm:px-8 border-t border-white/5">
+      <div class="max-w-7xl mx-auto">
+        <div class="reveal max-w-xl mb-16">
+          <h2 class="font-display font-semibold text-3xl sm:text-4xl text-white tracking-tight">How SkillProof works</h2>
+          <p class="mt-4 text-inkdim leading-relaxed">
+            Three steps stand between "I know Java" and a skill score someone can actually trust.
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-8">
+          <div class="reveal">
+            <span class="font-display text-sm text-gold-dim">01</span>
+            <h3 class="font-display font-semibold text-xl text-white mt-3 mb-2.5">Do the work</h3>
+            <p class="text-inkdim text-sm leading-relaxed">
+              Solve problems, ship projects, and take assessments in the tools you already use. Nothing new to learn first.
+            </p>
+          </div>
+          <div class="reveal">
+            <span class="font-display text-sm text-gold-dim">02</span>
+            <h3 class="font-display font-semibold text-xl text-white mt-3 mb-2.5">We log the evidence</h3>
+            <p class="text-inkdim text-sm leading-relaxed">
+              Every solved problem, reviewed commit, and passed test becomes a timestamped, specific record — not a vague point total.
+            </p>
+          </div>
+          <div class="reveal">
+            <span class="font-display text-sm text-gold-dim">03</span>
+            <h3 class="font-display font-semibold text-xl text-white mt-3 mb-2.5">Your score updates</h3>
+            <p class="text-inkdim text-sm leading-relaxed">
+              Scores and confidence levels move with accumulated evidence — never with a claim you type into a bio field.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ EVIDENCE TYPES ============ -->
+    <section id="evidence" class="py-28 px-5 sm:px-8 border-t border-white/5 bg-surface/40">
+      <div class="max-w-7xl mx-auto">
+        <div class="reveal max-w-xl mb-16">
+          <h2 class="font-display font-semibold text-3xl sm:text-4xl text-white tracking-tight">Evidence, not endorsements</h2>
+          <p class="mt-4 text-inkdim leading-relaxed">
+            Four kinds of evidence feed every skill score. Each one is checkable — no self-assessment sliders involved.
+          </p>
+        </div>
+
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+
+          <div class="reveal glass-card rounded-2xl p-6 hover:border-gold/40 transition-colors">
+            <svg class="w-8 h-8 text-cyan mb-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 9l-4 4 4 4M16 9l4 4-4 4M13 5l-2 16"/></svg>
+            <h3 class="font-display font-semibold text-white mb-2">Coding Problems</h3>
+            <p class="text-sm text-inkdim leading-relaxed mb-4">Logged with language, difficulty, and time to solve.</p>
+            <p class="evidence-sample rounded-md px-3 py-2.5 font-mono text-[11px] text-inkdim">Merge K Sorted Lists · Java · Hard</p>
+          </div>
+
+          <div class="reveal glass-card rounded-2xl p-6 hover:border-gold/40 transition-colors">
+            <svg class="w-8 h-8 text-cyan mb-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h16v4H4zM4 12h10v8H4zM17 12h3v8h-3z"/></svg>
+            <h3 class="font-display font-semibold text-white mb-2">Projects</h3>
+            <p class="text-sm text-inkdim leading-relaxed mb-4">Reviewed for code quality, tests, and contribution history.</p>
+            <p class="evidence-sample rounded-md px-3 py-2.5 font-mono text-[11px] text-inkdim">inventory-tracker · 84% coverage</p>
+          </div>
+
+          <div class="reveal glass-card rounded-2xl p-6 hover:border-gold/40 transition-colors">
+            <svg class="w-8 h-8 text-cyan mb-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 11l3 3L22 4M2 12a10 10 0 1 0 5-8.7"/></svg>
+            <h3 class="font-display font-semibold text-white mb-2">Assessments</h3>
+            <p class="text-sm text-inkdim leading-relaxed mb-4">Timed checks that verify a skill holds up under pressure.</p>
+            <p class="evidence-sample rounded-md px-3 py-2.5 font-mono text-[11px] text-inkdim">SQL Optimization · 91/100</p>
+          </div>
+
+          <div class="reveal glass-card rounded-2xl p-6 hover:border-gold/40 transition-colors">
+            <svg class="w-8 h-8 text-cyan mb-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3v18h18M7 15l4-5 3 3 5-7"/></svg>
+            <h3 class="font-display font-semibold text-white mb-2">Activity</h3>
+            <p class="text-sm text-inkdim leading-relaxed mb-4">Ongoing signal from connected accounts and streaks.</p>
+            <p class="evidence-sample rounded-md px-3 py-2.5 font-mono text-[11px] text-inkdim">6-week streak · 212 commits</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ EXAMPLE PROFILE ============ -->
+    <section id="example-profile" class="py-28 px-5 sm:px-8 border-t border-white/5">
+      <div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
+
+        <div class="reveal order-2 lg:order-1">
+          <h2 class="font-display font-semibold text-3xl sm:text-4xl text-white tracking-tight">A profile worth putting on a resume</h2>
+          <p class="mt-4 text-inkdim leading-relaxed max-w-md">
+            Every SkillProof profile is public and specific: real scores, real evidence counts, and a confidence level a recruiter can act on — no more "proficient in Java" with nothing behind it.
+          </p>
+          <a href="profile.html" class="mt-8 inline-flex items-center gap-2 text-gold border border-gold/30 px-5 py-3 rounded-full hover:bg-gold/10 transition-colors">
+            View full example profile
+          </a>
+        </div>
+
+        <div class="reveal order-1 lg:order-2 glass-card rounded-2xl p-7">
+          <div class="flex items-center gap-4 mb-6">
+            <div class="w-14 h-14 rounded-full bg-gradient-to-br from-gold to-amber-600 grid place-items-center font-display font-semibold text-base text-base">NR</div>
+            <div>
+              <p class="font-display font-semibold text-white">Naman Rathi</p>
+              <p class="text-sm text-inkdim font-mono">skillproof.me/naman</p>
+            </div>
+            <div class="ml-auto text-right">
+              <p class="text-xs text-inkdim">Overall score</p>
+              <p class="font-display font-semibold text-xl text-gold">79</p>
+            </div>
+          </div>
+
+          <ul id="example-skill-list" class="text-sm">
+            <!-- Populated by js/main.js from SKILLPROOF_DATA -->
+          </ul>
+
+          <div class="mt-6 pt-5 border-t border-white/5 flex items-center justify-between text-sm text-inkdim">
+            <span>190 evidence records</span>
+            <span>11 projects</span>
+            <span>14 assessments</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============ BENEFITS ============ -->
+    <section id="benefits" class="py-28 px-5 sm:px-8 border-t border-white/5 bg-surface/40">
+      <div class="max-w-7xl mx-auto">
+        <div class="reveal max-w-xl mb-16">
+          <h2 class="font-display font-semibold text-3xl sm:text-4xl text-white tracking-tight">Built for both sides of the hiring table</h2>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6">
+          <div class="reveal glass-card rounded-2xl p-8">
+            <h3 class="font-display font-semibold text-xl text-white mb-5">For students</h3>
+            <ul class="space-y-4 text-sm text-inkdim">
+              <li class="flex gap-3"><span class="text-gold mt-0.5">＋</span>Show a score that updates as you actually improve, instead of a static resume bullet.</li>
+              <li class="flex gap-3"><span class="text-gold mt-0.5">＋</span>One link — skillproof.me/you — replaces a pile of certificates no one opens.</li>
+              <li class="flex gap-3"><span class="text-gold mt-0.5">＋</span>See exactly where your evidence is thin, and what to work on next.</li>
+            </ul>
+          </div>
+          <div class="reveal glass-card rounded-2xl p-8">
+            <h3 class="font-display font-semibold text-xl text-white mb-5">For recruiters &amp; institutions</h3>
+            <ul class="space-y-4 text-sm text-inkdim">
+              <li class="flex gap-3"><span class="text-cyan mt-0.5">＋</span>Skip the take-home test — the evidence trail already answers "can they actually do this?"</li>
+              <li class="flex gap-3"><span class="text-cyan mt-0.5">＋</span>Compare candidates on confidence level, not on how well they write a resume.</li>
+              <li class="flex gap-3"><span class="text-cyan mt-0.5">＋</span>Every claim links back to a timestamped record you can inspect.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FINAL CTA ============ -->
+    <section class="py-24 px-5 sm:px-8 border-t border-white/5">
+      <div class="reveal max-w-3xl mx-auto text-center">
+        <h2 class="font-display font-semibold text-3xl sm:text-4xl text-white tracking-tight">Stop claiming. Start proving.</h2>
+        <p class="mt-4 text-inkdim">Your first three skill scores are ready in minutes, backed by evidence from day one.</p>
+        <a href="signup.html" id="final-cta-btn" class="mt-8 inline-flex items-center gap-2 bg-gold text-base font-medium px-7 py-3.5 rounded-full hover:bg-amber-300 transition-colors">
+          Build your skill profile
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="border-t border-white/5 px-5 sm:px-8 py-14">
+    <div class="max-w-7xl mx-auto grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
+      <div>
+        <div class="flex items-center gap-2.5 mb-4">
+          <span class="grid place-items-center w-7 h-7 rounded-lg bg-gradient-to-br from-gold to-amber-600 text-base font-display font-bold text-[12px]">SP</span>
+          <span class="font-display font-semibold text-ink">SkillProof</span>
+        </div>
+        <p class="text-sm text-inkdim leading-relaxed max-w-[220px]">Don't just claim a skill. Prove it.</p>
+      </div>
+
+      <div>
+        <p class="text-sm font-medium text-ink mb-4">Product</p>
+        <ul class="space-y-2.5 text-sm text-inkdim">
+          <li><a href="dashboard.html" class="hover:text-ink transition-colors">Dashboard</a></li>
+          <li><a href="evidence.html" class="hover:text-ink transition-colors">Evidence</a></li>
+          <li><a href="profile.html" class="hover:text-ink transition-colors">Public profiles</a></li>
+          <li><a href="skillproof.zip" download="skillproof.zip" class="text-gold hover:underline flex items-center gap-1.5 font-mono text-xs pt-1">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            Download ZIP
+          </a></li>
+        </ul>
+      </div>
+
+      <div>
+        <p class="text-sm font-medium text-ink mb-4">Authentication</p>
+        <ul class="space-y-2.5 text-sm text-inkdim">
+          <li><a href="login.html" class="hover:text-ink transition-colors">Log In</a></li>
+          <li><a href="signup.html" class="hover:text-ink transition-colors">Sign Up</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <p class="text-sm font-medium text-ink mb-4">Legal</p>
+        <ul class="space-y-2.5 text-sm text-inkdim">
+          <li><a href="#" class="hover:text-ink transition-colors">Privacy</a></li>
+          <li><a href="#" class="hover:text-ink transition-colors">Terms</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto mt-12 pt-6 border-t border-white/5 text-xs text-inkdim flex flex-col sm:flex-row gap-2 justify-between">
+      <p>© <span id="current-year"></span> SkillProof. All rights reserved.</p>
+      <p>Secure evidence verification system.</p>
+    </div>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    // Update CTAs if already logged in
+    document.addEventListener("DOMContentLoaded", () => {
+      if (window.Auth && window.Auth.isAuthenticated()) {
+        const heroCta = document.getElementById("hero-cta-btn");
+        if (heroCta) {
+          heroCta.textContent = "Go to your Dashboard";
+          heroCta.href = "dashboard.html";
+        }
+        const finalCta = document.getElementById("final-cta-btn");
+        if (finalCta) {
+          finalCta.textContent = "Go to your Dashboard";
+          finalCta.href = "dashboard.html";
+        }
+      }
+    });
+  </script>
+</body>
+</html>
