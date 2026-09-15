@@ -1,19 +1,27 @@
 /* ---------------------------------------------------------------
-   SkillProof — custom styles
-   Design tokens live here and are mirrored into the Tailwind config
-   in index.html so both plain CSS and Tailwind utilities can use them.
+   Kredora — Design System & Custom Styles
+   Font: Outfit
+   Primary Brand Accent: Kredora Crimson (#E50926) matching the logo
+   Aesthetic: Obsidian Glassmorphism with rich backdrop blurs
 ----------------------------------------------------------------- */
 
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
 :root {
-  --sp-base: #0a0f1c;
-  --sp-surface: #131a2b;
-  --sp-surface-2: #1a2338;
-  --sp-border: #232d44;
-  --sp-text: #e9ecf4;
-  --sp-text-dim: #8b93a9;
-  --sp-gold: #f2b544;
-  --sp-gold-dim: #a9863a;
-  --sp-cyan: #4cc9e8;
+  --sp-base: #090d18;
+  --sp-surface: #111728;
+  --sp-surface-2: #182238;
+  --sp-border: #232e48;
+  --sp-text: #f0f4fc;
+  --sp-text-dim: #8e99b2;
+  --sp-brand: #E50926;
+  --sp-brand-hover: #f01e38;
+  --sp-brand-bright: #ff334c;
+  --sp-brand-dim: #990819;
+  --sp-brand-glow: rgba(229, 9, 38, 0.35);
+  --sp-gold: #E50926; /* Aliased so any existing gold styles automatically resolve to Kredora Crimson */
+  --sp-gold-dim: #990819;
+  --sp-cyan: #38bdf8;
 }
 
 * {
@@ -33,39 +41,69 @@ html,
 body {
   background-color: var(--sp-base);
   color: var(--sp-text);
-  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+  font-family: "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  letter-spacing: -0.01em;
 }
 
 .font-display {
-  font-family: "Space Grotesk", "Inter", ui-sans-serif, sans-serif;
+  font-family: "Outfit", sans-serif;
+  letter-spacing: -0.02em;
 }
 
 .font-mono {
   font-family: "JetBrains Mono", ui-monospace, monospace;
 }
 
-/* Faint grid + radial glow behind the hero, evokes a verification console */
+/* Atmospheric grid with vibrant Kredora crimson ambient radial glow */
 .hero-field {
   background-image:
-    radial-gradient(circle at 78% 18%, rgba(242, 181, 68, 0.14), transparent 42%),
-    radial-gradient(circle at 15% 85%, rgba(76, 201, 232, 0.10), transparent 40%),
+    radial-gradient(circle at 75% 20%, rgba(229, 9, 38, 0.16), transparent 45%),
+    radial-gradient(circle at 20% 80%, rgba(255, 51, 76, 0.09), transparent 42%),
     linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
   background-size: auto, auto, 42px 42px, 42px 42px;
   background-position: 0 0, 0 0, -1px -1px, -1px -1px;
 }
 
+/* Glassmorphic cards with rich multi-layer backdrop-filter blur */
 .glass-card {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.015));
-  border: 1px solid var(--sp-border);
-  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.35);
+}
+
+.glass-navbar {
+  background: rgba(9, 13, 24, 0.82);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+.glass-panel {
+  background: rgba(17, 23, 40, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* Atmospheric ambient blurred glowing orb */
+.ambient-glow {
+  position: absolute;
+  border-radius: 9999px;
+  pointer-events: none;
+  filter: blur(100px);
+  opacity: 0.22;
+  background: #E50926;
+  z-index: 0;
 }
 
 /* Score ring: driven by a CSS custom property --pct set inline per instance */
 .score-ring {
   --pct: 0;
   background: conic-gradient(
-    var(--sp-gold) calc(var(--pct) * 1%),
+    var(--sp-brand) calc(var(--pct) * 1%),
     rgba(255, 255, 255, 0.08) 0
   );
   transition: background 1.1s cubic-bezier(0.16, 1, 0.3, 1);
@@ -75,7 +113,7 @@ body {
   background: var(--sp-surface);
 }
 
-/* Underline that draws itself in, used once on the hero headline accent */
+/* Underline that draws itself in, styled with Kredora crimson */
 .ink-underline {
   position: relative;
   white-space: nowrap;
@@ -91,7 +129,7 @@ body {
 }
 
 .ink-underline path {
-  stroke: var(--sp-gold);
+  stroke: var(--sp-brand);
   stroke-width: 5;
   fill: none;
   stroke-linecap: round;
@@ -140,8 +178,9 @@ body {
 
 /* Evidence sample strip — a thin terminal-style readout */
 .evidence-sample {
-  background: #0d1220;
+  background: rgba(13, 18, 32, 0.85);
   border: 1px solid var(--sp-border);
+  backdrop-filter: blur(12px);
 }
 
 .evidence-sample::before {
@@ -150,12 +189,12 @@ body {
   width: 6px;
   height: 6px;
   border-radius: 999px;
-  background: #3ddc84;
+  background: var(--sp-brand-bright);
   margin-right: 8px;
-  box-shadow: 0 0 6px 1px rgba(61, 220, 132, 0.6);
+  box-shadow: 0 0 8px 1px var(--sp-brand-glow);
 }
 
-/* Nav link underline sweep on hover */
+/* Nav link underline sweep on hover in Kredora crimson */
 .nav-link {
   position: relative;
 }
@@ -166,8 +205,9 @@ body {
   left: 0;
   bottom: -4px;
   width: 0;
-  height: 1px;
-  background: var(--sp-gold);
+  height: 2px;
+  background: var(--sp-brand);
+  border-radius: 2px;
   transition: width 0.25s ease;
 }
 
@@ -175,10 +215,12 @@ body {
   width: 100%;
 }
 
-/* Mobile menu panel */
+/* Mobile menu panel with blur */
 #mobile-menu {
   max-height: 0;
   overflow: hidden;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -186,12 +228,12 @@ body {
   max-height: 420px;
 }
 
-/* Keep focus visible for keyboard users despite custom styling */
+/* Keep focus visible for keyboard users */
 a:focus-visible,
 button:focus-visible,
 input:focus-visible,
 select:focus-visible {
-  outline: 2px solid var(--sp-gold);
+  outline: 2px solid var(--sp-brand);
   outline-offset: 2px;
 }
 
@@ -228,48 +270,53 @@ select:focus-visible {
   background: rgba(255, 255, 255, 0.015);
   border: 1px dashed rgba(255, 255, 255, 0.12);
   filter: saturate(0.6);
+  backdrop-filter: blur(10px);
 }
 
 .evidence-chip {
   font-family: "JetBrains Mono", monospace;
   font-size: 11px;
-  color: var(--sp-text-dim);
-  background: rgba(242, 181, 68, 0.06);
-  border: 1px solid rgba(242, 181, 68, 0.18);
+  color: var(--sp-text);
+  background: rgba(229, 9, 38, 0.08);
+  border: 1px solid rgba(229, 9, 38, 0.25);
   border-radius: 999px;
-  padding: 5px 10px;
+  padding: 5px 12px;
+  backdrop-filter: blur(8px);
 }
 
 /* ---------------------------------------------------------------
-   Micro-interactions — used sparingly, only on a few key cards
+   Micro-interactions
 ----------------------------------------------------------------- */
 
 .lift-on-hover {
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease, box-shadow 0.4s ease;
 }
 
 .lift-on-hover:hover {
   transform: translateY(-4px);
+  box-shadow: 0 12px 30px -10px rgba(229, 9, 38, 0.2);
 }
 
-/* Auth specific helper styles */
+/* Auth specific helper styles with blur */
 .auth-input-group {
   position: relative;
 }
 
 .auth-input {
   width: 100%;
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.35);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 0.75rem;
   padding: 0.75rem 1rem;
   color: #fff;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   transition: all 0.2s ease;
 }
 
 .auth-input:focus {
-  border-color: rgba(242, 181, 68, 0.7);
-  box-shadow: 0 0 0 3px rgba(242, 181, 68, 0.15);
+  border-color: rgba(229, 9, 38, 0.75);
+  box-shadow: 0 0 0 3px rgba(229, 9, 38, 0.2);
 }
 
 .password-toggle-btn {

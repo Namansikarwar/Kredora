@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 150" width="240" height="150" fill="none">
+  <!-- Red Color: #D7001C -->
+  <!-- Top-left piece -->
+  <path d="M 0 0 L 106 0 C 92 32 50 71 0 75 Z" fill="#D7001C" />
+  <!-- Bottom-left piece -->
+  <path d="M 0 75 C 50 79 92 118 106 150 L 0 150 Z" fill="#D7001C" />
+  <!-- Right block with K cutout inner contour -->
+  <path d="M 138 0 L 240 0 L 240 150 L 138 150 C 124 118 96 82 82 75 C 96 68 124 32 138 0 Z" fill="#D7001C" />
+</svg>

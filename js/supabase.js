@@ -1,5 +1,5 @@
 /**
- * SkillProof Supabase Database Integration
+ * Kredora Supabase Database Integration
  * Connects problem solving submissions, user accounts, and progress tracking
  * to Supabase PostgreSQL database when credentials are provided.
  */
@@ -35,11 +35,11 @@
         if (window.supabase && typeof window.supabase.createClient === "function") {
           this.client = window.supabase.createClient(url, anonKey);
           this.isInitialized = true;
-          console.log("[SkillProof] Connected to Supabase Database successfully.");
+          console.log("[Kredora] Connected to Supabase Database successfully.");
           return this.client;
         }
       } catch (err) {
-        console.warn("[SkillProof] Supabase initialization warning:", err);
+        console.warn("[Kredora] Supabase initialization warning:", err);
       }
       return null;
     },
@@ -123,7 +123,7 @@
     // Get SQL script to set up tables and RLS in Supabase
     getSchemaSQL() {
       return `-- ==================================================================
--- SkillProof Supabase Database Tables & Security Policies
+-- Kredora Supabase Database Tables & Security Policies
 -- Paste into Supabase Dashboard -> SQL Editor -> Run
 -- ==================================================================
 

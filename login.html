@@ -3,13 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Log In — SkillProof</title>
-  <meta name="description" content="Log in to your SkillProof account to manage evidence and view skill analytics." />
+  <title>Log In — Kredora</title>
+  <meta name="description" content="Log in to your Kredora account to manage evidence and view skill analytics." />
+  <link rel="icon" type="image/svg+xml" href="/kredora-logo.svg" />
+  <link rel="alternate icon" href="/kredora-logo.png" type="image/png" />
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -17,23 +19,31 @@
       theme: {
         extend: {
           colors: {
-            base: "#0a0f1c",
-            surface: "#131a2b",
-            surface2: "#1a2338",
-            borderc: "#232d44",
-            ink: "#e9ecf4",
-            inkdim: "#8b93a9",
+            base: "#080c16",
+            surface: "#101627",
+            surface2: "#182136",
+            borderc: "#232e48",
+            ink: "#f0f4fc",
+            inkdim: "#8e99b2",
+            brand: {
+              DEFAULT: "#E50926",
+              bright: "#ff334c",
+              hover: "#d7001c",
+              dim: "#990819",
+              glow: "rgba(229, 9, 38, 0.35)",
+            },
             gold: {
-              DEFAULT: "#f2b544",
-              dim: "#a9863a",
+              DEFAULT: "#E50926",
+              dim: "#990819",
+              bright: "#ff334c",
             },
             cyan: {
-              DEFAULT: "#4cc9e8",
+              DEFAULT: "#38bdf8",
             },
           },
           fontFamily: {
-            display: ['"Space Grotesk"', "Inter", "sans-serif"],
-            sans: ["Inter", "ui-sans-serif", "sans-serif"],
+            display: ['"Outfit"', "ui-sans-serif", "sans-serif"],
+            sans: ['"Outfit"', "ui-sans-serif", "sans-serif"],
             mono: ['"JetBrains Mono"', "ui-monospace", "monospace"],
           },
         },
@@ -43,39 +53,39 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 
-<body class="min-h-screen bg-base text-ink flex flex-col justify-between antialiased">
+<body class="min-h-screen bg-base text-ink flex flex-col justify-between antialiased relative overflow-x-hidden">
+  <!-- Ambient backdrop blur orb -->
+  <div class="fixed top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-brand/12 rounded-full blur-[140px] pointer-events-none -z-10"></div>
 
   <!-- Top bar with Back to Home -->
-  <header class="w-full px-6 py-5 border-b border-white/5">
+  <header class="w-full px-6 py-5 border-b border-white/10 bg-[#080c16]/70 backdrop-blur-xl">
     <div class="max-w-6xl mx-auto flex items-center justify-between">
-      <a href="index.html" class="flex items-center gap-2 group text-sm text-inkdim hover:text-ink transition-colors">
+      <a href="index.html" class="flex items-center gap-2 group text-sm text-inkdim hover:text-white transition-colors">
         <svg class="w-4 h-4 transition-transform group-hover:-translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-        <span>Back to SkillProof</span>
+        <span>Back to Kredora</span>
       </a>
 
       <div class="flex items-center gap-3 text-xs text-inkdim font-mono">
         <span>Need an account?</span>
-        <a href="signup.html" class="text-gold hover:underline font-semibold">Sign up →</a>
+        <a href="signup.html" class="text-brand-bright hover:underline font-semibold">Sign up →</a>
       </div>
     </div>
   </header>
 
   <!-- Main Login Container -->
-  <main class="flex-1 flex items-center justify-center px-5 py-12">
+  <main class="flex-1 flex items-center justify-center px-5 py-12 relative z-10">
     <div class="w-full max-w-md">
 
       <!-- Brand Logo -->
       <div class="text-center mb-8">
-        <a href="index.html" class="inline-flex items-center gap-2.5 group">
-          <span class="grid place-items-center w-9 h-9 rounded-xl bg-gradient-to-br from-gold to-amber-600 text-base font-display font-bold text-sm">
-            SP
-          </span>
-          <span class="font-display font-semibold text-2xl tracking-tight text-white">SkillProof</span>
+        <a href="index.html" class="inline-flex items-center gap-3 group">
+          <img src="/kredora-logo.svg" alt="Kredora Logo" class="h-8 w-auto object-contain rounded transition-transform group-hover:scale-105" />
+          <span class="font-display font-bold text-2xl tracking-tight text-white">Kredora</span>
         </a>
       </div>
 
       <!-- Auth Card -->
-      <div class="glass-card rounded-3xl p-8 sm:p-9 shadow-2xl relative overflow-hidden border border-borderc">
+      <div class="glass-card rounded-3xl p-8 sm:p-9 shadow-2xl relative overflow-hidden border border-white/10 backdrop-blur-2xl bg-surface/75">
 
         <!-- Header -->
         <div class="text-center mb-7">
@@ -96,7 +106,7 @@
           <button
             type="button"
             id="fillDemoBtn"
-            class="text-xs font-mono px-3 py-1.5 rounded-lg bg-gold/15 text-gold border border-gold/30 hover:bg-gold hover:text-base transition-colors font-medium">
+            class="text-xs font-mono px-3 py-1.5 rounded-lg bg-brand/15 text-brand-bright border border-brand/30 hover:bg-brand hover:text-white transition-colors font-medium">
             1-Click Demo
           </button>
         </div>
@@ -115,7 +125,7 @@
                 required
                 autocomplete="username"
                 placeholder="e.g. naman"
-                class="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white text-sm outline-none transition focus:border-gold/70 focus:ring-1 focus:ring-gold/40">
+                class="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white text-sm outline-none transition focus:border-brand focus:ring-1 focus:ring-brand/40">
               <span class="absolute right-3.5 top-3.5 text-inkdim">
                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg>
               </span>
@@ -127,7 +137,7 @@
               <label for="loginPassword" class="text-xs font-mono uppercase tracking-wider text-inkdim">
                 Password
               </label>
-              <button type="button" id="forgotBtn" class="text-xs text-inkdim hover:text-gold transition-colors">
+              <button type="button" id="forgotBtn" class="text-xs text-inkdim hover:text-brand-bright transition-colors">
                 Forgot password?
               </button>
             </div>
@@ -138,7 +148,7 @@
                 required
                 autocomplete="current-password"
                 placeholder="••••••••"
-                class="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white text-sm outline-none transition focus:border-gold/70 focus:ring-1 focus:ring-gold/40 pr-10">
+                class="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white text-sm outline-none transition focus:border-brand focus:ring-1 focus:ring-brand/40 pr-10">
               <button
                 type="button"
                 id="togglePasswordBtn"
@@ -152,7 +162,7 @@
 
           <div class="flex items-center justify-between text-xs text-inkdim">
             <label class="flex items-center gap-2 cursor-pointer select-none">
-              <input type="checkbox" id="rememberMe" checked class="rounded border-white/20 bg-black/30 text-gold focus:ring-gold/30">
+              <input type="checkbox" id="rememberMe" checked class="rounded border-white/20 bg-black/30 text-brand focus:ring-brand/30">
               <span>Remember this session</span>
             </label>
           </div>
@@ -162,7 +172,7 @@
           <button
             type="submit"
             id="submitBtn"
-            class="w-full rounded-xl bg-gold py-3.5 text-sm font-semibold text-base transition hover:bg-amber-300 flex items-center justify-center gap-2 shadow-lg shadow-gold/10">
+            class="w-full rounded-xl bg-brand py-3.5 text-sm font-semibold text-white transition-all hover:bg-brand-hover hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2 shadow-lg shadow-brand/25">
             <span>Sign In</span>
             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </button>
@@ -172,7 +182,7 @@
         <!-- Seamless Switch to Sign Up -->
         <div class="mt-8 pt-6 border-t border-white/5 text-center text-sm text-inkdim">
           <span>Don't have an account?</span>
-          <a href="signup.html" class="text-gold font-semibold hover:underline ml-1">
+          <a href="signup.html" class="text-brand-bright font-semibold hover:underline ml-1">
             Create an account
           </a>
         </div>
@@ -190,7 +200,7 @@
 
   <!-- Footer -->
   <footer class="w-full px-6 py-4 text-center text-xs text-inkdim/60 border-t border-white/5">
-    © <span id="current-year"></span> SkillProof. All rights reserved.
+    © <span id="current-year"></span> Kredora. All rights reserved.
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

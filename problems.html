@@ -3,8 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Problem Set — SkillProof Coding Arena</title>
-  <meta name="description" content="Solve real coding problems, verify your skills with tests, and track your progress on SkillProof." />
+  <title>Problem Set — Kredora Coding Arena</title>
+  <meta name="description" content="Solve real coding problems, verify your skills with tests, and track your progress on Kredora." />
+  <link rel="icon" type="image/svg+xml" href="/kredora-logo.svg" />
+  <link rel="alternate icon" href="/kredora-logo.png" type="image/png" />
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -12,26 +14,34 @@
       theme: {
         extend: {
           colors: {
-            base: "#0a0f1c",
-            surface: "#131a2b",
-            surface2: "#1a2338",
-            borderc: "#232d44",
-            ink: "#e9ecf4",
-            inkdim: "#8b93a9",
+            base: "#080c16",
+            surface: "#101627",
+            surface2: "#182136",
+            borderc: "#232e48",
+            ink: "#f0f4fc",
+            inkdim: "#8e99b2",
+            brand: {
+              DEFAULT: "#E50926",
+              bright: "#ff334c",
+              hover: "#d7001c",
+              dim: "#990819",
+              glow: "rgba(229, 9, 38, 0.35)",
+            },
             gold: {
-              DEFAULT: "#f2b544",
-              dim: "#a9863a",
+              DEFAULT: "#E50926",
+              dim: "#990819",
+              bright: "#ff334c",
             },
             cyan: {
-              DEFAULT: "#4cc9e8",
+              DEFAULT: "#38bdf8",
             },
             easy: "#10b981",
             medium: "#f59e0b",
             hard: "#ef4444"
           },
           fontFamily: {
-            display: ['"Space Grotesk"', "Inter", "sans-serif"],
-            sans: ["Inter", "ui-sans-serif", "sans-serif"],
+            display: ['"Outfit"', "ui-sans-serif", "sans-serif"],
+            sans: ['"Outfit"', "ui-sans-serif", "sans-serif"],
             mono: ['"JetBrains Mono"', "ui-monospace", "monospace"],
           },
         },
@@ -41,7 +51,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -50,31 +60,34 @@
   <script src="js/problems-data.js"></script>
 </head>
 
-<body class="min-h-screen bg-[#0a0f1c] text-white flex flex-col">
+<body class="min-h-screen bg-base text-white flex flex-col relative overflow-x-hidden">
+  <!-- Ambient backdrop blur glow -->
+  <div class="fixed top-10 right-1/3 w-[500px] h-[300px] bg-brand/10 rounded-full blur-[130px] pointer-events-none -z-10"></div>
+  <div class="fixed bottom-10 left-10 w-[400px] h-[300px] bg-brand/5 rounded-full blur-[140px] pointer-events-none -z-10"></div>
 
   <!-- NAVBAR -->
-  <header class="sticky top-0 z-50 border-b border-white/10 bg-[#0a0f1c]/90 backdrop-blur-xl">
+  <header class="sticky top-0 z-50 border-b border-white/10 bg-[#080c16]/80 backdrop-blur-xl shadow-lg shadow-black/20">
     <div class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-      <a href="index.html" class="flex items-center gap-2.5 group">
-        <span class="grid place-items-center w-8 h-8 rounded-lg bg-gradient-to-br from-gold to-amber-600 text-black font-display font-bold text-xs">SP</span>
-        <span class="text-xl font-bold tracking-tight font-display">
-          Skill<span class="text-[#f2b544]">Proof</span>
+      <a href="index.html" class="flex items-center gap-3 group">
+        <img src="/kredora-logo.svg" alt="Kredora Logo" class="h-7 w-auto object-contain rounded transition-transform group-hover:scale-105" />
+        <span class="text-xl font-bold tracking-tight font-display text-white">
+          Kredora
         </span>
-        <span class="ml-2 px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-gold/10 text-gold border border-gold/20">
+        <span class="ml-1 px-2 py-0.5 rounded text-[11px] font-mono font-medium bg-brand/15 text-brand-bright border border-brand/30">
           Arena
         </span>
       </a>
 
       <nav class="hidden items-center gap-7 md:flex">
-        <a href="dashboard.html" class="text-sm text-white/60 transition hover:text-white">Dashboard</a>
-        <a href="problems.html" class="text-sm text-gold font-semibold transition">Problems</a>
-        <a href="evidence.html" class="text-sm text-white/60 transition hover:text-white">Evidence</a>
-        <a href="profile.html" class="text-sm text-white/60 transition hover:text-white">Profile</a>
+        <a href="dashboard.html" class="text-sm text-inkdim transition hover:text-white">Dashboard</a>
+        <a href="problems.html" class="text-sm text-brand-bright font-semibold transition">Problems</a>
+        <a href="evidence.html" class="text-sm text-inkdim transition hover:text-white">Evidence</a>
+        <a href="profile.html" class="text-sm text-inkdim transition hover:text-white">Profile</a>
       </nav>
 
       <div class="flex items-center gap-3">
-        <button id="pickRandomBtn" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-white/15 bg-white/5 text-xs font-mono hover:bg-white/10 transition">
-          <svg class="w-3.5 h-3.5 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <button id="pickRandomBtn" class="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-white/15 bg-white/5 backdrop-blur-md text-xs font-mono hover:bg-white/10 hover:border-brand/40 transition">
+          <svg class="w-3.5 h-3.5 text-brand-bright" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
           </svg>
           Pick Random
@@ -260,7 +273,7 @@
 
   <!-- FOOTER -->
   <footer class="mt-auto border-t border-white/10 py-6 text-center text-xs text-white/40 font-mono">
-    SkillProof Verified Coding Arena · All submissions evaluated against unit tests in browser
+    Kredora Verified Coding Arena · All submissions evaluated against unit tests in browser
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

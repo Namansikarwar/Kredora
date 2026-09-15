@@ -3,13 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Create Account — SkillProof</title>
-  <meta name="description" content="Create your SkillProof account to start turning coding achievements into verified skill evidence." />
+  <title>Create Account — Kredora</title>
+  <meta name="description" content="Create your Kredora account to start turning coding achievements into verified skill evidence." />
+  <link rel="icon" type="image/svg+xml" href="/kredora-logo.svg" />
+  <link rel="alternate icon" href="/kredora-logo.png" type="image/png" />
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -17,23 +19,31 @@
       theme: {
         extend: {
           colors: {
-            base: "#0a0f1c",
-            surface: "#131a2b",
-            surface2: "#1a2338",
-            borderc: "#232d44",
-            ink: "#e9ecf4",
-            inkdim: "#8b93a9",
+            base: "#080c16",
+            surface: "#101627",
+            surface2: "#182136",
+            borderc: "#232e48",
+            ink: "#f0f4fc",
+            inkdim: "#8e99b2",
+            brand: {
+              DEFAULT: "#E50926",
+              bright: "#ff334c",
+              hover: "#d7001c",
+              dim: "#990819",
+              glow: "rgba(229, 9, 38, 0.35)",
+            },
             gold: {
-              DEFAULT: "#f2b544",
-              dim: "#a9863a",
+              DEFAULT: "#E50926",
+              dim: "#990819",
+              bright: "#ff334c",
             },
             cyan: {
-              DEFAULT: "#4cc9e8",
+              DEFAULT: "#38bdf8",
             },
           },
           fontFamily: {
-            display: ['"Space Grotesk"', "Inter", "sans-serif"],
-            sans: ["Inter", "ui-sans-serif", "sans-serif"],
+            display: ['"Outfit"', "ui-sans-serif", "sans-serif"],
+            sans: ['"Outfit"', "ui-sans-serif", "sans-serif"],
             mono: ['"JetBrains Mono"', "ui-monospace", "monospace"],
           },
         },
@@ -43,39 +53,39 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 
-<body class="min-h-screen bg-base text-ink flex flex-col justify-between antialiased">
+<body class="min-h-screen bg-base text-ink flex flex-col justify-between antialiased relative overflow-x-hidden">
+  <!-- Ambient backdrop blur orb -->
+  <div class="fixed top-1/4 left-1/2 -translate-x-1/2 w-[650px] h-[450px] bg-brand/12 rounded-full blur-[140px] pointer-events-none -z-10"></div>
 
   <!-- Top bar with Back to Home -->
-  <header class="w-full px-6 py-5 border-b border-white/5">
+  <header class="w-full px-6 py-5 border-b border-white/10 bg-[#080c16]/70 backdrop-blur-xl">
     <div class="max-w-6xl mx-auto flex items-center justify-between">
-      <a href="index.html" class="flex items-center gap-2 group text-sm text-inkdim hover:text-ink transition-colors">
+      <a href="index.html" class="flex items-center gap-2 group text-sm text-inkdim hover:text-white transition-colors">
         <svg class="w-4 h-4 transition-transform group-hover:-translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-        <span>Back to SkillProof</span>
+        <span>Back to Kredora</span>
       </a>
 
       <div class="flex items-center gap-3 text-xs text-inkdim font-mono">
         <span>Already have an account?</span>
-        <a href="login.html" class="text-gold hover:underline font-semibold">Log in →</a>
+        <a href="login.html" class="text-brand-bright hover:underline font-semibold">Log in →</a>
       </div>
     </div>
   </header>
 
   <!-- Main Sign Up Container -->
-  <main class="flex-1 flex items-center justify-center px-5 py-10">
+  <main class="flex-1 flex items-center justify-center px-5 py-10 relative z-10">
     <div class="w-full max-w-lg">
 
       <!-- Brand Logo -->
       <div class="text-center mb-6">
-        <a href="index.html" class="inline-flex items-center gap-2.5 group">
-          <span class="grid place-items-center w-9 h-9 rounded-xl bg-gradient-to-br from-gold to-amber-600 text-base font-display font-bold text-sm">
-            SP
-          </span>
-          <span class="font-display font-semibold text-2xl tracking-tight text-white">SkillProof</span>
+        <a href="index.html" class="inline-flex items-center gap-3 group">
+          <img src="/kredora-logo.svg" alt="Kredora Logo" class="h-8 w-auto object-contain rounded transition-transform group-hover:scale-105" />
+          <span class="font-display font-bold text-2xl tracking-tight text-white">Kredora</span>
         </a>
       </div>
 
       <!-- Auth Card -->
-      <div class="glass-card rounded-3xl p-8 sm:p-9 shadow-2xl relative overflow-hidden border border-borderc">
+      <div class="glass-card rounded-3xl p-8 sm:p-9 shadow-2xl relative overflow-hidden border border-white/10 backdrop-blur-2xl bg-surface/75">
 
         <!-- Header -->
         <div class="text-center mb-7">
@@ -223,7 +233,7 @@
 
   <!-- Footer -->
   <footer class="w-full px-6 py-4 text-center text-xs text-inkdim/60 border-t border-white/5">
-    © <span id="current-year"></span> SkillProof. All rights reserved.
+    © <span id="current-year"></span> Kredora. All rights reserved.
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

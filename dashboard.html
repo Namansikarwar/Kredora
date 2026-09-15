@@ -3,13 +3,15 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Dashboard — SkillProof</title>
-<meta name="description" content="Your SkillProof dashboard: overall skill score, evidence graph, and per-skill breakdowns backed by real evidence." />
+<title>Dashboard — Kredora</title>
+<meta name="description" content="Your Kredora dashboard: overall skill score, evidence graph, and per-skill breakdowns backed by real evidence." />
+<link rel="icon" type="image/svg+xml" href="/kredora-logo.svg" />
+<link rel="alternate icon" href="/kredora-logo.png" type="image/png" />
 
 <!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
 
 <!-- Tailwind -->
 <script src="https://cdn.tailwindcss.com"></script>
@@ -18,23 +20,31 @@
     theme: {
       extend: {
         colors: {
-          base: "#0a0f1c",
-          surface: "#131a2b",
-          surface2: "#1a2338",
-          borderc: "#232d44",
-          ink: "#e9ecf4",
-          inkdim: "#8b93a9",
+          base: "#080c16",
+          surface: "#101627",
+          surface2: "#182136",
+          borderc: "#232e48",
+          ink: "#f0f4fc",
+          inkdim: "#8e99b2",
+          brand: {
+            DEFAULT: "#E50926",
+            bright: "#ff334c",
+            hover: "#d7001c",
+            dim: "#990819",
+            glow: "rgba(229, 9, 38, 0.35)",
+          },
           gold: {
-            DEFAULT: "#f2b544",
-            dim: "#a9863a",
+            DEFAULT: "#E50926",
+            dim: "#990819",
+            bright: "#ff334c",
           },
           cyan: {
-            DEFAULT: "#4cc9e8",
+            DEFAULT: "#38bdf8",
           },
         },
         fontFamily: {
-          display: ['"Space Grotesk"', "Inter", "sans-serif"],
-          sans: ["Inter", "ui-sans-serif", "sans-serif"],
+          display: ['"Outfit"', "ui-sans-serif", "sans-serif"],
+          sans: ['"Outfit"', "ui-sans-serif", "sans-serif"],
           mono: ['"JetBrains Mono"', "ui-monospace", "monospace"],
         },
       },
@@ -56,31 +66,32 @@
 </script>
 </head>
 
-<body class="bg-base text-ink antialiased">
+<body class="bg-base text-ink antialiased relative overflow-x-hidden">
+  <!-- Ambient backdrop blur orb -->
+  <div class="fixed top-12 right-1/4 w-[500px] h-[320px] bg-brand/10 rounded-full blur-[130px] pointer-events-none -z-10"></div>
+  <div class="fixed bottom-20 left-10 w-[420px] h-[300px] bg-brand/5 rounded-full blur-[140px] pointer-events-none -z-10"></div>
 
   <!-- ============ NAV ============ -->
-  <header class="fixed top-0 inset-x-0 z-50 border-b border-white/5 bg-base/80 backdrop-blur-md">
+  <header class="fixed top-0 inset-x-0 z-50 border-b border-white/10 bg-[#080c16]/80 backdrop-blur-xl shadow-lg shadow-black/20">
     <div class="max-w-7xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
 
-      <a href="index.html" class="flex items-center gap-2.5 group">
-        <span class="grid place-items-center w-8 h-8 rounded-lg bg-gradient-to-br from-gold to-amber-600 text-base font-display font-bold text-[13px]">
-          SP
-        </span>
-        <span class="font-display font-semibold text-[17px] tracking-tight text-white">SkillProof</span>
+      <a href="index.html" class="flex items-center gap-3 group">
+        <img src="/kredora-logo.svg" alt="Kredora Logo" class="h-7 w-auto object-contain rounded transition-transform group-hover:scale-105" />
+        <span class="font-display font-bold text-xl tracking-tight text-white">Kredora</span>
       </a>
 
       <nav class="hidden md:flex items-center gap-8 text-sm text-inkdim">
-        <a href="dashboard.html" class="nav-link text-ink font-medium">Dashboard</a>
+        <a href="dashboard.html" class="nav-link text-white font-semibold">Dashboard</a>
         <a href="problems.html" class="nav-link hover:text-ink transition-colors flex items-center gap-1.5">
           <span>Problems</span>
-          <span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-gold/15 text-gold border border-gold/30">Arena</span>
+          <span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-brand/15 text-brand-bright border border-brand/30">Arena</span>
         </a>
         <a href="evidence.html" class="nav-link hover:text-ink transition-colors">Evidence</a>
         <a href="profile.html" class="nav-link hover:text-ink transition-colors">Public profile</a>
       </nav>
 
       <div class="hidden md:flex items-center gap-4">
-        <a href="evidence.html" class="inline-flex items-center gap-1.5 text-sm font-medium bg-gold text-base px-4 py-2 rounded-full hover:bg-amber-300 transition-colors">
+        <a href="evidence.html" class="inline-flex items-center gap-1.5 text-sm font-medium bg-brand text-white px-4 py-2 rounded-full hover:bg-brand-hover shadow-md shadow-brand/25 transition-all hover:scale-105">
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
           Add Evidence
         </a>
@@ -98,18 +109,18 @@
       </button>
     </div>
 
-    <!-- Mobile menu -->
-    <div id="mobile-menu" class="md:hidden border-t border-white/5 bg-base">
+    <!-- Mobile menu with rich backdrop blur -->
+    <div id="mobile-menu" class="md:hidden border-t border-white/10 bg-[#080c16]/95 backdrop-blur-2xl">
       <div class="px-5 py-4 flex flex-col gap-1 text-sm">
-        <a href="dashboard.html" class="py-2.5 text-ink font-semibold">Dashboard</a>
+        <a href="dashboard.html" class="py-2.5 text-white font-semibold">Dashboard</a>
         <a href="problems.html" class="py-2.5 text-inkdim hover:text-ink flex items-center justify-between">
           <span>Problems (Arena)</span>
-          <span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-gold/15 text-gold">Code</span>
+          <span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-brand/15 text-brand-bright">Code</span>
         </a>
         <a href="evidence.html" class="py-2.5 text-inkdim hover:text-ink">Evidence</a>
         <a href="profile.html" class="py-2.5 text-inkdim hover:text-ink">Public profile</a>
         <div class="h-px bg-white/5 my-2"></div>
-        <a href="evidence.html" class="text-center font-medium bg-gold text-base px-4 py-2.5 rounded-full mb-2">Add Evidence</a>
+        <a href="evidence.html" class="text-center font-medium bg-brand text-white px-4 py-2.5 rounded-full mb-2 shadow-md shadow-brand/20">Add Evidence</a>
         <div data-mobile-auth-nav></div>
       </div>
     </div>
@@ -131,7 +142,7 @@
           <p class="mt-2 text-inkdim">Your skills, backed by evidence — not by how you describe yourself.</p>
         </div>
         <div class="flex items-center gap-3">
-          <a href="evidence.html" class="inline-flex items-center gap-2 bg-gold text-base font-medium px-5 py-3 rounded-full hover:bg-amber-300 transition-colors shrink-0">
+          <a href="evidence.html" class="inline-flex items-center gap-2 bg-brand text-white font-medium px-5 py-3 rounded-full hover:bg-brand-hover shadow-md shadow-brand/25 transition-all hover:scale-105 shrink-0">
             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
             Add Evidence
           </a>
@@ -447,8 +458,8 @@
     <div class="max-w-7xl mx-auto grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
       <div>
         <div class="flex items-center gap-2.5 mb-4">
-          <span class="grid place-items-center w-7 h-7 rounded-lg bg-gradient-to-br from-gold to-amber-600 text-base font-display font-bold text-[12px]">SP</span>
-          <span class="font-display font-semibold text-ink">SkillProof</span>
+          <img src="/kredora-logo.svg" alt="Kredora Logo" class="h-6 w-auto object-contain rounded" />
+          <span class="font-display font-semibold text-ink">Kredora</span>
         </div>
         <p class="text-sm text-inkdim leading-relaxed max-w-[220px]">Don't just claim a skill. Prove it.</p>
       </div>
@@ -484,7 +495,7 @@
     </div>
 
     <div class="max-w-7xl mx-auto mt-12 pt-6 border-t border-white/5 text-xs text-inkdim flex flex-col sm:flex-row gap-2 justify-between">
-      <p>© <span id="current-year"></span> SkillProof. All rights reserved.</p>
+      <p>© <span id="current-year"></span> Kredora. All rights reserved.</p>
       <p>Secure evidence verification dashboard.</p>
     </div>
   </footer>

@@ -3,8 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Problem Workspace — SkillProof Coding Arena</title>
-  <meta name="description" content="Solve algorithmic challenges, run test cases, and submit verified code on SkillProof." />
+  <title>Problem Workspace — Kredora Coding Arena</title>
+  <meta name="description" content="Solve algorithmic challenges, run test cases, and submit verified code on Kredora." />
+  <link rel="icon" type="image/svg+xml" href="/kredora-logo.svg" />
+  <link rel="alternate icon" href="/kredora-logo.png" type="image/png" />
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -12,26 +14,34 @@
       theme: {
         extend: {
           colors: {
-            base: "#0a0f1c",
-            surface: "#111827",
-            surface2: "#182234",
-            borderc: "#232d44",
-            ink: "#e9ecf4",
-            inkdim: "#8b93a9",
+            base: "#080c16",
+            surface: "#101627",
+            surface2: "#182136",
+            borderc: "#232e48",
+            ink: "#f0f4fc",
+            inkdim: "#8e99b2",
+            brand: {
+              DEFAULT: "#E50926",
+              bright: "#ff334c",
+              hover: "#d7001c",
+              dim: "#990819",
+              glow: "rgba(229, 9, 38, 0.35)",
+            },
             gold: {
-              DEFAULT: "#f2b544",
-              dim: "#a9863a",
+              DEFAULT: "#E50926",
+              dim: "#990819",
+              bright: "#ff334c",
             },
             cyan: {
-              DEFAULT: "#4cc9e8",
+              DEFAULT: "#38bdf8",
             },
             easy: "#10b981",
             medium: "#f59e0b",
             hard: "#ef4444"
           },
           fontFamily: {
-            display: ['"Space Grotesk"', "Inter", "sans-serif"],
-            sans: ["Inter", "ui-sans-serif", "sans-serif"],
+            display: ['"Outfit"', "ui-sans-serif", "sans-serif"],
+            sans: ['"Outfit"', "ui-sans-serif", "sans-serif"],
             mono: ['"JetBrains Mono"', "ui-monospace", "monospace"],
           },
         },
@@ -41,7 +51,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
@@ -79,8 +89,15 @@
 <body class="h-screen w-screen overflow-hidden bg-[#0a0f1c] text-white flex flex-col font-sans">
 
   <!-- TOP APP BAR -->
-  <header class="h-14 shrink-0 border-b border-white/10 bg-[#0d1322] px-4 flex items-center justify-between z-20">
+  <header class="h-14 shrink-0 border-b border-white/10 bg-[#080c16]/90 backdrop-blur-xl px-4 flex items-center justify-between z-20">
     <div class="flex items-center gap-3">
+      <a href="index.html" class="flex items-center gap-2 group mr-1 hover:opacity-90 transition" title="Kredora Home">
+        <img src="/kredora-logo.svg" alt="Kredora" class="h-6 w-auto object-contain rounded transition-transform group-hover:scale-105" />
+        <span class="font-display font-bold text-sm text-white tracking-tight hidden md:inline">Kredora</span>
+      </a>
+
+      <div class="h-4 w-px bg-white/10 hidden md:block"></div>
+
       <a href="problems.html" class="flex items-center gap-2 text-white/60 hover:text-white transition px-2 py-1 rounded-lg hover:bg-white/5" title="Back to Problem List">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -207,7 +224,7 @@
         <div id="contentEditorial" class="hidden space-y-4">
           <div class="border-b border-white/10 pb-3">
             <h2 class="text-lg font-bold font-display text-white">Solution Approach & Big-O Analysis</h2>
-            <p class="text-xs text-white/40 mt-1 font-mono">Official SkillProof Verified Reference</p>
+            <p class="text-xs text-white/40 mt-1 font-mono">Official Kredora Verified Reference</p>
           </div>
           <div id="editorialBody" class="space-y-4">
             <!-- Injected by JS -->
@@ -376,11 +393,11 @@
 
       <!-- Verified Evidence Card -->
       <div class="rounded-2xl border border-gold/30 bg-gold/5 p-4 text-left mb-6 flex items-start gap-3">
-        <div class="w-7 h-7 rounded-lg bg-gold/20 text-gold flex items-center justify-center shrink-0 mt-0.5 font-bold text-xs">
-          SP
+        <div class="w-7 h-7 rounded-lg overflow-hidden shrink-0 mt-0.5 flex items-center justify-center">
+          <img src="/kredora-logo.svg" alt="Kredora" class="w-full h-full object-contain" />
         </div>
         <div>
-          <span class="font-display font-semibold text-xs text-gold block">SkillProof Verified Evidence Added</span>
+          <span class="font-display font-semibold text-xs text-gold block">Kredora Verified Evidence Added</span>
           <p class="text-[11px] text-white/60 mt-0.5">
             This solution was validated against full unit test suites and registered to your verified skill portfolio.
           </p>
@@ -592,7 +609,7 @@ create policy "Allow upsert user progress" on public.user_progress for all using
         history.replaceState(null, "", `problem.html?id=${prob.id}`);
 
         // Title and header
-        document.title = `${prob.number}. ${prob.title} — SkillProof Arena`;
+        document.title = `${prob.number}. ${prob.title} — Kredora Arena`;
         document.getElementById("problemNumberDisplay").textContent = `#${prob.number}`;
         document.getElementById("problemTitleHeader").textContent = prob.title;
 
