@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Problem Workspace — Kredora Coding Arena</title>
   <meta name="description" content="Solve algorithmic challenges, run test cases, and submit verified code on Kredora." />
-  <link rel="icon" type="image/svg+xml" href="/kredora-logo.svg" />
-  <link rel="alternate icon" href="/kredora-logo.png" type="image/png" />
+  <link rel="icon" type="image/svg+xml" href="kredora-logo.svg" />
+  <link rel="alternate icon" href="kredora-logo.png" type="image/png" />
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -92,7 +92,19 @@
   <header class="h-14 shrink-0 border-b border-white/10 bg-[#080c16]/90 backdrop-blur-xl px-4 flex items-center justify-between z-20">
     <div class="flex items-center gap-3">
       <a href="index.html" class="flex items-center gap-2 group mr-1 hover:opacity-90 transition" title="Kredora Home">
-        <img src="/kredora-logo.svg" alt="Kredora" class="h-6 w-auto object-contain rounded transition-transform group-hover:scale-105" />
+        <svg class="h-6 w-auto transition-transform group-hover:scale-105 shrink-0" viewBox="0 0 240 150" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Kredora Logo">
+          <defs>
+            <linearGradient id="kredora-logo-grad-prob-nav" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#FF243C" />
+              <stop offset="100%" stop-color="#D7001C" />
+            </linearGradient>
+          </defs>
+          <g fill="url(#kredora-logo-grad-prob-nav)">
+            <path d="M 4,0 L 108,0 C 90,32 52,65 0,68 L 0,4 C 0,1.8 1.8,0 4,0 Z" />
+            <path d="M 0,82 C 52,85 90,118 108,150 L 4,150 C 1.8,150 0,148.2 0,146 L 0,82 Z" />
+            <path d="M 138,0 L 236,0 C 238.2,0 240,1.8 240,4 L 240,146 C 240,148.2 238.2,150 236,150 L 138,150 C 122,125 102,96 86,75 C 102,54 122,25 138,0 Z" />
+          </g>
+        </svg>
         <span class="font-display font-bold text-sm text-white tracking-tight hidden md:inline">Kredora</span>
       </a>
 

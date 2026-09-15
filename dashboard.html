@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Dashboard — Kredora</title>
 <meta name="description" content="Your Kredora dashboard: overall skill score, evidence graph, and per-skill breakdowns backed by real evidence." />
-<link rel="icon" type="image/svg+xml" href="/kredora-logo.svg" />
-<link rel="alternate icon" href="/kredora-logo.png" type="image/png" />
+<link rel="icon" type="image/svg+xml" href="kredora-logo.svg" />
+<link rel="alternate icon" href="kredora-logo.png" type="image/png" />
 
 <!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -75,8 +75,20 @@
   <header class="fixed top-0 inset-x-0 z-50 border-b border-white/10 bg-[#080c16]/80 backdrop-blur-xl shadow-lg shadow-black/20">
     <div class="max-w-7xl mx-auto px-5 sm:px-8 h-16 flex items-center justify-between">
 
-      <a href="index.html" class="flex items-center gap-3 group">
-        <img src="/kredora-logo.svg" alt="Kredora Logo" class="h-7 w-auto object-contain rounded transition-transform group-hover:scale-105" />
+      <a href="index.html" class="flex items-center gap-2.5 group">
+        <svg class="h-7 w-auto transition-transform group-hover:scale-105 shrink-0" viewBox="0 0 240 150" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Kredora Logo">
+          <defs>
+            <linearGradient id="kredora-logo-grad-dash-nav" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#FF243C" />
+              <stop offset="100%" stop-color="#D7001C" />
+            </linearGradient>
+          </defs>
+          <g fill="url(#kredora-logo-grad-dash-nav)">
+            <path d="M 4,0 L 108,0 C 90,32 52,65 0,68 L 0,4 C 0,1.8 1.8,0 4,0 Z" />
+            <path d="M 0,82 C 52,85 90,118 108,150 L 4,150 C 1.8,150 0,148.2 0,146 L 0,82 Z" />
+            <path d="M 138,0 L 236,0 C 238.2,0 240,1.8 240,4 L 240,146 C 240,148.2 238.2,150 236,150 L 138,150 C 122,125 102,96 86,75 C 102,54 122,25 138,0 Z" />
+          </g>
+        </svg>
         <span class="font-display font-bold text-xl tracking-tight text-white">Kredora</span>
       </a>
 
@@ -458,7 +470,19 @@
     <div class="max-w-7xl mx-auto grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
       <div>
         <div class="flex items-center gap-2.5 mb-4">
-          <img src="/kredora-logo.svg" alt="Kredora Logo" class="h-6 w-auto object-contain rounded" />
+          <svg class="h-6 w-auto shrink-0" viewBox="0 0 240 150" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Kredora">
+            <defs>
+              <linearGradient id="kredora-logo-grad-dash-ftr" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FF243C" />
+                <stop offset="100%" stop-color="#D7001C" />
+              </linearGradient>
+            </defs>
+            <g fill="url(#kredora-logo-grad-dash-ftr)">
+              <path d="M 4,0 L 108,0 C 90,32 52,65 0,68 L 0,4 C 0,1.8 1.8,0 4,0 Z" />
+              <path d="M 0,82 C 52,85 90,118 108,150 L 4,150 C 1.8,150 0,148.2 0,146 L 0,82 Z" />
+              <path d="M 138,0 L 236,0 C 238.2,0 240,1.8 240,4 L 240,146 C 240,148.2 238.2,150 236,150 L 138,150 C 122,125 102,96 86,75 C 102,54 122,25 138,0 Z" />
+            </g>
+          </svg>
           <span class="font-display font-semibold text-ink">Kredora</span>
         </div>
         <p class="text-sm text-inkdim leading-relaxed max-w-[220px]">Don't just claim a skill. Prove it.</p>
