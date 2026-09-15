@@ -1,6 +1,10 @@
 /**
  * SkillProof Coding Arena — Problems Dataset & Progress Tracker
  * Full LeetCode / HackerRank style problem specifications with verified test suites.
+ *
+ * All problems provide clean, unsolved starter code skeletons.
+ * Users write their own solution and submit to verify against test cases.
+ * Reference solutions are stored in solutionCode and displayed in the Editorial tab.
  */
 
 const CODING_PROBLEMS = [
@@ -48,7 +52,21 @@ const CODING_PROBLEMS = [
  * @return {number[]}
  */
 function twoSum(nums, target) {
-  // Your code here
+  // Write your code here
+  
+}`,
+      python: `def twoSum(nums: list[int], target: int) -> list[int]:
+    # Write your solution here
+    pass`,
+      java: `class Solution {
+    public int[] twoSum(int[] nums, int target) {
+        // Write your solution here
+        return new int[0];
+    }
+}`
+    },
+    solutionCode: {
+      javascript: `function twoSum(nums, target) {
   const map = new Map();
   for (let i = 0; i < nums.length; i++) {
     const complement = target - nums[i];
@@ -60,7 +78,6 @@ function twoSum(nums, target) {
   return [];
 }`,
       python: `def twoSum(nums: list[int], target: int) -> list[int]:
-    # Write your solution here
     seen = {}
     for i, num in enumerate(nums):
         complement = target - num
@@ -130,7 +147,7 @@ function twoSum(nums, target) {
       {
         input: 's = " "',
         output: "true",
-        explanation: "s is an empty string \"\" after removing non-alphanumeric characters. Since an empty string reads the same forward and backward, it is a palindrome."
+        explanation: "s is an empty string after removing non-alphanumeric characters. Since an empty string reads the same forward and backward, it is a palindrome."
       }
     ],
     constraints: [
@@ -144,7 +161,21 @@ function twoSum(nums, target) {
  * @return {boolean}
  */
 function isPalindrome(s) {
-  // Your code here
+  // Write your code here
+  
+}`,
+      python: `def isPalindrome(s: str) -> bool:
+    # Write your solution here
+    pass`,
+      java: `class Solution {
+    public boolean isPalindrome(String s) {
+        // Write your solution here
+        return false;
+    }
+}`
+    },
+    solutionCode: {
+      javascript: `function isPalindrome(s) {
   const cleaned = s.toLowerCase().replace(/[^a-z0-9]/g, '');
   let left = 0;
   let right = cleaned.length - 1;
@@ -227,7 +258,21 @@ function isPalindrome(s) {
  * @return {boolean}
  */
 function isValid(s) {
-  // Your code here
+  // Write your code here
+  
+}`,
+      python: `def isValid(s: str) -> bool:
+    # Write your solution here
+    pass`,
+      java: `class Solution {
+    public boolean isValid(String s) {
+        // Write your solution here
+        return false;
+    }
+}`
+    },
+    solutionCode: {
+      javascript: `function isValid(s) {
   const stack = [];
   const map = { ')': '(', '}': '{', ']': '[' };
   for (let ch of s) {
@@ -326,15 +371,27 @@ function isValid(s) {
  * @return {number}
  */
 function maxSubArray(nums) {
-  // Your code here (Kadane's Algorithm)
+  // Write your code here (Kadane's Algorithm)
+  
+}`,
+      python: `def maxSubArray(nums: list[int]) -> int:
+    # Write your solution here
+    pass`,
+      java: `class Solution {
+    public int maxSubArray(int[] nums) {
+        // Write your solution here
+        return 0;
+    }
+}`
+    },
+    solutionCode: {
+      javascript: `function maxSubArray(nums) {
   let maxSoFar = nums[0];
   let currentMax = nums[0];
-
   for (let i = 1; i < nums.length; i++) {
     currentMax = Math.max(nums[i], currentMax + nums[i]);
     maxSoFar = Math.max(maxSoFar, currentMax);
   }
-
   return maxSoFar;
 }`,
       python: `def maxSubArray(nums: list[int]) -> int:
@@ -411,23 +468,34 @@ function maxSubArray(nums) {
  * @return {number}
  */
 function maxArea(height) {
-  // Your code here
+  // Write your code here
+  
+}`,
+      python: `def maxArea(height: list[int]) -> int:
+    # Write your solution here
+    pass`,
+      java: `class Solution {
+    public int maxArea(int[] height) {
+        // Write your solution here
+        return 0;
+    }
+}`
+    },
+    solutionCode: {
+      javascript: `function maxArea(height) {
   let left = 0;
   let right = height.length - 1;
   let max = 0;
-
   while (left < right) {
     const w = right - left;
     const h = Math.min(height[left], height[right]);
     max = Math.max(max, w * h);
-
     if (height[left] < height[right]) {
       left++;
     } else {
       right--;
     }
   }
-
   return max;
 }`,
       python: `def maxArea(height: list[int]) -> int:
@@ -512,11 +580,24 @@ function maxArea(height) {
  * @return {number}
  */
 function lengthOfLongestSubstring(s) {
-  // Your code here
+  // Write your code here
+  
+}`,
+      python: `def lengthOfLongestSubstring(s: str) -> int:
+    # Write your solution here
+    pass`,
+      java: `class Solution {
+    public int lengthOfLongestSubstring(String s) {
+        // Write your solution here
+        return 0;
+    }
+}`
+    },
+    solutionCode: {
+      javascript: `function lengthOfLongestSubstring(s) {
   const map = new Map();
   let maxLen = 0;
   let start = 0;
-
   for (let i = 0; i < s.length; i++) {
     const char = s[i];
     if (map.has(char) && map.get(char) >= start) {
@@ -525,7 +606,6 @@ function lengthOfLongestSubstring(s) {
     map.set(char, i);
     maxLen = Math.max(maxLen, i - start + 1);
   }
-
   return maxLen;
 }`,
       python: `def lengthOfLongestSubstring(s: str) -> int:
@@ -610,17 +690,29 @@ function lengthOfLongestSubstring(s) {
  * @return {number}
  */
 function climbStairs(n) {
-  // Your code here (Fibonacci recurrence)
+  // Write your code here
+  
+}`,
+      python: `def climbStairs(n: int) -> int:
+    # Write your solution here
+    pass`,
+      java: `class Solution {
+    public int climbStairs(int n) {
+        // Write your solution here
+        return 0;
+    }
+}`
+    },
+    solutionCode: {
+      javascript: `function climbStairs(n) {
   if (n <= 2) return n;
   let prev1 = 2;
   let prev2 = 1;
-
   for (let i = 3; i <= n; i++) {
     const current = prev1 + prev2;
     prev2 = prev1;
     prev1 = current;
   }
-
   return prev1;
 }`,
       python: `def climbStairs(n: int) -> int:
@@ -654,7 +746,7 @@ function climbStairs(n) {
     ],
     hints: [
       "To reach step n, you must take 1 step from n-1, or 2 steps from n-2.",
-      "Thus, ways(n) = ways(n-1) + ways(n-2). This is Fibonacci sequence."
+      "Thus, ways(n) = ways(n-1) + ways(n-2). This is the Fibonacci sequence."
     ],
     editorial: `
       <h3 class="font-display font-semibold text-base text-white mb-2">Bottom-Up Dynamic Programming</h3>
@@ -697,13 +789,26 @@ function climbStairs(n) {
  * @return {number}
  */
 function trap(height) {
-  // Two-pointer approach
+  // Write your code here
+  
+}`,
+      python: `def trap(height: list[int]) -> int:
+    # Write your solution here
+    pass`,
+      java: `class Solution {
+    public int trap(int[] height) {
+        // Write your solution here
+        return 0;
+    }
+}`
+    },
+    solutionCode: {
+      javascript: `function trap(height) {
   let left = 0;
   let right = height.length - 1;
   let leftMax = 0;
   let rightMax = 0;
   let totalWater = 0;
-
   while (left < right) {
     if (height[left] < height[right]) {
       if (height[left] >= leftMax) {
@@ -721,7 +826,6 @@ function trap(height) {
       right--;
     }
   }
-
   return totalWater;
 }`,
       python: `def trap(height: list[int]) -> int:
@@ -819,9 +923,23 @@ function trap(height) {
  * @return {number}
  */
 function search(nums, target) {
+  // Write your code here
+  
+}`,
+      python: `def search(nums: list[int], target: int) -> int:
+    # Write your solution here
+    pass`,
+      java: `class Solution {
+    public int search(int[] nums, int target) {
+        // Write your solution here
+        return -1;
+    }
+}`
+    },
+    solutionCode: {
+      javascript: `function search(nums, target) {
   let left = 0;
   let right = nums.length - 1;
-
   while (left <= right) {
     const mid = Math.floor(left + (right - left) / 2);
     if (nums[mid] === target) return mid;
@@ -831,7 +949,6 @@ function search(nums, target) {
       right = mid - 1;
     }
   }
-
   return -1;
 }`,
       python: `def search(nums: list[int], target: int) -> int:
@@ -919,9 +1036,23 @@ function search(nums, target) {
  * @return {number}
  */
 function coinChange(coins, amount) {
+  // Write your code here
+  
+}`,
+      python: `def coinChange(coins: list[int], amount: int) -> int:
+    # Write your solution here
+    pass`,
+      java: `class Solution {
+    public int coinChange(int[] coins, int amount) {
+        // Write your solution here
+        return -1;
+    }
+}`
+    },
+    solutionCode: {
+      javascript: `function coinChange(coins, amount) {
   const dp = new Array(amount + 1).fill(Infinity);
   dp[0] = 0;
-
   for (let i = 1; i <= amount; i++) {
     for (const coin of coins) {
       if (i - coin >= 0) {
@@ -929,7 +1060,6 @@ function coinChange(coins, amount) {
       }
     }
   }
-
   return dp[amount] === Infinity ? -1 : dp[amount];
 }`,
       python: `def coinChange(coins: list[int], amount: int) -> int:
@@ -978,7 +1108,7 @@ function coinChange(coins, amount) {
 
 /**
  * Progress Tracker: Manages user's solved questions, submission history,
- * streaks, and connects directly to SkillProof verified evidence ledger.
+ * streaks, and connects directly to SkillProof verified evidence ledger and Supabase database.
  */
 const ProgressTracker = {
   SOLVED_KEY: "skillproof_solved_problems",
@@ -986,29 +1116,9 @@ const ProgressTracker = {
   EVIDENCE_KEY: "skillproof_user_evidence",
 
   initDefaults() {
-    // Seed initial demo solved problem so new users immediately see progress
-    if (!localStorage.getItem(this.SOLVED_KEY)) {
-      const initialSolved = {
-        "two-sum": {
-          id: "two-sum",
-          title: "Two Sum",
-          difficulty: "Easy",
-          solvedAt: new Date(Date.now() - 2 * 24 * 3600 * 1000).toISOString(),
-          runtime: "52 ms",
-          memory: "42.1 MB",
-          language: "JavaScript"
-        },
-        "valid-palindrome": {
-          id: "valid-palindrome",
-          title: "Valid Palindrome",
-          difficulty: "Easy",
-          solvedAt: new Date(Date.now() - 4 * 24 * 3600 * 1000).toISOString(),
-          runtime: "64 ms",
-          memory: "44.2 MB",
-          language: "JavaScript"
-        }
-      };
-      localStorage.setItem(this.SOLVED_KEY, JSON.stringify(initialSolved));
+    // Start with empty clean slate so user solves problems themselves
+    if (localStorage.getItem(this.SOLVED_KEY) === null) {
+      localStorage.setItem(this.SOLVED_KEY, JSON.stringify({}));
     }
   },
 
@@ -1054,8 +1164,14 @@ const ProgressTracker = {
       timestamp: new Date().toISOString()
     });
 
-    // Automatically create verified SkillProof evidence record!
+    // Automatically create verified SkillProof evidence record
     this.logVerifiedSkillProofEvidence(problem, submission, wasAlreadySolved);
+
+    // Sync to Supabase if connected
+    if (window.SupabaseDB && typeof window.SupabaseDB.syncProgress === "function") {
+      const user = window.Auth?.getUser?.() || { email: "local_user" };
+      window.SupabaseDB.syncProgress(user.email, map);
+    }
 
     return { wasAlreadySolved };
   },
@@ -1069,6 +1185,22 @@ const ProgressTracker = {
       // Keep last 15 submissions per problem
       if (subs[problemId].length > 15) subs[problemId] = subs[problemId].slice(0, 15);
       localStorage.setItem(this.SUBMISSIONS_KEY, JSON.stringify(subs));
+
+      // Sync submission to Supabase if connected
+      if (window.SupabaseDB && typeof window.SupabaseDB.recordSubmission === "function") {
+        const user = window.Auth?.getUser?.() || { email: "local_user" };
+        window.SupabaseDB.recordSubmission({
+          problemId,
+          userId: user.email,
+          language: record.language || "JavaScript",
+          code: record.code || "",
+          status: record.status || "Completed",
+          runtime: record.runtime || "0 ms",
+          memory: record.memory || "0 MB",
+          passedTests: record.passedTests || 0,
+          totalTests: record.totalTests || 0
+        });
+      }
     } catch (e) {
       console.error("Failed to save submission:", e);
     }
@@ -1144,7 +1276,7 @@ const ProgressTracker = {
       easy: { solved: easySolved, total: easyTotal },
       medium: { solved: mediumSolved, total: mediumTotal },
       hard: { solved: hardSolved, total: hardTotal },
-      streakDays: Math.min(solvedTotal + 3, 14)
+      streakDays: solvedTotal > 0 ? Math.min(solvedTotal + 1, 14) : 0
     };
   }
 };

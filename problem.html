@@ -45,7 +45,9 @@
   <link rel="stylesheet" href="css/style.css">
 
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+  <script src="js/supabase.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/problems-data.js"></script>
   <script src="js/code-runner.js"></script>
@@ -108,11 +110,18 @@
       </div>
     </div>
 
-    <!-- Center Timer -->
-    <div class="hidden md:flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-1 font-mono text-xs text-white/70">
-      <svg class="w-3.5 h-3.5 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-      <span id="timerText">00:00</span>
-      <button id="timerToggleBtn" class="text-white/40 hover:text-white text-[10px] ml-1">Pause</button>
+    <!-- Center Timer & DB Indicator -->
+    <div class="flex items-center gap-2.5">
+      <div id="dbStatusPill" class="hidden xl:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl border border-white/10 bg-white/5 text-[11px] font-mono text-white/60">
+        <span id="dbStatusDot" class="w-1.5 h-1.5 rounded-full bg-cyan"></span>
+        <span id="dbStatusText">Local DB (Supabase Ready)</span>
+      </div>
+
+      <div class="hidden md:flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-1 font-mono text-xs text-white/70">
+        <svg class="w-3.5 h-3.5 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span id="timerText">00:00</span>
+        <button id="timerToggleBtn" class="text-white/40 hover:text-white text-[10px] ml-1">Pause</button>
+      </div>
     </div>
 
     <!-- Right Controls -->
@@ -395,6 +404,138 @@
     </div>
   </div>
 
+  <!-- Supabase Connection Modal -->
+  <div id="supabaseModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md hidden p-4">
+    <div class="w-full max-w-lg rounded-3xl border border-white/10 bg-[#0e1526] p-6 text-ink shadow-2xl relative">
+      <div class="flex items-center justify-between mb-4 pb-3 border-b border-white/10">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm">
+            ⚡
+          </div>
+          <div>
+            <h3 class="font-display font-bold text-white text-base">Supabase Database Integration</h3>
+            <p class="text-xs text-white/50">PostgreSQL Cloud Storage for Code Submissions & Progress</p>
+          </div>
+        </div>
+        <button id="closeSupabaseModalBtn" class="text-white/40 hover:text-white text-lg p-1">✕</button>
+      </div>
+
+      <!-- Live Status Banner -->
+      <div id="supabaseStatusBanner" class="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-3.5 mb-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span id="supabaseStatusDot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span id="supabaseStatusTitle" class="text-xs font-semibold text-emerald-300">Checking connection...</span>
+          </div>
+          <span id="supabaseModeBadge" class="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">Connected</span>
+        </div>
+        <div id="supabaseDiagnosticDetails" class="mt-2 text-[11px] text-white/70 font-mono space-y-1">
+          <div class="flex justify-between text-white/50">
+            <span>Project Host:</span>
+            <span id="diagProjectUrl" class="text-white/90">loading...</span>
+          </div>
+          <div class="flex justify-between text-white/50">
+            <span>API Latency:</span>
+            <span id="diagLatency" class="text-emerald-400">-- ms</span>
+          </div>
+          <div class="flex justify-between text-white/50">
+            <span>Table 'problem_submissions':</span>
+            <span id="diagTableSub" class="text-amber-400">Checking...</span>
+          </div>
+          <div class="flex justify-between text-white/50">
+            <span>Table 'user_progress':</span>
+            <span id="diagTableProg" class="text-amber-400">Checking...</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notice when tables need setup -->
+      <div id="supabaseTableNotice" class="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-3.5 mb-4 text-xs">
+        <div class="flex items-start gap-2.5">
+          <span class="text-base">⚡</span>
+          <div>
+            <span class="font-semibold text-amber-300 block">Supabase Connected & Authenticated!</span>
+            <p class="text-white/70 text-[11px] mt-0.5 leading-relaxed">
+              Your API key is active. To enable cloud persistence, run the SQL script below in your Supabase project's SQL Editor to create the tables and security policies.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Credentials Form -->
+      <div class="space-y-3 mb-4">
+        <div>
+          <label class="block text-xs font-medium text-white/70 mb-1">Supabase Project URL (VITE_SUPABASE_URL)</label>
+          <input id="inputSupabaseUrl" type="url" placeholder="https://your-project.supabase.co" class="w-full rounded-xl border border-white/10 bg-black/40 px-3.5 py-2 text-xs text-white font-mono placeholder:text-white/30 focus:outline-none focus:border-emerald-500/50" />
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-white/70 mb-1">Supabase Anon Public API Key (VITE_SUPABASE_ANON_KEY)</label>
+          <input id="inputSupabaseKey" type="password" placeholder="eyJhbGciOiJIUzI1NiIsIn..." class="w-full rounded-xl border border-white/10 bg-black/40 px-3.5 py-2 text-xs text-white font-mono placeholder:text-white/30 focus:outline-none focus:border-emerald-500/50" />
+        </div>
+      </div>
+
+      <!-- SQL Schema Reference with Copy Button -->
+      <div class="rounded-2xl border border-white/10 bg-black/30 p-3.5 text-xs mb-5">
+        <div class="flex items-center justify-between mb-2">
+          <span class="font-semibold text-white/80 flex items-center gap-1.5 text-xs font-display">
+            <span>📋</span> Supabase SQL Setup Script
+          </span>
+          <button id="copySqlBtn" type="button" class="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 border border-emerald-500/30 text-[11px] font-mono transition">
+            Copy SQL Script
+          </button>
+        </div>
+        <p class="text-[11px] text-white/40 mb-2 leading-relaxed">
+          Open Supabase Dashboard → SQL Editor → New Query, paste this script, and click "Run":
+        </p>
+        <pre class="p-2.5 rounded-xl bg-black/60 border border-white/5 font-mono text-[10px] text-cyan/90 max-h-36 overflow-y-auto selection:bg-cyan/20 leading-relaxed" id="sqlSchemaPreview">
+create table if not exists public.problem_submissions (
+  id uuid default gen_random_uuid() primary key,
+  problem_id text not null,
+  user_id text not null,
+  language text,
+  code text,
+  status text,
+  runtime text,
+  memory text,
+  passed_tests int,
+  total_tests int,
+  submitted_at timestamptz default now()
+);
+
+alter table public.problem_submissions enable row level security;
+
+create policy "Allow insert for submissions" on public.problem_submissions for insert with check (true);
+create policy "Allow select for submissions" on public.problem_submissions for select using (true);
+
+create table if not exists public.user_progress (
+  user_id text primary key,
+  solved_data jsonb default '{}'::jsonb,
+  updated_at timestamptz default now()
+);
+
+alter table public.user_progress enable row level security;
+
+create policy "Allow read user progress" on public.user_progress for select using (true);
+create policy "Allow upsert user progress" on public.user_progress for all using (true) with check (true);
+        </pre>
+      </div>
+
+      <div class="flex items-center justify-between gap-2.5 pt-2 border-t border-white/10">
+        <a id="openSupabaseLink" href="https://supabase.com/dashboard" target="_blank" rel="noopener noreferrer" class="text-xs text-white/50 hover:text-white underline">
+          Open Supabase Dashboard ↗
+        </a>
+        <div class="flex items-center gap-2">
+          <button id="testSupabaseBtn" class="px-3.5 py-2 rounded-xl border border-white/15 bg-white/5 text-xs text-white hover:bg-white/10 transition">
+            Test Connection
+          </button>
+          <button id="saveSupabaseBtn" class="px-4 py-2 rounded-xl bg-emerald-500 font-semibold text-xs text-black hover:bg-emerald-400 transition">
+            Save & Connect
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       const urlParams = new URLSearchParams(window.location.search);
@@ -513,13 +654,13 @@
           hintsContainer.innerHTML = "";
         }
 
-        // Editorial
-        document.getElementById("editorialBody").innerHTML = prob.editorial || "<p class='text-white/40'>Editorial not yet published.</p>";
+        // Editorial Tab with revealable reference solution
+        renderEditorialTab(prob);
 
         // Submissions
         renderSubmissionsTab();
 
-        // Code Editor starter
+        // Code Editor starter (clean skeleton, never solved code)
         const editor = document.getElementById("codeEditor");
         editor.value = prob.starterCode[currentLang] || prob.starterCode.javascript;
         updateLineNumbers();
@@ -531,6 +672,38 @@
         document.getElementById("resultsEmpty").classList.remove("hidden");
         document.getElementById("resultsContent").classList.add("hidden");
         document.getElementById("resultDot").classList.add("hidden");
+      }
+
+      function escapeHtml(str) {
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+      }
+
+      function renderEditorialTab(prob) {
+        const editorialContainer = document.getElementById("editorialBody");
+        const solution = (prob.solutionCode && (prob.solutionCode[currentLang] || prob.solutionCode.javascript)) || "";
+        
+        editorialContainer.innerHTML = `
+          <div>
+            ${prob.editorial || "<p class='text-white/40'>Editorial not yet published.</p>"}
+          </div>
+          <div class="mt-6 pt-4 border-t border-white/10">
+            <details class="group rounded-xl border border-white/10 bg-black/40 p-4 text-xs">
+              <summary class="cursor-pointer font-semibold text-gold/90 hover:text-gold flex items-center justify-between list-none">
+                <span class="flex items-center gap-2">
+                  <span>📖 Reveal Reference Solution (${currentLang.toUpperCase()})</span>
+                </span>
+                <span class="text-white/40 group-open:rotate-180 transition-transform">▼</span>
+              </summary>
+              <div class="mt-3 pt-3 border-t border-white/10">
+                <p class="text-[11px] text-white/50 mb-2">Try to solve the problem yourself first! Below is the official reference solution for study and comparison:</p>
+                <pre class="p-3 rounded-lg bg-[#0a0f1c] border border-white/10 font-mono text-[11px] text-emerald-300 overflow-x-auto"><code>${escapeHtml(solution)}</code></pre>
+              </div>
+            </details>
+          </div>
+        `;
       }
 
       function renderTestcaseTabs() {
@@ -588,6 +761,72 @@
             }
           });
         });
+      }
+
+      function escapeHtml(str) {
+        return String(str || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+      }
+
+      function renderEditorialTab(prob) {
+        const solution = (prob.solutionCode && (prob.solutionCode[currentLang] || prob.solutionCode.javascript)) || "";
+        const editorialContainer = document.getElementById("editorialBody");
+        
+        editorialContainer.innerHTML = `
+          ${prob.editorial || "<p class='text-white/40'>Editorial explanation not yet published.</p>"}
+
+          <div class="mt-6 pt-5 border-t border-white/10 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold uppercase tracking-wider text-gold flex items-center gap-1.5 font-display">
+                <span>💡</span> Reference Solution (${currentLang.toUpperCase()})
+              </span>
+              <button id="toggleSolutionBtn" type="button" class="text-xs text-white/80 hover:text-white px-2.5 py-1 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition font-mono">
+                Reveal Solution
+              </button>
+            </div>
+
+            <div id="solutionCodeDrawer" class="hidden space-y-2">
+              <div class="relative">
+                <pre class="bg-black/60 border border-white/10 rounded-xl p-4 text-xs font-mono text-ink/90 overflow-x-auto selection:bg-gold/20"><code>${escapeHtml(solution)}</code></pre>
+                <div class="absolute top-2.5 right-2.5 flex items-center gap-1.5">
+                  <button id="copySolutionBtn" type="button" class="px-2 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-[11px] text-white/90 font-mono transition">
+                    Copy
+                  </button>
+                </div>
+              </div>
+              <p class="text-[11px] text-white/40 italic">
+                Note: The coding workspace gives you a clean skeleton so you can solve it yourself and test your code upon submitting.
+              </p>
+            </div>
+          </div>
+        `;
+
+        const toggleBtn = document.getElementById("toggleSolutionBtn");
+        const drawer = document.getElementById("solutionCodeDrawer");
+        if (toggleBtn && drawer) {
+          toggleBtn.addEventListener("click", () => {
+            const isHidden = drawer.classList.contains("hidden");
+            if (isHidden) {
+              drawer.classList.remove("hidden");
+              toggleBtn.textContent = "Hide Solution";
+            } else {
+              drawer.classList.add("hidden");
+              toggleBtn.textContent = "Reveal Solution";
+            }
+          });
+        }
+
+        const copyBtn = document.getElementById("copySolutionBtn");
+        if (copyBtn) {
+          copyBtn.addEventListener("click", () => {
+            navigator.clipboard.writeText(solution).then(() => {
+              copyBtn.textContent = "Copied!";
+              setTimeout(() => { copyBtn.textContent = "Copy"; }, 1500);
+            });
+          });
+        }
       }
 
       // Tab switching in problem spec
@@ -652,15 +891,14 @@
       // Language Switcher
       document.getElementById("langSelect").addEventListener("change", (e) => {
         currentLang = e.target.value;
-        if (currentProblem.starterCode[currentLang]) {
-          editor.value = currentProblem.starterCode[currentLang];
-          updateLineNumbers();
-        }
+        editor.value = currentProblem.starterCode[currentLang] || currentProblem.starterCode.javascript;
+        updateLineNumbers();
+        renderEditorialTab(currentProblem);
       });
 
       // Reset starter code
       document.getElementById("resetCodeBtn").addEventListener("click", () => {
-        if (confirm("Reset current code to starter boilerplate?")) {
+        if (confirm("Reset code editor to the clean starter boilerplate?")) {
           editor.value = currentProblem.starterCode[currentLang] || currentProblem.starterCode.javascript;
           updateLineNumbers();
         }
@@ -862,7 +1100,178 @@
       document.getElementById("nextProblemBtn").addEventListener("click", goToNextProblem);
       document.getElementById("prevProblemBtn").addEventListener("click", goToPrevProblem);
 
+      async function updateDbStatus() {
+        const pill = document.getElementById("dbStatusPill");
+        const dot = document.getElementById("dbStatusDot");
+        const text = document.getElementById("dbStatusText");
+        if (!pill || !dot || !text) return;
+
+        pill.style.cursor = "pointer";
+
+        if (window.SupabaseDB && window.SupabaseDB.isConfigured()) {
+          const testResult = await window.SupabaseDB.testConnection();
+          if (testResult && testResult.ok) {
+            if (testResult.schemaNeeded) {
+              dot.className = "w-1.5 h-1.5 rounded-full bg-amber-400";
+              text.textContent = "⚡ Supabase: Setup Tables";
+              pill.className = "hidden xl:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl border border-amber-500/30 bg-amber-500/10 text-[11px] font-mono text-amber-300 hover:bg-amber-500/20 transition cursor-pointer";
+              pill.title = "Supabase connected! Tables need to be created. Click to view 1-click SQL script.";
+            } else {
+              dot.className = "w-1.5 h-1.5 rounded-full bg-emerald-400";
+              text.textContent = "✓ Supabase DB Live";
+              pill.className = "hidden xl:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-[11px] font-mono text-emerald-300 hover:bg-emerald-500/20 transition cursor-pointer";
+              pill.title = "Connected to Supabase PostgreSQL database. Submissions and progress synced.";
+            }
+          } else {
+            dot.className = "w-1.5 h-1.5 rounded-full bg-rose-400";
+            text.textContent = "⚠ Supabase Connection Error";
+            pill.className = "hidden xl:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl border border-rose-500/30 bg-rose-500/10 text-[11px] font-mono text-rose-300 hover:bg-rose-500/20 transition cursor-pointer";
+            pill.title = "Supabase connection error. Click to diagnose.";
+          }
+        } else {
+          dot.className = "w-1.5 h-1.5 rounded-full bg-cyan";
+          text.textContent = "⚡ Connect Supabase";
+          pill.className = "hidden xl:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl border border-cyan/30 bg-cyan/10 text-[11px] font-mono text-cyan hover:bg-cyan/20 transition cursor-pointer";
+          pill.title = "Using Local Storage. Click to connect your Supabase database.";
+        }
+      }
+
+      // Supabase Modal Interaction
+      const supaModal = document.getElementById("supabaseModal");
+      const dbPill = document.getElementById("dbStatusPill");
+      const closeSupaBtn = document.getElementById("closeSupabaseModalBtn");
+      const inputUrl = document.getElementById("inputSupabaseUrl");
+      const inputKey = document.getElementById("inputSupabaseKey");
+      const saveSupaBtn = document.getElementById("saveSupabaseBtn");
+      const testSupaBtn = document.getElementById("testSupabaseBtn");
+      const copySqlBtn = document.getElementById("copySqlBtn");
+      const bannerTitle = document.getElementById("supabaseStatusTitle");
+      const bannerDot = document.getElementById("supabaseStatusDot");
+      const modeBadge = document.getElementById("supabaseModeBadge");
+      const tableNotice = document.getElementById("supabaseTableNotice");
+      const openSupabaseLink = document.getElementById("openSupabaseLink");
+
+      async function runDiagnostics() {
+        const config = window.SupabaseDB ? window.SupabaseDB.getConfig() : { url: "", anonKey: "" };
+        inputUrl.value = config.url || "";
+        inputKey.value = config.anonKey || "";
+
+        // Direct SQL Editor link
+        try {
+          if (config.url) {
+            const host = new URL(config.url).hostname;
+            const projectRef = host.split(".")[0];
+            openSupabaseLink.href = `https://supabase.com/dashboard/project/${projectRef}/sql/new`;
+            openSupabaseLink.textContent = `Open SQL Editor (${projectRef}) ↗`;
+          }
+        } catch (e) {}
+
+        const testRes = await window.SupabaseDB.testConnection();
+        const diagUrl = document.getElementById("diagProjectUrl");
+        const diagLat = document.getElementById("diagLatency");
+        const diagSub = document.getElementById("diagTableSub");
+        const diagProg = document.getElementById("diagTableProg");
+
+        if (testRes && testRes.ok) {
+          bannerTitle.textContent = "Supabase Authenticated & Reachable";
+          bannerTitle.className = "text-xs font-semibold text-emerald-300";
+          bannerDot.className = "w-2.5 h-2.5 rounded-full bg-emerald-400";
+          modeBadge.textContent = "Authenticated";
+          modeBadge.className = "text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300";
+
+          diagUrl.textContent = testRes.projectUrl || "Connected";
+          diagLat.textContent = `${testRes.latencyMs || 1} ms`;
+
+          const subOk = testRes.tables && testRes.tables.problem_submissions;
+          const progOk = testRes.tables && testRes.tables.user_progress;
+
+          diagSub.textContent = subOk ? "✓ Table exists" : "⚠ Not found in public schema";
+          diagSub.className = subOk ? "text-emerald-400 font-semibold" : "text-amber-400";
+
+          diagProg.textContent = progOk ? "✓ Table exists" : "⚠ Not found in public schema";
+          diagProg.className = progOk ? "text-emerald-400 font-semibold" : "text-amber-400";
+
+          if (testRes.schemaNeeded) {
+            tableNotice.classList.remove("hidden");
+          } else {
+            tableNotice.classList.add("hidden");
+          }
+        } else {
+          bannerTitle.textContent = testRes.message || "Supabase not configured or unreachable";
+          bannerTitle.className = "text-xs font-semibold text-cyan";
+          bannerDot.className = "w-2.5 h-2.5 rounded-full bg-cyan";
+          modeBadge.textContent = "Local Mode";
+          modeBadge.className = "text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-cyan/20 text-cyan";
+          tableNotice.classList.add("hidden");
+
+          diagUrl.textContent = "Local Storage (No remote host)";
+          diagLat.textContent = "-- ms";
+          diagSub.textContent = "Stored in localStorage";
+          diagSub.className = "text-white/50";
+          diagProg.textContent = "Stored in localStorage";
+          diagProg.className = "text-white/50";
+        }
+      }
+
+      function openSupabaseModal() {
+        runDiagnostics();
+        supaModal.classList.remove("hidden");
+      }
+
+      if (dbPill) dbPill.addEventListener("click", openSupabaseModal);
+      if (closeSupaBtn) closeSupaBtn.addEventListener("click", () => supaModal.classList.add("hidden"));
+
+      if (copySqlBtn) {
+        copySqlBtn.addEventListener("click", () => {
+          const sql = window.SupabaseDB.getSchemaSQL();
+          navigator.clipboard.writeText(sql).then(() => {
+            copySqlBtn.textContent = "✓ Copied to Clipboard!";
+            copySqlBtn.className = "px-2.5 py-1 rounded-lg bg-emerald-500 text-black font-semibold text-[11px] font-mono transition";
+            setTimeout(() => {
+              copySqlBtn.textContent = "Copy SQL Script";
+              copySqlBtn.className = "px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 border border-emerald-500/30 text-[11px] font-mono transition";
+            }, 2500);
+          });
+        });
+      }
+
+      if (saveSupaBtn) {
+        saveSupaBtn.addEventListener("click", async () => {
+          const url = inputUrl.value.trim();
+          const key = inputKey.value.trim();
+
+          if (url) localStorage.setItem("skillproof_supabase_url", url);
+          else localStorage.removeItem("skillproof_supabase_url");
+
+          if (key) localStorage.setItem("skillproof_supabase_key", key);
+          else localStorage.removeItem("skillproof_supabase_key");
+
+          if (window.SupabaseDB) {
+            window.SupabaseDB.isInitialized = false;
+            window.SupabaseDB.client = null;
+            if (url && key) {
+              await window.SupabaseDB.init();
+            }
+          }
+
+          await updateDbStatus();
+          await runDiagnostics();
+        });
+      }
+
+      if (testSupaBtn) {
+        testSupaBtn.addEventListener("click", async () => {
+          testSupaBtn.disabled = true;
+          testSupaBtn.textContent = "Testing...";
+          await runDiagnostics();
+          await updateDbStatus();
+          testSupaBtn.disabled = false;
+          testSupaBtn.textContent = "Test Connection";
+        });
+      }
+
       // Initial load
+      updateDbStatus();
       loadProblem(currentProblem);
     });
   </script>

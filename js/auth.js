@@ -70,6 +70,10 @@
       return null;
     },
 
+    getUser() {
+      return this.getCurrentUser();
+    },
+
     isAuthenticated() {
       return !!this.getCurrentUser();
     },

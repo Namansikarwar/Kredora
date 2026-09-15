@@ -193,6 +193,8 @@
     © <span id="current-year"></span> SkillProof. All rights reserved.
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
   <script src="js/data.js"></script>
   <script src="js/auth.js"></script>
   <script>
@@ -247,7 +249,8 @@
 
       // Forgot password modal/notification
       document.getElementById("forgotBtn").addEventListener("click", () => {
-        alert("Demo hint: You can log in using the username 'naman' and password 'password123', or create a new account in Sign Up.");
+        statusMessage.textContent = "Demo hint: You can log in using the username 'naman' and password 'password123', or create a new account in Sign Up.";
+        statusMessage.className = "mb-5 p-3 rounded-xl text-xs font-mono leading-relaxed bg-gold/10 border border-gold/30 text-gold block";
       });
 
       // Handle form submission

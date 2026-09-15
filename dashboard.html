@@ -45,6 +45,8 @@
 <link rel="stylesheet" href="css/style.css" />
 
 <!-- Early Auth Check before rendering to protect dashboard -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
 <script src="js/auth.js"></script>
 <script src="js/problems-data.js"></script>
 <script>
@@ -154,6 +156,37 @@
         <div class="glass-card rounded-2xl p-6 col-span-2 lg:col-span-1">
           <p class="text-xs text-inkdim font-mono mb-2">Evidence records</p>
           <p class="font-display font-semibold text-3xl sm:text-4xl text-white" id="stat-total-evidence" data-count-to="0">0</p>
+        </div>
+      </div>
+
+      <!-- ============ SUPABASE DATABASE STATUS CARD ============ -->
+      <div id="dash-db-strip" class="reveal glass-card rounded-2xl p-5 mb-6 border border-emerald-500/20 bg-emerald-500/5">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <div id="dash-db-icon" class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center font-bold text-lg shrink-0">
+              ⚡
+            </div>
+            <div>
+              <div class="flex items-center gap-2 flex-wrap">
+                <span id="dash-db-title" class="font-display font-semibold text-sm text-white">Supabase PostgreSQL Database</span>
+                <span id="dash-db-status-pill" class="px-2.5 py-0.5 rounded-full text-[10px] font-mono border text-emerald-400 bg-emerald-500/10 border-emerald-500/30">
+                  Checking connection...
+                </span>
+                <span id="dash-db-latency" class="text-[10px] font-mono text-white/40">-- ms</span>
+              </div>
+              <p id="dash-db-desc" class="text-xs text-inkdim mt-1">
+                Cloud persistence active for submissions and verified skill progress.
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <button id="dash-copy-sql-btn" type="button" class="px-3 py-1.5 rounded-xl border border-white/10 bg-white/5 text-xs text-ink hover:bg-white/10 transition font-mono flex items-center gap-1.5">
+              <span>📋</span> Copy Tables SQL
+            </button>
+            <a href="problem.html?id=two-sum" class="px-3.5 py-1.5 rounded-xl bg-gold/15 text-gold border border-gold/30 hover:bg-gold/25 transition text-xs font-semibold">
+              Open Arena →
+            </a>
+          </div>
         </div>
       </div>
 
@@ -456,15 +489,63 @@
     </div>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
   <script src="js/data.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/main.js"></script>
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", async () => {
       const user = window.Auth ? window.Auth.getCurrentUser() : null;
       if (user) {
         const nameEl = document.getElementById("dash-user-name");
         if (nameEl) nameEl.textContent = user.name || user.username;
+      }
+
+      // Check Supabase Database Status
+      const statusPill = document.getElementById("dash-db-status-pill");
+      const latencyEl = document.getElementById("dash-db-latency");
+      const descEl = document.getElementById("dash-db-desc");
+      const copyBtn = document.getElementById("dash-copy-sql-btn");
+
+      if (copyBtn) {
+        copyBtn.addEventListener("click", () => {
+          if (window.SupabaseDB) {
+            navigator.clipboard.writeText(window.SupabaseDB.getSchemaSQL()).then(() => {
+              copyBtn.textContent = "✓ SQL Copied!";
+              copyBtn.className = "px-3 py-1.5 rounded-xl bg-emerald-500 text-black font-semibold text-xs transition font-mono";
+              setTimeout(() => {
+                copyBtn.textContent = "📋 Copy Tables SQL";
+                copyBtn.className = "px-3 py-1.5 rounded-xl border border-white/10 bg-white/5 text-xs text-ink hover:bg-white/10 transition font-mono flex items-center gap-1.5";
+              }, 2500);
+            });
+          }
+        });
+      }
+
+      if (window.SupabaseDB) {
+        try {
+          const testRes = await window.SupabaseDB.testConnection();
+          if (testRes && testRes.ok) {
+            latencyEl.textContent = `${testRes.latencyMs || 1} ms`;
+            if (testRes.schemaNeeded) {
+              statusPill.textContent = "⚡ Connected · Tables Setup Needed";
+              statusPill.className = "px-2.5 py-0.5 rounded-full text-[10px] font-mono border text-amber-300 bg-amber-500/10 border-amber-500/30";
+              descEl.textContent = `Host: ${testRes.projectUrl || "rrwinxiziqfqiokohsvj.supabase.co"} · Connected & Authenticated. Run SQL schema to enable remote tables.`;
+            } else {
+              statusPill.textContent = "✓ Tables Live & Synced";
+              statusPill.className = "px-2.5 py-0.5 rounded-full text-[10px] font-mono border text-emerald-400 bg-emerald-500/10 border-emerald-500/30";
+              descEl.textContent = `Host: ${testRes.projectUrl || "rrwinxiziqfqiokohsvj.supabase.co"} · Submissions & solved progress synced to Cloud PostgreSQL.`;
+            }
+          } else {
+            statusPill.textContent = "Local Storage (No remote)";
+            statusPill.className = "px-2.5 py-0.5 rounded-full text-[10px] font-mono border text-cyan bg-cyan/10 border-cyan/30";
+            latencyEl.textContent = "-- ms";
+          }
+        } catch (e) {
+          statusPill.textContent = "Local Storage Active";
+          statusPill.className = "px-2.5 py-0.5 rounded-full text-[10px] font-mono border text-cyan bg-cyan/10 border-cyan/30";
+        }
       }
     });
   </script>
