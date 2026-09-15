@@ -46,6 +46,7 @@
 
 <!-- Early Auth Check before rendering to protect dashboard -->
 <script src="js/auth.js"></script>
+<script src="js/problems-data.js"></script>
 <script>
   if (!window.Auth.requireAuth("dashboard.html")) {
     // Execution will redirect to login.html
@@ -68,6 +69,10 @@
 
       <nav class="hidden md:flex items-center gap-8 text-sm text-inkdim">
         <a href="dashboard.html" class="nav-link text-ink font-medium">Dashboard</a>
+        <a href="problems.html" class="nav-link hover:text-ink transition-colors flex items-center gap-1.5">
+          <span>Problems</span>
+          <span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-gold/15 text-gold border border-gold/30">Arena</span>
+        </a>
         <a href="evidence.html" class="nav-link hover:text-ink transition-colors">Evidence</a>
         <a href="profile.html" class="nav-link hover:text-ink transition-colors">Public profile</a>
       </nav>
@@ -95,6 +100,10 @@
     <div id="mobile-menu" class="md:hidden border-t border-white/5 bg-base">
       <div class="px-5 py-4 flex flex-col gap-1 text-sm">
         <a href="dashboard.html" class="py-2.5 text-ink font-semibold">Dashboard</a>
+        <a href="problems.html" class="py-2.5 text-inkdim hover:text-ink flex items-center justify-between">
+          <span>Problems (Arena)</span>
+          <span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-gold/15 text-gold">Code</span>
+        </a>
         <a href="evidence.html" class="py-2.5 text-inkdim hover:text-ink">Evidence</a>
         <a href="profile.html" class="py-2.5 text-inkdim hover:text-ink">Public profile</a>
         <div class="h-px bg-white/5 my-2"></div>
@@ -286,6 +295,78 @@
                 <span class="text-[10px] text-inkdim -mt-1">Overall</span>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ CODING ARENA / PROBLEM TRACKER (LeetCode/HackerRank Style) ============ -->
+      <section class="reveal glass-card rounded-2xl p-6 sm:p-8 mb-6 border border-white/10 relative overflow-hidden">
+        <div class="absolute -right-20 -top-20 w-56 h-56 bg-gold/5 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 border-b border-white/5 pb-5">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <p class="text-xs text-inkdim font-mono uppercase tracking-wider">Algorithm & Data Structures Arena</p>
+            </div>
+            <h2 class="font-display font-semibold text-xl sm:text-2xl text-white">Your Problem Solving Progress</h2>
+            <p class="text-xs text-inkdim mt-1">Real LeetCode-style questions solved in browser IDE with verified unit testing</p>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <a href="problems.html" class="inline-flex items-center gap-2 bg-gradient-to-r from-gold to-amber-500 text-base font-semibold px-4 py-2.5 rounded-xl hover:opacity-95 transition text-xs sm:text-sm">
+              <svg class="w-4 h-4 text-base" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+              Browse Problems →
+            </a>
+          </div>
+        </div>
+
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div class="rounded-xl border border-white/5 bg-white/[0.02] p-4">
+            <div class="flex items-center justify-between">
+              <span class="text-xs text-inkdim font-mono">Total Solved</span>
+              <span id="dashSolvedCount" class="font-display font-bold text-2xl text-gold">0</span>
+            </div>
+            <p class="text-[11px] text-white/40 font-mono mt-2" id="dashTotalCount">/ 10 Problems</p>
+          </div>
+
+          <div class="rounded-xl border border-white/5 bg-white/[0.02] p-4">
+            <div class="flex items-center justify-between">
+              <span class="text-xs text-inkdim font-mono">Difficulty Breakdown</span>
+              <span class="text-xs font-mono text-emerald-400" id="dashEasyStats">0 Easy</span>
+            </div>
+            <div class="flex items-center gap-1.5 mt-3 text-[11px] font-mono">
+              <span class="text-amber-400" id="dashMediumStats">0 Med</span>
+              <span class="text-white/20">·</span>
+              <span class="text-rose-400" id="dashHardStats">0 Hard</span>
+            </div>
+          </div>
+
+          <div class="rounded-xl border border-white/5 bg-white/[0.02] p-4">
+            <div class="flex items-center justify-between">
+              <span class="text-xs text-inkdim font-mono">Current Streak</span>
+              <span class="font-display font-bold text-2xl text-cyan" id="dashStreak">5 Days</span>
+            </div>
+            <p class="text-[11px] text-white/40 font-mono mt-2">Active practice daily</p>
+          </div>
+
+          <div class="rounded-xl border border-white/5 bg-white/[0.02] p-4">
+            <div class="flex items-center justify-between">
+              <span class="text-xs text-inkdim font-mono">Arena Verified Pts</span>
+              <span class="font-display font-bold text-2xl text-white" id="dashPoints">18 pts</span>
+            </div>
+            <p class="text-[11px] text-white/40 font-mono mt-2">Earned through unit tests</p>
+          </div>
+        </div>
+
+        <!-- Recently Solved Questions Table / List -->
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-xs font-mono uppercase tracking-wider text-inkdim">Recent Questions Solved</h3>
+            <a href="problems.html" class="text-xs font-mono text-gold hover:underline">View all in Arena →</a>
+          </div>
+          <div id="dashRecentSolvedList" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <!-- Populated dynamically by JS -->
           </div>
         </div>
       </section>

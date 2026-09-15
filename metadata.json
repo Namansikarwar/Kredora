@@ -1,6 +1,6 @@
 {
   "name": "SkillProof",
-  "description": "Evidence-backed skill verification platform with secure authentication and interactive dashboards.",
+  "description": "Evidence-backed skill verification and LeetCode-style coding practice platform with real-time test runner, code editor, and interactive progress tracking.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

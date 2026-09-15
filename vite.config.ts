@@ -28,6 +28,8 @@ export default defineConfig(() => {
           evidence: path.resolve(__dirname, 'evidence.html'),
           profile: path.resolve(__dirname, 'profile.html'),
           skill: path.resolve(__dirname, 'skill.html'),
+          problems: path.resolve(__dirname, 'problems.html'),
+          problem: path.resolve(__dirname, 'problem.html'),
         },
       },
     },

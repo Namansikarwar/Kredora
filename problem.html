@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Problem Workspace — SkillProof Coding Arena</title>
+  <meta name="description" content="Solve algorithmic challenges, run test cases, and submit verified code on SkillProof." />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            base: "#0a0f1c",
+            surface: "#111827",
+            surface2: "#182234",
+            borderc: "#232d44",
+            ink: "#e9ecf4",
+            inkdim: "#8b93a9",
+            gold: {
+              DEFAULT: "#f2b544",
+              dim: "#a9863a",
+            },
+            cyan: {
+              DEFAULT: "#4cc9e8",
+            },
+            easy: "#10b981",
+            medium: "#f59e0b",
+            hard: "#ef4444"
+          },
+          fontFamily: {
+            display: ['"Space Grotesk"', "Inter", "sans-serif"],
+            sans: ["Inter", "ui-sans-serif", "sans-serif"],
+            mono: ['"JetBrains Mono"', "ui-monospace", "monospace"],
+          },
+        },
+      },
+    };
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <script src="js/auth.js"></script>
+  <script src="js/problems-data.js"></script>
+  <script src="js/code-runner.js"></script>
+
+  <style>
+    /* Custom IDE scrollbars */
+    .editor-scroll::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    .editor-scroll::-webkit-scrollbar-track {
+      background: #0d121f;
+    }
+    .editor-scroll::-webkit-scrollbar-thumb {
+      background: #232d44;
+      border-radius: 4px;
+    }
+    .editor-scroll::-webkit-scrollbar-thumb:hover {
+      background: #374151;
+    }
+    /* Code textarea line numbers integration */
+    .code-editor-area {
+      tab-size: 2;
+      -moz-tab-size: 2;
+    }
+  </style>
+</head>
+
+<body class="h-screen w-screen overflow-hidden bg-[#0a0f1c] text-white flex flex-col font-sans">
+
+  <!-- TOP APP BAR -->
+  <header class="h-14 shrink-0 border-b border-white/10 bg-[#0d1322] px-4 flex items-center justify-between z-20">
+    <div class="flex items-center gap-3">
+      <a href="problems.html" class="flex items-center gap-2 text-white/60 hover:text-white transition px-2 py-1 rounded-lg hover:bg-white/5" title="Back to Problem List">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        <span class="text-xs font-medium font-mono hidden sm:inline">Problem List</span>
+      </a>
+
+      <div class="h-4 w-px bg-white/10 hidden sm:block"></div>
+
+      <!-- Problem Navigation Prev/Next -->
+      <div class="flex items-center gap-1">
+        <button id="prevProblemBtn" class="p-1.5 rounded-lg text-white/50 hover:text-white hover:bg-white/5 transition" title="Previous Problem">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        </button>
+        <button id="nextProblemBtn" class="p-1.5 rounded-lg text-white/50 hover:text-white hover:bg-white/5 transition" title="Next Problem">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span id="problemNumberDisplay" class="font-mono text-xs text-white/40 font-semibold">#1</span>
+        <h1 id="problemTitleHeader" class="text-sm font-semibold text-white font-display truncate max-w-[200px] sm:max-w-xs">Two Sum</h1>
+        <span id="diffBadge" class="px-2 py-0.5 rounded-full text-[11px] font-medium border text-emerald-400 bg-emerald-500/10 border-emerald-500/20">Easy</span>
+        <span id="solvedStatusBadge" class="hidden text-emerald-400 text-xs font-mono items-center gap-1">
+          ✓ Solved
+        </span>
+      </div>
+    </div>
+
+    <!-- Center Timer -->
+    <div class="hidden md:flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-1 font-mono text-xs text-white/70">
+      <svg class="w-3.5 h-3.5 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      <span id="timerText">00:00</span>
+      <button id="timerToggleBtn" class="text-white/40 hover:text-white text-[10px] ml-1">Pause</button>
+    </div>
+
+    <!-- Right Controls -->
+    <div class="flex items-center gap-2.5">
+      <button id="runCodeBtn" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-white/15 bg-white/5 text-xs font-medium text-white hover:bg-white/10 hover:border-white/25 transition">
+        <svg class="w-3.5 h-3.5 text-cyan" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        Run Code
+      </button>
+
+      <button id="submitCodeBtn" class="flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-xs font-semibold text-white hover:opacity-95 shadow-md shadow-emerald-500/20 transition">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        Submit
+      </button>
+
+      <div class="h-4 w-px bg-white/10 mx-1"></div>
+      <div data-auth-nav></div>
+    </div>
+  </header>
+
+  <!-- MAIN WORKSPACE SPLIT (Left: Description, Right: Editor + Console) -->
+  <div class="flex-1 flex flex-col lg:flex-row overflow-hidden">
+
+    <!-- LEFT COLUMN: PROBLEM SPEC & EDITORIAL -->
+    <div class="w-full lg:w-[48%] h-1/2 lg:h-full border-b lg:border-b-0 lg:border-r border-white/10 flex flex-col bg-[#0d1322]">
+      <!-- Left Tabs -->
+      <div class="h-10 shrink-0 border-b border-white/10 bg-[#111827] px-4 flex items-center gap-4 text-xs font-medium">
+        <button id="tabDescBtn" class="spec-tab text-gold border-b-2 border-gold h-full flex items-center gap-1.5 px-1 font-semibold transition" data-tab="desc">
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          Description
+        </button>
+        <button id="tabEditorialBtn" class="spec-tab text-white/50 hover:text-white h-full flex items-center gap-1.5 px-1 transition" data-tab="editorial">
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          Editorial
+        </button>
+        <button id="tabSubmissionsBtn" class="spec-tab text-white/50 hover:text-white h-full flex items-center gap-1.5 px-1 transition" data-tab="submissions">
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          Submissions (<span id="submissionCount">0</span>)
+        </button>
+      </div>
+
+      <!-- Left Tab Content Area -->
+      <div class="flex-1 overflow-y-auto editor-scroll p-6 space-y-6 text-sm">
+
+        <!-- TAB: DESCRIPTION -->
+        <div id="contentDesc" class="space-y-6">
+          <div>
+            <div class="flex items-center gap-2 mb-2">
+              <span id="descNum" class="font-mono text-sm text-white/40">1.</span>
+              <h2 id="descTitle" class="text-xl font-bold font-display text-white">Two Sum</h2>
+            </div>
+            <div class="flex flex-wrap items-center gap-2 text-xs">
+              <span id="descDiffBadge" class="px-2.5 py-0.5 rounded-full border text-emerald-400 bg-emerald-500/10 border-emerald-500/20 font-medium">Easy</span>
+              <span id="descCatBadge" class="px-2.5 py-0.5 rounded-lg border border-white/10 bg-white/5 text-white/70 font-mono">Arrays & Hashing</span>
+              <span id="descAcceptance" class="text-white/40 font-mono">Acceptance: 53.8%</span>
+            </div>
+          </div>
+
+          <!-- Problem Body -->
+          <div id="descBody" class="text-ink/90 leading-relaxed space-y-3 font-normal">
+            <!-- Injected by JS -->
+          </div>
+
+          <!-- Examples List -->
+          <div id="descExamples" class="space-y-4">
+            <!-- Injected by JS -->
+          </div>
+
+          <!-- Constraints -->
+          <div>
+            <h3 class="font-display font-semibold text-sm text-white mb-2 uppercase tracking-wider text-white/50">Constraints</h3>
+            <ul id="descConstraints" class="list-disc list-inside space-y-1.5 font-mono text-xs text-white/70">
+              <!-- Injected by JS -->
+            </ul>
+          </div>
+
+          <!-- Hints Accordion -->
+          <div id="descHints" class="space-y-2 pt-2">
+            <!-- Injected by JS -->
+          </div>
+        </div>
+
+        <!-- TAB: EDITORIAL -->
+        <div id="contentEditorial" class="hidden space-y-4">
+          <div class="border-b border-white/10 pb-3">
+            <h2 class="text-lg font-bold font-display text-white">Solution Approach & Big-O Analysis</h2>
+            <p class="text-xs text-white/40 mt-1 font-mono">Official SkillProof Verified Reference</p>
+          </div>
+          <div id="editorialBody" class="space-y-4">
+            <!-- Injected by JS -->
+          </div>
+        </div>
+
+        <!-- TAB: SUBMISSIONS -->
+        <div id="contentSubmissions" class="hidden space-y-4">
+          <div class="border-b border-white/10 pb-3 flex items-center justify-between">
+            <h2 class="text-lg font-bold font-display text-white">Your Past Submissions</h2>
+            <span class="text-xs font-mono text-white/40">Latest runs on this problem</span>
+          </div>
+          <div id="submissionsList" class="space-y-2">
+            <!-- Injected by JS -->
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN: CODE EDITOR & TEST RUNNER CONSOLE -->
+    <div class="w-full lg:w-[52%] h-1/2 lg:h-full flex flex-col bg-[#0a0f1c]">
+
+      <!-- Editor Header -->
+      <div class="h-10 shrink-0 border-b border-white/10 bg-[#111827] px-4 flex items-center justify-between text-xs">
+        <div class="flex items-center gap-3">
+          <div class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-cyan"></span>
+            <label for="langSelect" class="sr-only">Programming language</label>
+            <select id="langSelect" class="bg-transparent text-white font-mono text-xs font-semibold focus:outline-none cursor-pointer">
+              <option value="javascript" class="bg-[#111827] text-white">JavaScript (Node.js / ES6)</option>
+              <option value="python" class="bg-[#111827] text-white">Python 3</option>
+              <option value="java" class="bg-[#111827] text-white">Java 17</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 text-white/50">
+          <button id="resetCodeBtn" class="flex items-center gap-1 hover:text-white px-2 py-1 rounded hover:bg-white/5 transition" title="Reset starter code">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            Reset
+          </button>
+        </div>
+      </div>
+
+      <!-- Code Area (Integrated Line Numbers + Textarea) -->
+      <div class="flex-1 relative flex overflow-hidden bg-[#0a0f1c] font-mono text-xs">
+        <!-- Line Numbers Gutter -->
+        <div id="lineNumbersGutter" class="w-10 shrink-0 select-none py-3 text-right pr-2 text-white/20 border-r border-white/5 bg-[#0a0f1c] font-mono leading-5">
+          1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15
+        </div>
+
+        <!-- Code Input Textarea -->
+        <label for="codeEditor" class="sr-only">Code editor</label>
+        <textarea
+          id="codeEditor"
+          spellcheck="false"
+          autocapitalize="off"
+          autocomplete="off"
+          class="code-editor-area flex-1 w-full h-full p-3 bg-transparent text-ink/95 resize-none focus:outline-none leading-5 font-mono overflow-auto editor-scroll selection:bg-gold/30 selection:text-white"
+        ></textarea>
+      </div>
+
+      <!-- BOTTOM CONSOLE / TEST DRAWER (Resizable / Tabbed) -->
+      <div id="testConsoleContainer" class="h-64 shrink-0 border-t border-white/10 bg-[#111827] flex flex-col">
+        <!-- Console Header Tabs -->
+        <div class="h-9 shrink-0 border-b border-white/10 bg-[#0d1322] px-4 flex items-center justify-between text-xs">
+          <div class="flex items-center gap-3">
+            <button id="consoleTabTestcases" class="console-tab text-gold font-semibold flex items-center gap-1.5 h-full border-b-2 border-gold px-1 transition" data-ctab="testcases">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+              Testcase
+            </button>
+            <button id="consoleTabResults" class="console-tab text-white/50 hover:text-white flex items-center gap-1.5 h-full px-1 transition" data-ctab="results">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              Test Result <span id="resultDot" class="hidden w-2 h-2 rounded-full bg-emerald-400"></span>
+            </button>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <span class="text-[11px] font-mono text-white/30 hidden sm:inline">Ctrl + Enter to Run</span>
+          </div>
+        </div>
+
+        <!-- Console Body -->
+        <div class="flex-1 overflow-y-auto editor-scroll p-4 text-xs font-mono">
+
+          <!-- DRAWER TAB 1: TESTCASES -->
+          <div id="cViewTestcases" class="space-y-3">
+            <div id="casePillsList" class="flex items-center gap-2">
+              <!-- Case 1, Case 2, Case 3 buttons injected by JS -->
+            </div>
+
+            <div class="space-y-2 pt-1">
+              <span class="text-[11px] text-white/40 uppercase tracking-wider block">Input</span>
+              <div id="activeCaseInputDisplay" class="rounded-xl border border-white/10 bg-black/40 p-3 text-ink/90 font-mono overflow-x-auto">
+                <!-- Injected by JS -->
+              </div>
+            </div>
+          </div>
+
+          <!-- DRAWER TAB 2: TEST RESULTS -->
+          <div id="cViewResults" class="hidden space-y-4">
+            <div id="resultsEmpty" class="text-white/40 text-center py-6">
+              Click "Run Code" or "Submit" to see test execution output here.
+            </div>
+
+            <div id="resultsContent" class="hidden space-y-4">
+              <!-- Status Header Banner -->
+              <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                <div class="flex items-center gap-2">
+                  <span id="runStatusBadge" class="text-base font-bold font-display text-emerald-400">Accepted</span>
+                  <span id="runTimingBadge" class="text-white/40 text-xs">Runtime: 52 ms</span>
+                </div>
+                <div id="casesPassedBadge" class="text-white/50 text-xs">3 / 3 testcases passed</div>
+              </div>
+
+              <!-- Case Selectors in Result -->
+              <div id="resultCaseTabs" class="flex items-center gap-2">
+                <!-- Case buttons injected by JS -->
+              </div>
+
+              <!-- Case Detail (Input, Output, Expected) -->
+              <div id="resultCaseDetail" class="space-y-3">
+                <!-- Injected by JS -->
+              </div>
+
+              <!-- Stdout Logs -->
+              <div id="resultLogsContainer" class="hidden pt-2 border-t border-white/10">
+                <span class="text-[11px] text-white/40 uppercase tracking-wider block mb-1">Stdout Console Output</span>
+                <pre id="resultLogsText" class="rounded-xl border border-white/10 bg-black/50 p-2.5 text-xs text-cyan font-mono overflow-x-auto whitespace-pre-wrap"></pre>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CELEBRATION MODAL ON SUBMIT ACCEPTED -->
+  <div id="successModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+    <div class="w-full max-w-md rounded-3xl border border-emerald-500/30 bg-[#111827] p-6 sm:p-8 shadow-2xl relative overflow-hidden text-center">
+      <div class="absolute -right-20 -top-20 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="w-16 h-16 rounded-3xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center mx-auto mb-4 text-2xl font-bold font-display">
+        ✓
+      </div>
+
+      <h3 class="text-2xl font-bold font-display text-white">Accepted!</h3>
+      <p id="modalProblemTitle" class="text-sm text-white/60 mt-1">You solved Two Sum</p>
+
+      <!-- Stats Grid -->
+      <div class="grid grid-cols-2 gap-3 my-6 text-left">
+        <div class="rounded-2xl border border-white/10 bg-white/[0.02] p-3.5">
+          <span class="block text-[11px] font-mono text-white/40 uppercase">Runtime</span>
+          <span id="modalRuntime" class="font-display text-lg font-bold text-emerald-400">48 ms</span>
+          <span class="block text-[10px] text-white/40 mt-0.5">Beats 89.2% of users</span>
+        </div>
+        <div class="rounded-2xl border border-white/10 bg-white/[0.02] p-3.5">
+          <span class="block text-[11px] font-mono text-white/40 uppercase">Memory</span>
+          <span id="modalMemory" class="font-display text-lg font-bold text-cyan">42.1 MB</span>
+          <span class="block text-[10px] text-white/40 mt-0.5">Beats 76.4% of users</span>
+        </div>
+      </div>
+
+      <!-- Verified Evidence Card -->
+      <div class="rounded-2xl border border-gold/30 bg-gold/5 p-4 text-left mb-6 flex items-start gap-3">
+        <div class="w-7 h-7 rounded-lg bg-gold/20 text-gold flex items-center justify-center shrink-0 mt-0.5 font-bold text-xs">
+          SP
+        </div>
+        <div>
+          <span class="font-display font-semibold text-xs text-gold block">SkillProof Verified Evidence Added</span>
+          <p class="text-[11px] text-white/60 mt-0.5">
+            This solution was validated against full unit test suites and registered to your verified skill portfolio.
+          </p>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-col gap-2.5">
+        <button id="modalNextBtn" class="w-full py-3 px-4 rounded-xl font-semibold text-sm bg-gradient-to-r from-emerald-500 to-teal-500 text-black hover:opacity-95 transition">
+          Next Challenge →
+        </button>
+        <div class="flex items-center gap-2">
+          <button id="modalViewEvidenceBtn" class="flex-1 py-2.5 px-3 rounded-xl border border-white/15 bg-white/5 text-xs text-white hover:bg-white/10 transition">
+            View Evidence Log
+          </button>
+          <button id="modalCloseBtn" class="py-2.5 px-4 rounded-xl border border-white/10 text-xs text-white/60 hover:text-white transition">
+            Stay Here
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      let currentId = urlParams.get("id") || "two-sum";
+
+      const problems = window.CODING_PROBLEMS || [];
+      const tracker = window.ProgressTracker;
+      const runner = window.CodeRunner;
+
+      let currentProblem = problems.find(p => p.id === currentId) || problems[0];
+      let currentLang = "javascript";
+      let activeCaseIndex = 0;
+      let lastRunResult = null;
+      let activeResultCaseIndex = 0;
+
+      // Timer variables
+      let timerSeconds = 0;
+      let timerInterval = null;
+      let timerRunning = true;
+
+      function startTimer() {
+        if (timerInterval) clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+          if (timerRunning) {
+            timerSeconds++;
+            const mins = String(Math.floor(timerSeconds / 60)).padStart(2, "0");
+            const secs = String(timerSeconds % 60).padStart(2, "0");
+            document.getElementById("timerText").textContent = `${mins}:${secs}`;
+          }
+        }, 1000);
+      }
+
+      document.getElementById("timerToggleBtn").addEventListener("click", () => {
+        timerRunning = !timerRunning;
+        document.getElementById("timerToggleBtn").textContent = timerRunning ? "Pause" : "Resume";
+      });
+
+      startTimer();
+
+      // UI Update for Line Numbers
+      function updateLineNumbers() {
+        const textarea = document.getElementById("codeEditor");
+        const lines = textarea.value.split("\n").length;
+        const gutter = document.getElementById("lineNumbersGutter");
+        gutter.innerHTML = Array.from({ length: Math.max(lines, 15) }, (_, i) => i + 1).join("<br>");
+      }
+
+      // Load Problem into Workspace
+      function loadProblem(prob) {
+        currentProblem = prob;
+        activeCaseIndex = 0;
+
+        // URL history
+        history.replaceState(null, "", `problem.html?id=${prob.id}`);
+
+        // Title and header
+        document.title = `${prob.number}. ${prob.title} — SkillProof Arena`;
+        document.getElementById("problemNumberDisplay").textContent = `#${prob.number}`;
+        document.getElementById("problemTitleHeader").textContent = prob.title;
+
+        // Diff badge
+        const diffBadge = document.getElementById("diffBadge");
+        diffBadge.textContent = prob.difficulty;
+        let diffColor = "text-emerald-400 bg-emerald-500/10 border-emerald-500/20";
+        if (prob.difficulty === "Medium") diffColor = "text-amber-400 bg-amber-500/10 border-amber-500/20";
+        if (prob.difficulty === "Hard") diffColor = "text-rose-400 bg-rose-500/10 border-rose-500/20";
+        diffBadge.className = `px-2 py-0.5 rounded-full text-[11px] font-medium border ${diffColor}`;
+
+        // Solved status
+        const isSolved = tracker.isSolved(prob.id);
+        const solvedBadge = document.getElementById("solvedStatusBadge");
+        if (isSolved) {
+          solvedBadge.classList.remove("hidden");
+          solvedBadge.classList.add("inline-flex");
+        } else {
+          solvedBadge.classList.add("hidden");
+        }
+
+        // Description Tab
+        document.getElementById("descNum").textContent = `${prob.number}.`;
+        document.getElementById("descTitle").textContent = prob.title;
+        document.getElementById("descDiffBadge").textContent = prob.difficulty;
+        document.getElementById("descDiffBadge").className = `px-2.5 py-0.5 rounded-full border ${diffColor} font-medium`;
+        document.getElementById("descCatBadge").textContent = prob.category;
+        document.getElementById("descAcceptance").textContent = `Acceptance: ${prob.acceptance}`;
+        document.getElementById("descBody").innerHTML = prob.description;
+
+        // Examples
+        const exContainer = document.getElementById("descExamples");
+        exContainer.innerHTML = prob.examples.map((ex, i) => `
+          <div class="rounded-2xl border border-white/10 bg-white/[0.02] p-4 text-xs font-mono space-y-2">
+            <span class="font-display font-semibold text-white/70 block">Example ${i + 1}:</span>
+            <div><span class="text-white/40">Input:</span> <span class="text-ink">${ex.input}</span></div>
+            <div><span class="text-white/40">Output:</span> <span class="text-gold">${ex.output}</span></div>
+            ${ex.explanation ? `<div><span class="text-white/40">Explanation:</span> <span class="text-inkdim">${ex.explanation}</span></div>` : ''}
+          </div>
+        `).join("");
+
+        // Constraints
+        const constContainer = document.getElementById("descConstraints");
+        constContainer.innerHTML = prob.constraints.map(c => `<li>${c}</li>`).join("");
+
+        // Hints
+        const hintsContainer = document.getElementById("descHints");
+        if (prob.hints && prob.hints.length) {
+          hintsContainer.innerHTML = prob.hints.map((h, i) => `
+            <details class="group rounded-xl border border-white/10 bg-white/[0.02] p-3 text-xs">
+              <summary class="cursor-pointer font-medium text-gold/80 hover:text-gold flex items-center justify-between list-none">
+                <span>💡 Hint ${i + 1}</span>
+                <span class="text-white/30 group-open:rotate-180 transition-transform">▼</span>
+              </summary>
+              <p class="mt-2 text-inkdim leading-relaxed pt-1 border-t border-white/5">${h}</p>
+            </details>
+          `).join("");
+        } else {
+          hintsContainer.innerHTML = "";
+        }
+
+        // Editorial
+        document.getElementById("editorialBody").innerHTML = prob.editorial || "<p class='text-white/40'>Editorial not yet published.</p>";
+
+        // Submissions
+        renderSubmissionsTab();
+
+        // Code Editor starter
+        const editor = document.getElementById("codeEditor");
+        editor.value = prob.starterCode[currentLang] || prob.starterCode.javascript;
+        updateLineNumbers();
+
+        // Render Testcases drawer
+        renderTestcaseTabs();
+
+        // Reset Results Drawer
+        document.getElementById("resultsEmpty").classList.remove("hidden");
+        document.getElementById("resultsContent").classList.add("hidden");
+        document.getElementById("resultDot").classList.add("hidden");
+      }
+
+      function renderTestcaseTabs() {
+        const pillsContainer = document.getElementById("casePillsList");
+        pillsContainer.innerHTML = currentProblem.sampleTestCases.map((c, i) => `
+          <button class="case-pill px-3 py-1 rounded-lg border text-xs transition ${i === activeCaseIndex ? 'border-gold/50 bg-gold/10 text-gold font-semibold' : 'border-white/10 bg-white/5 text-white/60 hover:text-white'}" data-case="${i}">
+            Case ${i + 1}
+          </button>
+        `).join("");
+
+        document.querySelectorAll(".case-pill").forEach(btn => {
+          btn.addEventListener("click", () => {
+            activeCaseIndex = parseInt(btn.dataset.case, 10);
+            renderTestcaseTabs();
+          });
+        });
+
+        const activeCase = currentProblem.sampleTestCases[activeCaseIndex];
+        if (activeCase) {
+          document.getElementById("activeCaseInputDisplay").textContent = activeCase.inputDisplay;
+        }
+      }
+
+      function renderSubmissionsTab() {
+        const subs = tracker.getSubmissions(currentProblem.id);
+        document.getElementById("submissionCount").textContent = subs.length;
+
+        const list = document.getElementById("submissionsList");
+        if (subs.length === 0) {
+          list.innerHTML = `<div class="text-white/40 text-xs py-8 text-center">No submissions yet for this problem. Run and submit your solution!</div>`;
+          return;
+        }
+
+        list.innerHTML = subs.map((s, idx) => `
+          <div class="rounded-xl border border-white/10 bg-white/[0.02] p-3 text-xs flex items-center justify-between hover:border-white/20 transition cursor-pointer" data-sub-idx="${idx}">
+            <div class="flex items-center gap-3">
+              <span class="font-bold ${s.status === 'Accepted' ? 'text-emerald-400' : 'text-rose-400'} font-display">${s.status}</span>
+              <span class="font-mono text-white/50 text-[11px]">${s.runtime || ''}</span>
+              <span class="font-mono text-white/40 text-[11px]">${s.memory || ''}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="font-mono text-xs text-white/40">${new Date(s.timestamp).toLocaleDateString()}</span>
+              <button class="text-gold hover:underline text-[11px] font-mono">Load Code</button>
+            </div>
+          </div>
+        `).join("");
+
+        list.querySelectorAll("[data-sub-idx]").forEach(item => {
+          item.addEventListener("click", () => {
+            const idx = parseInt(item.dataset.subIdx, 10);
+            const chosen = subs[idx];
+            if (chosen && chosen.code) {
+              document.getElementById("codeEditor").value = chosen.code;
+              updateLineNumbers();
+            }
+          });
+        });
+      }
+
+      // Tab switching in problem spec
+      document.querySelectorAll(".spec-tab").forEach(tabBtn => {
+        tabBtn.addEventListener("click", () => {
+          document.querySelectorAll(".spec-tab").forEach(b => {
+            b.className = "spec-tab text-white/50 hover:text-white h-full flex items-center gap-1.5 px-1 transition";
+          });
+          tabBtn.className = "spec-tab text-gold border-b-2 border-gold h-full flex items-center gap-1.5 px-1 font-semibold transition";
+
+          const tabName = tabBtn.dataset.tab;
+          document.getElementById("contentDesc").classList.add("hidden");
+          document.getElementById("contentEditorial").classList.add("hidden");
+          document.getElementById("contentSubmissions").classList.add("hidden");
+
+          if (tabName === "desc") document.getElementById("contentDesc").classList.remove("hidden");
+          if (tabName === "editorial") document.getElementById("contentEditorial").classList.remove("hidden");
+          if (tabName === "submissions") document.getElementById("contentSubmissions").classList.remove("hidden");
+        });
+      });
+
+      // Bottom Console Tab switching
+      document.querySelectorAll(".console-tab").forEach(cTab => {
+        cTab.addEventListener("click", () => {
+          document.querySelectorAll(".console-tab").forEach(b => {
+            b.className = "console-tab text-white/50 hover:text-white flex items-center gap-1.5 h-full px-1 transition";
+          });
+          cTab.className = "console-tab text-gold font-semibold flex items-center gap-1.5 h-full border-b-2 border-gold px-1 transition";
+
+          const target = cTab.dataset.ctab;
+          if (target === "testcases") {
+            document.getElementById("cViewTestcases").classList.remove("hidden");
+            document.getElementById("cViewResults").classList.add("hidden");
+          } else {
+            document.getElementById("cViewTestcases").classList.add("hidden");
+            document.getElementById("cViewResults").classList.remove("hidden");
+          }
+        });
+      });
+
+      // Code Editor line numbers and Tab handling
+      const editor = document.getElementById("codeEditor");
+      editor.addEventListener("input", updateLineNumbers);
+      editor.addEventListener("keydown", (e) => {
+        // Tab indentation support
+        if (e.key === "Tab") {
+          e.preventDefault();
+          const start = editor.selectionStart;
+          const end = editor.selectionEnd;
+          editor.value = editor.value.substring(0, start) + "  " + editor.value.substring(end);
+          editor.selectionStart = editor.selectionEnd = start + 2;
+          updateLineNumbers();
+        }
+
+        // Ctrl/Cmd + Enter to run code
+        if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+          e.preventDefault();
+          document.getElementById("runCodeBtn").click();
+        }
+      });
+
+      // Language Switcher
+      document.getElementById("langSelect").addEventListener("change", (e) => {
+        currentLang = e.target.value;
+        if (currentProblem.starterCode[currentLang]) {
+          editor.value = currentProblem.starterCode[currentLang];
+          updateLineNumbers();
+        }
+      });
+
+      // Reset starter code
+      document.getElementById("resetCodeBtn").addEventListener("click", () => {
+        if (confirm("Reset current code to starter boilerplate?")) {
+          editor.value = currentProblem.starterCode[currentLang] || currentProblem.starterCode.javascript;
+          updateLineNumbers();
+        }
+      });
+
+      // RUN CODE (against sample test cases)
+      document.getElementById("runCodeBtn").addEventListener("click", async () => {
+        const btn = document.getElementById("runCodeBtn");
+        btn.disabled = true;
+        btn.innerHTML = `<span class="animate-spin mr-1">⏳</span> Running...`;
+
+        // Switch to result tab in console
+        document.querySelector('.console-tab[data-ctab="results"]').click();
+
+        try {
+          const userCode = editor.value;
+          const result = await runner.execute(userCode, currentProblem.functionName, currentProblem.sampleTestCases);
+          lastRunResult = result;
+          activeResultCaseIndex = 0;
+
+          renderRunResults(result);
+        } catch (err) {
+          console.error(err);
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = `
+            <svg class="w-3.5 h-3.5 text-cyan" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            Run Code
+          `;
+        }
+      });
+
+      function renderRunResults(res) {
+        document.getElementById("resultsEmpty").classList.add("hidden");
+        document.getElementById("resultsContent").classList.remove("hidden");
+
+        const dot = document.getElementById("resultDot");
+        dot.classList.remove("hidden");
+        dot.className = `w-2 h-2 rounded-full ${res.allPassed ? 'bg-emerald-400' : 'bg-rose-500'}`;
+
+        const statusBadge = document.getElementById("runStatusBadge");
+        statusBadge.textContent = res.status;
+        statusBadge.className = `text-base font-bold font-display ${res.allPassed ? 'text-emerald-400' : 'text-rose-400'}`;
+
+        document.getElementById("runTimingBadge").textContent = `Runtime: ${res.runtime}`;
+        document.getElementById("casesPassedBadge").textContent = `${res.passedCount} / ${res.totalCount} testcases passed`;
+
+        // Render Case Tabs in Result
+        const caseTabs = document.getElementById("resultCaseTabs");
+        caseTabs.innerHTML = res.testResults.map((tc, idx) => `
+          <button class="result-case-btn px-3 py-1 rounded-lg border text-xs font-mono flex items-center gap-1.5 transition ${idx === activeResultCaseIndex ? 'border-gold/50 bg-gold/10 text-gold font-semibold' : 'border-white/10 bg-white/5 text-white/60 hover:text-white'}" data-rcase="${idx}">
+            <span class="w-1.5 h-1.5 rounded-full ${tc.passed ? 'bg-emerald-400' : 'bg-rose-400'}"></span>
+            Case ${idx + 1}
+          </button>
+        `).join("");
+
+        document.querySelectorAll(".result-case-btn").forEach(b => {
+          b.addEventListener("click", () => {
+            activeResultCaseIndex = parseInt(b.dataset.rcase, 10);
+            renderRunResults(lastRunResult);
+          });
+        });
+
+        // Render Case Details
+        const currCase = res.testResults[activeResultCaseIndex];
+        const detailContainer = document.getElementById("resultCaseDetail");
+
+        if (currCase) {
+          detailContainer.innerHTML = `
+            <div class="space-y-2">
+              <span class="text-[11px] text-white/40 uppercase tracking-wider block">Input</span>
+              <div class="rounded-xl border border-white/10 bg-black/40 p-2.5 font-mono text-xs text-ink/90 overflow-x-auto">${currCase.inputDisplay}</div>
+            </div>
+
+            <div class="space-y-2">
+              <span class="text-[11px] text-white/40 uppercase tracking-wider block">Your Output</span>
+              <div class="rounded-xl border ${currCase.passed ? 'border-emerald-500/30 bg-emerald-500/5 text-emerald-300' : 'border-rose-500/30 bg-rose-500/5 text-rose-300'} p-2.5 font-mono text-xs overflow-x-auto">
+                ${currCase.error ? `<span class="text-rose-400 font-bold">Runtime Error: ${currCase.error}</span>` : currCase.userOutputDisplay}
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <span class="text-[11px] text-white/40 uppercase tracking-wider block">Expected Output</span>
+              <div class="rounded-xl border border-white/10 bg-black/40 p-2.5 font-mono text-xs text-gold overflow-x-auto">${currCase.expectedDisplay}</div>
+            </div>
+          `;
+        }
+
+        // Stdout logs
+        const logBox = document.getElementById("resultLogsContainer");
+        const logText = document.getElementById("resultLogsText");
+        if (res.logs && res.logs.length > 0) {
+          logBox.classList.remove("hidden");
+          logText.textContent = res.logs.join("\n");
+        } else {
+          logBox.classList.add("hidden");
+        }
+      }
+
+      // SUBMIT CODE (against all test cases including hidden)
+      document.getElementById("submitCodeBtn").addEventListener("click", async () => {
+        const btn = document.getElementById("submitCodeBtn");
+        btn.disabled = true;
+        btn.innerHTML = `<span class="animate-spin mr-1">⚙️</span> Evaluating...`;
+
+        // Switch to result tab in console
+        document.querySelector('.console-tab[data-ctab="results"]').click();
+
+        try {
+          const userCode = editor.value;
+          const allTests = [...currentProblem.sampleTestCases, ...(currentProblem.hiddenTestCases || [])];
+
+          const result = await runner.execute(userCode, currentProblem.functionName, allTests);
+          lastRunResult = result;
+          activeResultCaseIndex = 0;
+          renderRunResults(result);
+
+          if (result.allPassed) {
+            // Trigger Confetti!
+            if (window.confetti) {
+              window.confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 }
+              });
+            }
+
+            // Save in Progress Tracker & auto-log SkillProof evidence!
+            tracker.markSolved(currentProblem, {
+              runtime: result.runtime,
+              memory: result.memory,
+              language: currentLang,
+              code: userCode
+            });
+
+            // Update badge on header
+            document.getElementById("solvedStatusBadge").classList.remove("hidden");
+            document.getElementById("solvedStatusBadge").classList.add("inline-flex");
+
+            // Update submissions tab
+            renderSubmissionsTab();
+
+            // Show Success Modal
+            document.getElementById("modalProblemTitle").textContent = `You solved ${currentProblem.title}`;
+            document.getElementById("modalRuntime").textContent = result.runtime;
+            document.getElementById("modalMemory").textContent = result.memory;
+            document.getElementById("successModal").classList.remove("hidden");
+          } else {
+            // Record failed attempt
+            tracker.recordSubmission(currentProblem.id, {
+              status: result.status,
+              runtime: result.runtime,
+              memory: result.memory,
+              language: currentLang,
+              code: userCode,
+              timestamp: new Date().toISOString()
+            });
+            renderSubmissionsTab();
+          }
+
+        } catch (err) {
+          console.error(err);
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = `
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            Submit
+          `;
+        }
+      });
+
+      // Modal buttons
+      document.getElementById("modalCloseBtn").addEventListener("click", () => {
+        document.getElementById("successModal").classList.add("hidden");
+      });
+
+      document.getElementById("modalViewEvidenceBtn").addEventListener("click", () => {
+        window.location.href = "evidence.html";
+      });
+
+      document.getElementById("modalNextBtn").addEventListener("click", () => {
+        document.getElementById("successModal").classList.add("hidden");
+        goToNextProblem();
+      });
+
+      // Prev and Next Problem buttons
+      function goToNextProblem() {
+        const currIdx = problems.findIndex(p => p.id === currentProblem.id);
+        const nextIdx = (currIdx + 1) % problems.length;
+        loadProblem(problems[nextIdx]);
+      }
+
+      function goToPrevProblem() {
+        const currIdx = problems.findIndex(p => p.id === currentProblem.id);
+        const prevIdx = (currIdx - 1 + problems.length) % problems.length;
+        loadProblem(problems[prevIdx]);
+      }
+
+      document.getElementById("nextProblemBtn").addEventListener("click", goToNextProblem);
+      document.getElementById("prevProblemBtn").addEventListener("click", goToPrevProblem);
+
+      // Initial load
+      loadProblem(currentProblem);
+    });
+  </script>
+</body>
+</html>

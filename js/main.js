@@ -322,6 +322,79 @@ function renderDashboard() {
       `;
     }
   }
+
+  // Coding Arena Progress (LeetCode / HackerRank style)
+  renderArenaProgress();
+}
+
+function renderArenaProgress() {
+  const solvedCountEl = document.getElementById("dashSolvedCount");
+  if (!solvedCountEl || !window.ProgressTracker) return;
+
+  const tracker = window.ProgressTracker;
+  const stats = tracker.getStats();
+  const solvedMap = tracker.getSolvedMap();
+  const solvedItems = Object.values(solvedMap);
+  const allProblems = window.CODING_PROBLEMS || [];
+
+  solvedCountEl.textContent = stats.solvedTotal;
+  const totalEl = document.getElementById("dashTotalCount");
+  if (totalEl) totalEl.textContent = `/ ${stats.total} Problems`;
+
+  const easyEl = document.getElementById("dashEasyStats");
+  if (easyEl) easyEl.textContent = `${stats.easy.solved} / ${stats.easy.total} Easy`;
+
+  const medEl = document.getElementById("dashMediumStats");
+  if (medEl) medEl.textContent = `${stats.medium.solved} / ${stats.medium.total} Med`;
+
+  const hardEl = document.getElementById("dashHardStats");
+  if (hardEl) hardEl.textContent = `${stats.hard.solved} / ${stats.hard.total} Hard`;
+
+  const streakEl = document.getElementById("dashStreak");
+  if (streakEl) streakEl.textContent = `${stats.streakDays} Days 🔥`;
+
+  const pointsEl = document.getElementById("dashPoints");
+  if (pointsEl) pointsEl.textContent = `${stats.solvedTotal * 6} pts`;
+
+  // Render recent questions solved
+  const recentList = document.getElementById("dashRecentSolvedList");
+  if (recentList) {
+    if (solvedItems.length > 0) {
+      recentList.innerHTML = solvedItems.slice(0, 3).map(item => {
+        let diffColor = "text-emerald-400 border-emerald-500/30 bg-emerald-500/10";
+        if (item.difficulty === "Medium") diffColor = "text-amber-400 border-amber-500/30 bg-amber-500/10";
+        if (item.difficulty === "Hard") diffColor = "text-rose-400 border-rose-500/30 bg-rose-500/10";
+
+        return `
+          <div class="rounded-xl border border-white/5 bg-white/[0.02] p-3 flex flex-col justify-between hover:border-gold/30 transition">
+            <div class="flex items-start justify-between gap-2">
+              <span class="font-display font-semibold text-sm text-white">${item.title}</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-mono border ${diffColor}">${item.difficulty}</span>
+            </div>
+            <div class="flex items-center justify-between mt-3 text-xs">
+              <span class="text-white/40 font-mono text-[11px]">✓ Verified</span>
+              <a href="problem.html?id=${item.id}" class="text-gold hover:underline font-mono text-xs">Review Code →</a>
+            </div>
+          </div>
+        `;
+      }).join("");
+    } else {
+      // Show recommendations if none yet
+      const recommendations = allProblems.slice(0, 3);
+      recentList.innerHTML = recommendations.map(p => `
+        <div class="rounded-xl border border-white/5 bg-white/[0.02] p-3 flex flex-col justify-between hover:border-gold/30 transition">
+          <div class="flex items-start justify-between gap-2">
+            <span class="font-display font-semibold text-sm text-white">${p.number}. ${p.title}</span>
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono border text-emerald-400 border-emerald-500/30 bg-emerald-500/10">${p.difficulty}</span>
+          </div>
+          <div class="flex items-center justify-between mt-3 text-xs">
+            <span class="text-white/40 font-mono text-[11px]">${p.category}</span>
+            <a href="problem.html?id=${p.id}" class="text-gold hover:underline font-mono text-xs">Solve Now →</a>
+          </div>
+        </div>
+      `).join("");
+    }
+  }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
