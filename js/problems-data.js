@@ -1103,6 +1103,266 @@ function coinChange(coins, amount) {
       <p class="text-sm text-inkdim leading-relaxed mb-3">For every sub-amount from 1 up to <code>amount</code>, test each coin denomination and take the minimum.</p>
       <div class="bg-black/40 p-3 rounded-lg font-mono text-xs text-cyan mb-2">Time Complexity: O(S * N) | Space Complexity: O(S) where S is amount</div>
     `
+  },
+  {
+    id: "valid-anagram",
+    number: 11,
+    title: "Valid Anagram",
+    difficulty: "Easy",
+    category: "Strings",
+    skill: "Java",
+    acceptance: "62.4%",
+    points: 2,
+    description: `<p>Given two strings <code>s</code> and <code>t</code>, return <code>true</code> if <code>t</code> is an anagram of <code>s</code>, and <code>false</code> otherwise.</p>`,
+    examples: [{ input: 's = "anagram", t = "nagaram"', output: "true" }],
+    constraints: ["1 <= s.length, t.length <= 5 * 10<sup>4</sup>"],
+    functionName: "isAnagram",
+    starterCode: {
+      javascript: `function isAnagram(s, t) {\n  \n}`,
+      python: `def isAnagram(s: str, t: str) -> bool:\n    pass`,
+      java: `class Solution {\n    public boolean isAnagram(String s, String t) {\n        return false;\n    }\n}`
+    },
+    solutionCode: {
+      javascript: `function isAnagram(s, t) {\n  if (s.length !== t.length) return false;\n  const count = {};\n  for (let c of s) count[c] = (count[c] || 0) + 1;\n  for (let c of t) {\n    if (!count[c]) return false;\n    count[c]--;\n  }\n  return true;\n}`,
+      python: `def isAnagram(s: str, t: str) -> bool:\n    return sorted(s) == sorted(t)`,
+      java: `class Solution {\n    public boolean isAnagram(String s, String t) {\n        if (s.length() != t.length()) return false;\n        int[] c = new int[26];\n        for (int i = 0; i < s.length(); i++) {\n            c[s.charAt(i) - 'a']++;\n            c[t.charAt(i) - 'a']--;\n        }\n        for (int n : c) if (n != 0) return false;\n        return true;\n    }\n}`
+    },
+    sampleTestCases: [{ input: ["anagram", "nagaram"], inputDisplay: 's = "anagram", t = "nagaram"', expected: true }],
+    hiddenTestCases: [{ input: ["rat", "car"], inputDisplay: 's = "rat", t = "car"', expected: false }]
+  },
+  {
+    id: "reverse-linked-list",
+    number: 12,
+    title: "Reverse Linked List",
+    difficulty: "Easy",
+    category: "Linked List",
+    skill: "Java",
+    acceptance: "74.1%",
+    points: 2,
+    description: `<p>Given the head of a singly linked list, reverse the list, and return the reversed list.</p>`,
+    examples: [{ input: "head = [1,2,3,4,5]", output: "[5,4,3,2,1]" }],
+    constraints: ["The number of nodes in the list is the range [0, 5000]."],
+    functionName: "reverseList",
+    starterCode: {
+      javascript: `function reverseList(head) {\n  \n}`,
+      python: `def reverseList(head):\n    pass`,
+      java: `class Solution {\n    public ListNode reverseList(ListNode head) {\n        return null;\n    }\n}`
+    },
+    solutionCode: {
+      javascript: `function reverseList(head) {\n  let prev = null, curr = head;\n  while (curr) {\n    let nextTemp = curr.next;\n    curr.next = prev;\n    prev = curr;\n    curr = nextTemp;\n  }\n  return prev;\n}`,
+      python: `def reverseList(head):\n    prev, curr = None, head\n    while curr:\n        nxt = curr.next\n        curr.next = prev\n        prev, curr = curr, nxt\n    return prev`,
+      java: `class Solution {\n    public ListNode reverseList(ListNode head) {\n        ListNode prev = null, curr = head;\n        while (curr != null) {\n            ListNode nxt = curr.next;\n            curr.next = prev;\n            prev = curr;\n            curr = nxt;\n        }\n        return prev;\n    }\n}`
+    },
+    sampleTestCases: [{ input: [[1,2,3,4,5]], inputDisplay: "head = [1,2,3,4,5]", expected: [5,4,3,2,1] }],
+    hiddenTestCases: [{ input: [[1,2]], inputDisplay: "head = [1,2]", expected: [2,1] }]
+  },
+  {
+    id: "binary-tree-inorder-traversal",
+    number: 13,
+    title: "Binary Tree Inorder Traversal",
+    difficulty: "Easy",
+    category: "Trees",
+    skill: "Java",
+    acceptance: "75.2%",
+    points: 2,
+    description: `<p>Given the <code>root</code> of a binary tree, return <em>the inorder traversal of its nodes' values</em>.</p>`,
+    examples: [{ input: "root = [1,null,2,3]", output: "[1,3,2]" }],
+    constraints: ["The number of nodes in the tree is in the range [0, 100]."],
+    functionName: "inorderTraversal",
+    starterCode: {
+      javascript: `function inorderTraversal(root) {\n  \n}`,
+      python: `def inorderTraversal(root):\n    pass`,
+      java: `class Solution {\n    public List<Integer> inorderTraversal(TreeNode root) {\n        return new ArrayList<>();\n    }\n}`
+    },
+    solutionCode: {
+      javascript: `function inorderTraversal(root, res = []) {\n  if (!root) return res;\n  inorderTraversal(root.left, res);\n  res.push(root.val);\n  inorderTraversal(root.right, res);\n  return res;\n}`,
+      python: `def inorderTraversal(root):\n    res = []\n    def helper(node):\n        if not node: return\n        helper(node.left)\n        res.append(node.val)\n        helper(node.right)\n    helper(root)\n    return res`,
+      java: `class Solution {\n    public List<Integer> inorderTraversal(TreeNode root) {\n        List<Integer> res = new ArrayList<>();\n        helper(root, res);\n        return res;\n    }\n    private void helper(TreeNode node, List<Integer> res) {\n        if (node == null) return;\n        helper(node.left, res);\n        res.add(node.val);\n        helper(node.right, res);\n    }\n}`
+    },
+    sampleTestCases: [{ input: [[1,null,2,3]], inputDisplay: "root = [1,null,2,3]", expected: [1,3,2] }],
+    hiddenTestCases: [{ input: [[]], inputDisplay: "root = []", expected: [] }]
+  },
+  {
+    id: "maximum-depth-of-binary-tree",
+    number: 14,
+    title: "Maximum Depth of Binary Tree",
+    difficulty: "Easy",
+    category: "Trees",
+    skill: "Java",
+    acceptance: "74.8%",
+    points: 2,
+    description: `<p>Given the <code>root</code> of a binary tree, return <em>its maximum depth</em>.</p>`,
+    examples: [{ input: "root = [3,9,20,null,null,15,7]", output: "3" }],
+    constraints: ["The number of nodes in the tree is in the range [0, 10<sup>4</sup>]."],
+    functionName: "maxDepth",
+    starterCode: {
+      javascript: `function maxDepth(root) {\n  \n}`,
+      python: `def maxDepth(root):\n    pass`,
+      java: `class Solution {\n    public int maxDepth(TreeNode root) {\n        return 0;\n    }\n}`
+    },
+    solutionCode: {
+      javascript: `function maxDepth(root) {\n  if (!root) return 0;\n  return 1 + Math.max(maxDepth(root.left), maxDepth(root.right));\n}`,
+      python: `def maxDepth(root):\n    if not root: return 0\n    return 1 + max(maxDepth(root.left), maxDepth(root.right))`,
+      java: `class Solution {\n    public int maxDepth(TreeNode root) {\n        if (root == null) return 0;\n        return 1 + Math.max(maxDepth(root.left), maxDepth(root.right));\n    }\n}`
+    },
+    sampleTestCases: [{ input: [[3,9,20,null,null,15,7]], inputDisplay: "root = [3,9,20,null,null,15,7]", expected: 3 }],
+    hiddenTestCases: [{ input: [[1,null,2]], inputDisplay: "root = [1,null,2]", expected: 2 }]
+  },
+  {
+    id: "intersection-of-two-arrays",
+    number: 15,
+    title: "Intersection of Two Arrays",
+    difficulty: "Easy",
+    category: "Arrays & Hashing",
+    skill: "Java",
+    acceptance: "71.3%",
+    points: 2,
+    description: `<p>Given two integer arrays <code>nums1</code> and <code>nums2</code>, return <em>an array of their intersection</em>.</p>`,
+    examples: [{ input: "nums1 = [1,2,2,1], nums2 = [2,2]", output: "[2]" }],
+    constraints: ["1 <= nums1.length, nums2.length <= 1000"],
+    functionName: "intersection",
+    starterCode: {
+      javascript: `function intersection(nums1, nums2) {\n  \n}`,
+      python: `def intersection(nums1: list[int], nums2: list[int]) -> list[int]:\n    pass`,
+      java: `class Solution {\n    public int[] intersection(int[] nums1, int[] nums2) {\n        return new int[0];\n    }\n}`
+    },
+    solutionCode: {
+      javascript: `function intersection(nums1, nums2) {\n  const set1 = new Set(nums1);\n  const set2 = new Set(nums2);\n  return [...set1].filter(x => set2.has(x));\n}`,
+      python: `def intersection(nums1, nums2):\n    return list(set(nums1) & set(nums2))`,
+      java: `class Solution {\n    public int[] intersection(int[] nums1, int[] nums2) {\n        Set<Integer> set1 = new HashSet<>();\n        for (int n : nums1) set1.add(n);\n        Set<Integer> set2 = new HashSet<>();\n        for (int n : nums2) if (set1.contains(n)) set2.add(n);\n        int[] res = new int[set2.size()];\n        int i = 0;\n        for (int n : set2) res[i++] = n;\n        return res;\n    }\n}`
+    },
+    sampleTestCases: [{ input: [[1,2,2,1], [2,2]], inputDisplay: "nums1 = [1,2,2,1], nums2 = [2,2]", expected: [2] }],
+    hiddenTestCases: [{ input: [[4,9,5], [9,4,9,8,4]], inputDisplay: "nums1 = [4,9,5], nums2 = [9,4,9,8,4]", expected: [9,4] }]
+  },
+  {
+    id: "fibonacci-number",
+    number: 16,
+    title: "Fibonacci Number",
+    difficulty: "Easy",
+    category: "Math & DP",
+    skill: "JavaScript",
+    acceptance: "72.9%",
+    points: 2,
+    description: `<p>The <strong>Fibonacci numbers</strong>, commonly denoted <code>F(n)</code> form a sequence, called the <strong>Fibonacci sequence</strong>, such that each number is the sum of the two preceding ones.</p>`,
+    examples: [{ input: "n = 4", output: "3", explanation: "F(4) = F(3) + F(2) = 2 + 1 = 3." }],
+    constraints: ["0 <= n <= 30"],
+    functionName: "fib",
+    starterCode: {
+      javascript: `function fib(n) {\n  \n}`,
+      python: `def fib(n: int) -> int:\n    pass`,
+      java: `class Solution {\n    public int fib(int n) {\n        return 0;\n    }\n}`
+    },
+    solutionCode: {
+      javascript: `function fib(n) {\n  if (n <= 1) return n;\n  let a = 0, b = 1;\n  for (let i = 2; i <= n; i++) {\n    let c = a + b;\n    a = b;\n    b = c;\n  }\n  return b;\n}`,
+      python: `def fib(n):\n    if n <= 1: return n\n    a, b = 0, 1\n    for _ in range(2, n + 1):\n        a, b = b, a + b\n    return b`,
+      java: `class Solution {\n    public int fib(int n) {\n        if (n <= 1) return n;\n        int a = 0, b = 1;\n        for (int i = 2; i <= n; i++) {\n            int c = a + b;\n            a = b;\n            b = c;\n        }\n        return b;\n    }\n}`
+    },
+    sampleTestCases: [{ input: [4], inputDisplay: "n = 4", expected: 3 }],
+    hiddenTestCases: [{ input: [10], inputDisplay: "n = 10", expected: 55 }]
+  },
+  {
+    id: "single-number",
+    number: 17,
+    title: "Single Number",
+    difficulty: "Easy",
+    category: "Bit Manipulation",
+    skill: "JavaScript",
+    acceptance: "71.2%",
+    points: 2,
+    description: `<p>Given a non-empty array of integers <code>nums</code>, every element appears <em>twice</em> except for one. Find that single one.</p>`,
+    examples: [{ input: "nums = [2,2,1]", output: "1" }],
+    constraints: ["1 <= nums.length <= 3 * 10<sup>4</sup>"],
+    functionName: "singleNumber",
+    starterCode: {
+      javascript: `function singleNumber(nums) {\n  \n}`,
+      python: `def singleNumber(nums: list[int]) -> int:\n    pass`,
+      java: `class Solution {\n    public int singleNumber(int[] nums) {\n        return 0;\n    }\n}`
+    },
+    solutionCode: {
+      javascript: `function singleNumber(nums) {\n  let res = 0;\n  for (let n of nums) res ^= n;\n  return res;\n}`,
+      python: `def singleNumber(nums):\n    res = 0\n    for n in nums:\n        res ^= n\n    return res`,
+      java: `class Solution {\n    public int singleNumber(int[] nums) {\n        int res = 0;\n        for (int n : nums) res ^= n;\n        return res;\n    }\n}`
+    },
+    sampleTestCases: [{ input: [[2,2,1]], inputDisplay: "nums = [2,2,1]", expected: 1 }],
+    hiddenTestCases: [{ input: [[4,1,2,1,2]], inputDisplay: "nums = [4,1,2,1,2]", expected: 4 }]
+  },
+  {
+    id: "move-zeroes",
+    number: 18,
+    title: "Move Zeroes",
+    difficulty: "Easy",
+    category: "Arrays & Hashing",
+    skill: "JavaScript",
+    acceptance: "61.5%",
+    points: 2,
+    description: `<p>Given an integer array <code>nums</code>, move all <code>0</code>'s to the end of it while maintaining the relative order of the non-zero elements.</p>`,
+    examples: [{ input: "nums = [0,1,0,3,12]", output: "[1,3,12,0,0]" }],
+    constraints: ["1 <= nums.length <= 10<sup>4</sup>"],
+    functionName: "moveZeroes",
+    starterCode: {
+      javascript: `function moveZeroes(nums) {\n  \n}`,
+      python: `def moveZeroes(nums: list[int]) -> None:\n    pass`,
+      java: `class Solution {\n    public void moveZeroes(int[] nums) {\n        \n    }\n}`
+    },
+    solutionCode: {
+      javascript: `function moveZeroes(nums) {\n  let insertPos = 0;\n  for (let n of nums) {\n    if (n !== 0) nums[insertPos++] = n;\n  }\n  while (insertPos < nums.length) {\n    nums[insertPos++] = 0;\n  }\n  return nums;\n}`,
+      python: `def moveZeroes(nums):\n    pos = 0\n    for n in nums:\n        if n != 0:\n            nums[pos] = n\n            pos += 1\n    while pos < len(nums):\n        nums[pos] = 0\n        pos += 1\n    return nums`,
+      java: `class Solution {\n    public void moveZeroes(int[] nums) {\n        int pos = 0;\n        for (int n : nums) {\n            if (n != 0) nums[pos++] = n;\n        }\n        while (pos < nums.length) {\n            nums[pos++] = 0;\n        }\n    }\n}`
+    },
+    sampleTestCases: [{ input: [[0,1,0,3,12]], inputDisplay: "nums = [0,1,0,3,12]", expected: [1,3,12,0,0] }],
+    hiddenTestCases: [{ input: [[0]], inputDisplay: "nums = [0]", expected: [0] }]
+  },
+  {
+    id: "plus-one",
+    number: 19,
+    title: "Plus One",
+    difficulty: "Easy",
+    category: "Math",
+    skill: "JavaScript",
+    acceptance: "44.2%",
+    points: 2,
+    description: `<p>You are given a large integer represented as an integer array <code>digits</code>, where each <code>digits[i]</code> is the i-th digit of the integer. Increment the large integer by one and return <em>the resulting array of digits</em>.</p>`,
+    examples: [{ input: "digits = [1,2,3]", output: "[1,2,4]" }],
+    constraints: ["1 <= digits.length <= 100"],
+    functionName: "plusOne",
+    starterCode: {
+      javascript: `function plusOne(digits) {\n  \n}`,
+      python: `def plusOne(digits: list[int]) -> list[int]:\n    pass`,
+      java: `class Solution {\n    public int[] plusOne(int[] digits) {\n        return new int[0];\n    }\n}`
+    },
+    solutionCode: {
+      javascript: `function plusOne(digits) {\n  for (let i = digits.length - 1; i >= 0; i--) {\n    if (digits[i] < 9) {\n      digits[i]++;\n      return digits;\n    }\n    digits[i] = 0;\n  }\n  digits.unshift(1);\n  return digits;\n}`,
+      python: `def plusOne(digits):\n    for i in range(len(digits) - 1, -1, -1):\n        if digits[i] < 9:\n            digits[i] += 1\n            return digits\n        digits[i] = 0\n    return [1] + digits`,
+      java: `class Solution {\n    public int[] plusOne(int[] digits) {\n        for (int i = digits.length - 1; i >= 0; i--) {\n            if (digits[i] < 9) {\n                digits[i]++;\n                return digits;\n            }\n            digits[i] = 0;\n        }\n        int[] res = new int[digits.length + 1];\n        res[0] = 1;\n        return res;\n    }\n}`
+    },
+    sampleTestCases: [{ input: [[1,2,3]], inputDisplay: "digits = [1,2,3]", expected: [1,2,4] }],
+    hiddenTestCases: [{ input: [[9]], inputDisplay: "digits = [9]", expected: [1,0] }]
+  },
+  {
+    id: "contains-duplicate",
+    number: 20,
+    title: "Contains Duplicate",
+    difficulty: "Easy",
+    category: "Arrays & Hashing",
+    skill: "JavaScript",
+    acceptance: "61.1%",
+    points: 2,
+    description: `<p>Given an integer array <code>nums</code>, return <code>true</code> if any value appears <strong>at least twice</strong> in the array, and return <code>false</code> if every element is distinct.</p>`,
+    examples: [{ input: "nums = [1,2,3,1]", output: "true" }],
+    constraints: ["1 <= nums.length <= 10<sup>5</sup>"],
+    functionName: "containsDuplicate",
+    starterCode: {
+      javascript: `function containsDuplicate(nums) {\n  \n}`,
+      python: `def containsDuplicate(nums: list[int]) -> bool:\n    pass`,
+      java: `class Solution {\n    public boolean containsDuplicate(int[] nums) {\n        return false;\n    }\n}`
+    },
+    solutionCode: {
+      javascript: `function containsDuplicate(nums) {\n  return new Set(nums).size !== nums.length;\n}`,
+      python: `def containsDuplicate(nums):\n    return len(set(nums)) != len(nums)`,
+      java: `class Solution {\n    public boolean containsDuplicate(int[] nums) {\n        Set<Integer> set = new HashSet<>();\n        for (int n : nums) {\n            if (!set.add(n)) return true;\n        }\n        return false;\n    }\n}`
+    },
+    sampleTestCases: [{ input: [[1,2,3,1]], inputDisplay: "nums = [1,2,3,1]", expected: true }],
+    hiddenTestCases: [{ input: [[1,2,3,4]], inputDisplay: "nums = [1,2,3,4]", expected: false }]
   }
 ];
 

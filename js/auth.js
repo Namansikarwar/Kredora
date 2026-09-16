@@ -173,6 +173,11 @@
       users.push(newUser);
       saveUsers(users);
 
+      // New account starts with zero solved problems and zero progress
+      localStorage.setItem("skillproof_solved_problems", JSON.stringify({}));
+      localStorage.setItem("skillproof_problem_submissions", JSON.stringify({}));
+      localStorage.setItem("skillproof_user_evidence", JSON.stringify([]));
+
       // Automatically sign in upon signup
       this.login(cleanUser, password);
 
