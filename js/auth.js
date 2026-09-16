@@ -86,7 +86,7 @@
       const cleanUser = username.trim().toLowerCase();
       const users = getUsers();
       const matched = users.find(
-        (u) => u.username.toLowerCase() === cleanUser || (u.email && u.email.toLowerCase() === cleanUser)
+        (u) => u.username.toLowerCase() === cleanUser
       );
 
       if (!matched) {
@@ -124,7 +124,7 @@
     },
 
     signup(data) {
-      const { username, password, confirmPassword, name, email } = data;
+      const { username, password, confirmPassword, name } = data;
 
       if (!username || !password) {
         return { success: false, message: "Username and password are required." };
@@ -152,7 +152,7 @@
 
       const users = getUsers();
       const exists = users.some(
-        (u) => u.username.toLowerCase() === cleanUser || (email && u.email && u.email.toLowerCase() === email.toLowerCase())
+        (u) => u.username.toLowerCase() === cleanUser
       );
 
       if (exists) {
@@ -165,7 +165,6 @@
       const newUser = {
         username: cleanUser,
         name: name ? name.trim() : cleanUser,
-        email: email ? email.trim().toLowerCase() : "",
         password: password,
         role: "student",
         createdAt: new Date().toISOString(),

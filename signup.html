@@ -138,18 +138,6 @@
           </div>
 
           <div>
-            <label for="signupEmail" class="mb-1.5 block text-xs font-mono uppercase tracking-wider text-inkdim">
-              Email Address
-            </label>
-            <input
-              id="signupEmail"
-              type="email"
-              autocomplete="email"
-              placeholder="alex@example.com"
-              class="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-2.5 text-white text-sm outline-none transition focus:border-gold/70 focus:ring-1 focus:ring-gold/40">
-          </div>
-
-          <div>
             <label for="signupPassword" class="mb-1.5 block text-xs font-mono uppercase tracking-wider text-inkdim">
               Password <span class="text-red-400">*</span>
             </label>
@@ -329,7 +317,6 @@
 
         const name = document.getElementById("signupName").value.trim();
         const username = document.getElementById("signupUsername").value.trim();
-        const email = document.getElementById("signupEmail").value.trim();
         const password = passwordInput.value;
         const confirmPassword = confirmInput.value;
         const terms = document.getElementById("termsCheck").checked;
@@ -359,7 +346,6 @@
           const result = window.Auth.signup({
             name: name || username,
             username,
-            email,
             password,
             confirmPassword,
           });

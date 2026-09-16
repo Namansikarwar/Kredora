@@ -128,7 +128,7 @@
 
           <div>
             <label for="loginUsername" class="mb-2 block text-xs font-mono uppercase tracking-wider text-inkdim">
-              Username or Email
+              Username
             </label>
             <div class="relative">
               <input
@@ -289,7 +289,7 @@
         const remember = document.getElementById("rememberMe").checked;
 
         if (!username) {
-          loginError.textContent = "Please enter your username or email.";
+          loginError.textContent = "Please enter your username.";
           loginError.classList.remove("hidden");
           return;
         }

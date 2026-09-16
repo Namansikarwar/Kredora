@@ -405,7 +405,6 @@ document.addEventListener("DOMContentLoaded", () => {
   initScrollReveal();
   initScoreRings();
   initSmoothAnchors();
-  renderExampleSkills();
   renderScoreBreakdown();
   renderDashboard();
 });
