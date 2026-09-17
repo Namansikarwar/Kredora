@@ -65,13 +65,19 @@ body {
   background-position: 0 0, 0 0, -1px -1px, -1px -1px;
 }
 
-/* Glassmorphic cards with rich multi-layer backdrop-filter blur */
+/* Glassmorphic cards with rich multi-layer backdrop-filter blur and premium hover glow */
 .glass-card {
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.015));
   border: 1px solid rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.35);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), background 0.4s ease;
+}
+
+.glass-card:hover {
+  border-color: rgba(229, 9, 38, 0.32);
+  box-shadow: 0 16px 44px -12px rgba(0, 0, 0, 0.5), 0 0 24px rgba(229, 9, 38, 0.12);
 }
 
 .glass-navbar {
@@ -289,12 +295,29 @@ select:focus-visible {
 ----------------------------------------------------------------- */
 
 .lift-on-hover {
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease, box-shadow 0.4s ease;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .lift-on-hover:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 30px -10px rgba(229, 9, 38, 0.2);
+  transform: translateY(-6px) scale-[1.012];
+  border-color: rgba(229, 9, 38, 0.45);
+  box-shadow: 0 22px 50px -12px rgba(229, 9, 38, 0.28), 0 0 35px rgba(0, 0, 0, 0.6);
+}
+
+/* Premium button micro-interaction */
+.btn-premium {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-premium:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(229, 9, 38, 0.4);
+}
+
+.btn-premium:active {
+  transform: translateY(0);
 }
 
 /* Auth specific helper styles with blur */
