@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Kredora — Don't just claim a skill. Prove it.</title>
+<meta name="description" content="Kredora — Evidence-backed skill verification platform with secure authentication and interactive coding arena." />
+<meta property="og:title" content="Kredora — Don't just claim a skill. Prove it." />
+<meta property="og:description" content="Kredora — Evidence-backed skill verification platform with secure authentication and interactive coding arena." />
+<meta property="og:type" content="website" />
+<link rel="icon" type="image/svg+xml" href="kredora-logo.svg" />
+<link rel="alternate icon" href="kredora-logo.png" type="image/png" />
+<meta name="twitter:card" content="summary_large_image" />
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+<!-- Tailwind CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          base: "#080c16",
+          surface: "#101627",
+          surface2: "#182136",
+          borderc: "#232e48",
+          ink: "#f0f4fc",
+          inkdim: "#8e99b2",
+          brand: {
+            DEFAULT: "#E50926",
+            bright: "#ff334c",
+            hover: "#d7001c",
+            dim: "#990819",
+            glow: "rgba(229, 9, 38, 0.35)",
+          },
+          gold: {
+            DEFAULT: "#E50926",
+            dim: "#990819",
+            bright: "#ff334c",
+          },
+          cyan: {
+            DEFAULT: "#38bdf8",
+          },
+        },
+        fontFamily: {
+          display: ['"Outfit"', "ui-sans-serif", "sans-serif"],
+          sans: ['"Outfit"', "ui-sans-serif", "sans-serif"],
+          mono: ['"JetBrains Mono"', "ui-monospace", "monospace"],
+        },
+      },
+    },
+  };
+</script>
+
+<link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body class="bg-base text-ink antialiased">
+
+  <!-- ============ NAV ============ -->
+  <header class="glass-navbar fixed top-4 inset-x-4 sm:inset-x-6 lg:inset-x-8 max-w-7xl mx-auto z-50 px-5 sm:px-8 h-16 flex items-center justify-between">
+    <div class="w-full flex items-center justify-between">
+
+      <a href="index.html" class="flex items-center gap-2.5 group">
+        <svg class="h-7 w-auto transition-transform group-hover:scale-105 shrink-0" viewBox="0 0 240 150" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Kredora Logo">
+          <defs>
+            <linearGradient id="kredora-logo-grad-nav" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#FF243C" />
+              <stop offset="100%" stop-color="#D7001C" />
+            </linearGradient>
+          </defs>
+          <g fill="url(#kredora-logo-grad-nav)">
+            <path d="M 4,0 L 108,0 C 90,32 52,65 0,68 L 0,4 C 0,1.8 1.8,0 4,0 Z" />
+            <path d="M 0,82 C 52,85 90,118 108,150 L 4,150 C 1.8,150 0,148.2 0,146 L 0,82 Z" />
+            <path d="M 138,0 L 236,0 C 238.2,0 240,1.8 240,4 L 240,146 C 240,148.2 238.2,150 236,150 L 138,150 C 122,125 102,96 86,75 C 102,54 122,25 138,0 Z" />
+          </g>
+        </svg>
+        <span class="font-display font-bold text-xl tracking-tight text-white">Kredora</span>
+      </a>
+
+      <nav class="hidden md:flex items-center gap-8 text-sm text-inkdim">
+        <a href="#how-it-works" class="nav-link hover:text-ink transition-colors">How it works</a>
+        <a href="problems.html" class="nav-link text-brand-bright font-medium hover:text-white transition-colors flex items-center gap-1.5">
+          <span>Problems</span>
+          <span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-brand/15 border border-brand/30 text-brand-bright">Arena</span>
+        </a>
+        <a href="#evidence" class="nav-link hover:text-ink transition-colors">Evidence</a>
+        <a href="#benefits" class="nav-link hover:text-ink transition-colors">Benefits</a>
+      </nav>
+
+      <!-- Dynamic Auth Nav: changes based on login status -->
+      <div class="hidden md:flex items-center gap-3" data-auth-nav>
+        <a href="login.html" class="text-sm text-inkdim hover:text-ink transition-colors px-3 py-2">Log in</a>
+        <a href="signup.html" class="text-sm font-medium bg-brand text-white px-4 py-2 rounded-full hover:bg-brand-hover shadow-md shadow-brand/25 transition-all hover:scale-105">
+          Sign up
+        </a>
+      </div>
+
+      <!-- Mobile toggle -->
+      <button id="nav-toggle" aria-label="Toggle menu" aria-expanded="false" class="md:hidden p-2 -mr-2 text-ink">
+        <svg id="icon-open" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        <svg id="icon-close" class="w-6 h-6 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+
+    <!-- Mobile menu with rich backdrop blur -->
+    <div id="mobile-menu" class="md:hidden border-t border-white/10 bg-[#080c16]/95 backdrop-blur-2xl">
+      <div class="px-5 py-4 flex flex-col gap-1 text-sm">
+        <a href="problems.html" class="py-2.5 text-brand-bright font-semibold flex items-center justify-between">
+          <span>Problems (Arena)</span>
+          <span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-brand/15 border border-brand/30 text-brand-bright">New</span>
+        </a>
+        <a href="#how-it-works" class="py-2.5 text-inkdim hover:text-ink">How it works</a>
+        <a href="#evidence" class="py-2.5 text-inkdim hover:text-ink">Evidence</a>
+        <a href="#benefits" class="py-2.5 text-inkdim hover:text-ink">Benefits</a>
+        <div data-mobile-auth-nav>
+          <div class="h-px bg-white/5 my-2"></div>
+          <a href="login.html" class="py-2.5 text-inkdim hover:text-ink">Log in</a>
+          <a href="signup.html" class="mt-1 text-center font-medium bg-brand text-white px-4 py-2.5 rounded-full shadow-md shadow-brand/20">Sign up</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+
+    <!-- ============ HERO ============ -->
+    <section class="hero-field relative pt-40 pb-28 px-5 sm:px-8 overflow-hidden">
+      <!-- Ambient blurred crimson light orbs for depth -->
+      <div class="absolute -top-24 left-1/2 -translate-x-1/2 w-[720px] h-[380px] bg-brand/15 rounded-full blur-[130px] pointer-events-none -z-10"></div>
+      <div class="absolute top-1/3 -right-24 w-[480px] h-[480px] bg-brand/10 rounded-full blur-[140px] pointer-events-none -z-10"></div>
+
+      <div class="max-w-7xl mx-auto grid lg:grid-cols-[1.05fr_0.95fr] gap-16 items-center">
+
+        <div>
+          <p class="enter delay-1 inline-flex items-center gap-2 text-xs text-inkdim font-mono border border-borderc rounded-full px-3.5 py-1.5 mb-7 backdrop-blur-md bg-white/[0.02]">
+            <span class="w-1.5 h-1.5 rounded-full bg-brand-bright animate-pulse"></span>
+            Now tracking evidence across 4 skill areas
+          </p>
+
+          <h1 class="enter delay-2 font-display font-semibold text-[2.6rem] sm:text-6xl leading-[1.08] tracking-tight text-white">
+            Don't just claim<br />
+            a skill. <span class="ink-underline text-brand-bright">Prove
+              <svg viewBox="0 0 200 20" preserveAspectRatio="none" fill="none" aria-hidden="true"><path d="M2 12C40 4 160 4 198 12" fill="none"/></svg>
+            </span> it.
+          </h1>
+
+          <p class="enter delay-3 mt-6 text-lg text-inkdim max-w-lg leading-relaxed">
+            Resumes list skills. Kredora verifies them — turning the problems you solve, the projects you ship, and the assessments you pass into a skill profile backed by evidence, not adjectives.
+          </p>
+
+          <div class="enter delay-4 mt-9 flex flex-wrap items-center gap-4">
+            <a href="signup.html" id="hero-cta-btn" class="inline-flex items-center gap-2 bg-brand text-white font-medium px-6 py-3.5 rounded-full hover:bg-brand-hover shadow-lg shadow-brand/25 transition-all hover:scale-105 active:scale-95">
+              Build your skill profile
+            </a>
+            <a href="problems.html" class="inline-flex items-center gap-2 text-white border border-brand/40 bg-brand/10 px-6 py-3.5 rounded-full hover:bg-brand/20 hover:border-brand transition-all font-medium backdrop-blur-md">
+              <svg class="w-4 h-4 text-brand-bright" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+              Practice Problems (Arena)
+            </a>
+            <a href="#evidence" class="inline-flex items-center gap-2 text-ink border border-borderc px-6 py-3.5 rounded-full hover:border-brand/60 hover:text-white transition-colors backdrop-blur-sm">
+              Explore evidence
+            </a>
+          </div>
+
+          <div class="enter delay-5 mt-12 flex flex-wrap gap-x-10 gap-y-4 text-sm text-inkdim">
+            <div><span class="font-display text-2xl text-white">340+</span> evidence records logged</div>
+            <div><span class="font-display text-2xl text-white">4</span> skill areas tracked</div>
+            <div><span class="font-display text-2xl text-white">0%</span> self-reported score</div>
+          </div>
+        </div>
+
+        <!-- Hero proof card mockup -->
+        <div class="enter delay-3 relative">
+          <div class="glass-card lift-on-hover rounded-2xl p-6 shadow-2xl shadow-black/40 max-w-sm ml-auto">
+            <div class="flex items-center justify-between mb-6">
+              <div>
+                <p class="text-xs text-inkdim font-mono">Skill profile</p>
+                <p class="font-display font-semibold text-lg text-white">Java</p>
+              </div>
+              <span class="text-xs font-mono text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 px-2.5 py-1 rounded-full">Verified</span>
+            </div>
+
+            <div class="flex items-center gap-5">
+              <div class="score-ring w-24 h-24 rounded-full grid place-items-center shrink-0" style="--pct:82" data-score-ring="82">
+                <div class="score-ring-inner w-[74px] h-[74px] rounded-full grid place-items-center">
+                  <span class="font-display font-semibold text-2xl text-white">82</span>
+                </div>
+              </div>
+              <div class="text-sm text-inkdim space-y-1.5">
+                <p>Confidence: <span class="text-ink">High</span></p>
+                <p>41 problems solved</p>
+                <p>3 projects reviewed</p>
+                <p>4 assessments passed</p>
+              </div>
+            </div>
+
+            <div class="evidence-sample mt-6 rounded-lg px-3.5 py-3 font-mono text-xs text-inkdim">
+              Solved: Merge K Sorted Lists · Hard · 14m 22s
+            </div>
+          </div>
+
+          <div class="glass-card rounded-xl px-4 py-3 max-w-[210px] absolute -bottom-6 -left-4 sm:-left-10 shadow-xl shadow-black/40 hidden sm:block">
+            <p class="text-xs text-inkdim mb-1">Overall skill score</p>
+            <p class="font-display font-semibold text-2xl text-gold">79<span class="text-sm text-inkdim">/100</span></p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ============ CORE IDEA ============ -->
+    <section class="py-20 sm:py-24 px-5 sm:px-8 border-t border-white/5">
+      <div class="reveal max-w-3xl mx-auto text-center">
+        <p class="font-display font-semibold text-2xl sm:text-[2.25rem] leading-snug text-white">
+          A skill score means nothing if it's just a claim.
+        </p>
+        <p class="mt-5 text-inkdim text-base sm:text-lg leading-relaxed max-w-xl mx-auto">
+          Every score on Kredora is backed by evidence, not a self-reported rating — built from what you actually did, not what you say you can do.
+        </p>
+        <div class="mt-8 flex flex-wrap items-center justify-center gap-2.5">
+          <span class="evidence-chip">Coding Problems</span>
+          <span class="evidence-chip">Projects</span>
+          <span class="evidence-chip">Assessments</span>
+          <span class="evidence-chip">Concepts Demonstrated</span>
+          <span class="evidence-chip">GitHub Activity</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ EVIDENCE -> SCORE ============ -->
+    <section id="score-breakdown" class="py-28 px-5 sm:px-8 border-t border-white/5 bg-surface/40 backdrop-blur-xl">
+      <div class="max-w-7xl mx-auto">
+        <div class="reveal max-w-xl mb-16">
+          <h2 class="font-display font-semibold text-3xl sm:text-4xl text-white tracking-tight">Watch a score get built</h2>
+          <p class="mt-4 text-inkdim leading-relaxed">
+            This is exactly how Naman's Java score adds up — five evidence sources, each with a real weight, no hidden math.
+          </p>
+        </div>
+
+        <div class="reveal grid lg:grid-cols-[1.3fr_0.9fr] gap-6 items-stretch">
+          <div id="score-factor-list" class="glass-card rounded-2xl p-7 sm:p-8 space-y-1">
+            <!-- Factor rows populated by js/main.js from SKILLPROOF_DATA.scoreBreakdown -->
+          </div>
+
+          <div class="glass-card lift-on-hover rounded-2xl p-8 flex flex-col items-center justify-center text-center">
+            <p class="text-xs text-inkdim font-mono mb-6">Total skill score</p>
+            <div class="score-ring w-36 h-36 rounded-full grid place-items-center" data-score-ring="82">
+              <div class="score-ring-inner w-[112px] h-[112px] rounded-full grid place-items-center flex-col">
+                <span class="font-display font-semibold text-4xl text-white" id="breakdown-total-counter">0</span>
+                <span class="text-[11px] text-inkdim -mt-1">out of 100</span>
+              </div>
+            </div>
+            <p class="mt-6 text-sm text-inkdim">Confidence: <span class="text-ink">High</span></p>
+            <p class="mt-1 text-xs font-mono text-emerald-400">Verified evidence trail</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CLAIMS VS PROOF ============ -->
+    <section class="py-28 px-5 sm:px-8 border-t border-white/5">
+      <div class="max-w-7xl mx-auto">
+        <div class="reveal max-w-xl mb-16">
+          <h2 class="font-display font-semibold text-3xl sm:text-4xl text-white tracking-tight">A rating vs. a record</h2>
+          <p class="mt-4 text-inkdim leading-relaxed">Same skill, same student. One of these you have to take on faith.</p>
+        </div>
+
+        <div class="reveal grid md:grid-cols-[1fr_auto_1fr] gap-6 md:gap-8 items-center">
+
+          <div class="resume-card rounded-2xl p-7">
+            <p class="text-xs text-inkdim/70 font-mono mb-6">Traditional resume</p>
+            <p class="font-display text-2xl text-slate-300 mb-2">Java</p>
+            <p class="text-2xl tracking-wide text-slate-500 mb-6">★★★★☆ <span class="text-base align-middle text-slate-400">4/5</span></p>
+            <p class="text-sm text-slate-500 leading-relaxed">Self-reported. No context, no evidence, no way to check.</p>
+          </div>
+
+          <div class="hidden md:grid place-items-center">
+            <span class="w-11 h-11 rounded-full grid place-items-center border border-borderc bg-white/[0.03] backdrop-blur-md font-mono text-xs text-inkdim">vs</span>
+          </div>
+          <div class="md:hidden flex items-center gap-3 text-xs font-mono text-inkdim">
+            <span class="flex-1 h-px bg-white/10"></span>vs<span class="flex-1 h-px bg-white/10"></span>
+          </div>
+
+          <div class="glass-card lift-on-hover rounded-2xl p-7">
+            <p class="text-xs text-gold font-mono mb-6">Kredora</p>
+            <div class="flex items-baseline gap-2 mb-6">
+              <p class="font-display text-2xl text-white">Java</p>
+              <p class="font-display text-3xl text-gold ml-auto">82<span class="text-sm text-inkdim">/100</span></p>
+            </div>
+            <div class="flex flex-wrap gap-2 mb-6">
+              <span class="evidence-chip">41 problems solved</span>
+              <span class="evidence-chip">3 projects reviewed</span>
+              <span class="evidence-chip">4 assessments passed</span>
+              <span class="evidence-chip">6-week activity streak</span>
+            </div>
+            <p class="text-sm text-inkdim leading-relaxed">High confidence — every point traces back to a timestamped record you can open and check.</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ HOW IT WORKS ============ -->
+    <section id="how-it-works" class="py-28 px-5 sm:px-8 border-t border-white/5">
+      <div class="max-w-7xl mx-auto">
+        <div class="reveal max-w-xl mb-16">
+          <h2 class="font-display font-semibold text-3xl sm:text-4xl text-white tracking-tight">How Kredora works</h2>
+          <p class="mt-4 text-inkdim leading-relaxed">
+            Three steps stand between "I know Java" and a skill score someone can actually trust.
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-8">
+          <div class="reveal">
+            <span class="font-display text-sm text-gold-dim">01</span>
+            <h3 class="font-display font-semibold text-xl text-white mt-3 mb-2.5">Do the work</h3>
+            <p class="text-inkdim text-sm leading-relaxed">
+              Solve problems, ship projects, and take assessments in the tools you already use. Nothing new to learn first.
+            </p>
+          </div>
+          <div class="reveal">
+            <span class="font-display text-sm text-gold-dim">02</span>
+            <h3 class="font-display font-semibold text-xl text-white mt-3 mb-2.5">We log the evidence</h3>
+            <p class="text-inkdim text-sm leading-relaxed">
+              Every solved problem, reviewed commit, and passed test becomes a timestamped, specific record — not a vague point total.
+            </p>
+          </div>
+          <div class="reveal">
+            <span class="font-display text-sm text-gold-dim">03</span>
+            <h3 class="font-display font-semibold text-xl text-white mt-3 mb-2.5">Your score updates</h3>
+            <p class="text-inkdim text-sm leading-relaxed">
+              Scores and confidence levels move with accumulated evidence — never with a claim you type into a bio field.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ EVIDENCE TYPES ============ -->
+    <section id="evidence" class="py-28 px-5 sm:px-8 border-t border-white/5 bg-surface/40 backdrop-blur-xl">
+      <div class="max-w-7xl mx-auto">
+        <div class="reveal max-w-xl mb-16">
+          <h2 class="font-display font-semibold text-3xl sm:text-4xl text-white tracking-tight">Evidence, not endorsements</h2>
+          <p class="mt-4 text-inkdim leading-relaxed">
+            Four kinds of evidence feed every skill score. Each one is checkable — no self-assessment sliders involved.
+          </p>
+        </div>
+
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+
+          <div class="reveal glass-card rounded-2xl p-6 hover:border-gold/40 transition-colors">
+            <svg class="w-8 h-8 text-cyan mb-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 9l-4 4 4 4M16 9l4 4-4 4M13 5l-2 16"/></svg>
+            <h3 class="font-display font-semibold text-white mb-2">Coding Problems</h3>
+            <p class="text-sm text-inkdim leading-relaxed mb-4">Logged with language, difficulty, and time to solve.</p>
+            <p class="evidence-sample rounded-md px-3 py-2.5 font-mono text-[11px] text-inkdim">Merge K Sorted Lists · Java · Hard</p>
+          </div>
+
+          <div class="reveal glass-card rounded-2xl p-6 hover:border-gold/40 transition-colors">
+            <svg class="w-8 h-8 text-cyan mb-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h16v4H4zM4 12h10v8H4zM17 12h3v8h-3z"/></svg>
+            <h3 class="font-display font-semibold text-white mb-2">Projects</h3>
+            <p class="text-sm text-inkdim leading-relaxed mb-4">Reviewed for code quality, tests, and contribution history.</p>
+            <p class="evidence-sample rounded-md px-3 py-2.5 font-mono text-[11px] text-inkdim">inventory-tracker · 84% coverage</p>
+          </div>
+
+          <div class="reveal glass-card rounded-2xl p-6 hover:border-gold/40 transition-colors">
+            <svg class="w-8 h-8 text-cyan mb-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 11l3 3L22 4M2 12a10 10 0 1 0 5-8.7"/></svg>
+            <h3 class="font-display font-semibold text-white mb-2">Assessments</h3>
+            <p class="text-sm text-inkdim leading-relaxed mb-4">Timed checks that verify a skill holds up under pressure.</p>
+            <p class="evidence-sample rounded-md px-3 py-2.5 font-mono text-[11px] text-inkdim">SQL Optimization · 91/100</p>
+          </div>
+
+          <div class="reveal glass-card rounded-2xl p-6 hover:border-gold/40 transition-colors">
+            <svg class="w-8 h-8 text-cyan mb-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3v18h18M7 15l4-5 3 3 5-7"/></svg>
+            <h3 class="font-display font-semibold text-white mb-2">Activity</h3>
+            <p class="text-sm text-inkdim leading-relaxed mb-4">Ongoing signal from connected accounts and streaks.</p>
+            <p class="evidence-sample rounded-md px-3 py-2.5 font-mono text-[11px] text-inkdim">6-week streak · 212 commits</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+
+
+    <!-- ============ BENEFITS ============ -->
+    <section id="benefits" class="py-28 px-5 sm:px-8 border-t border-white/5 bg-surface/40 backdrop-blur-xl">
+      <div class="max-w-7xl mx-auto">
+        <div class="reveal max-w-xl mb-16">
+          <h2 class="font-display font-semibold text-3xl sm:text-4xl text-white tracking-tight">Built for both sides of the hiring table</h2>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6">
+          <div class="reveal glass-card rounded-2xl p-8">
+            <h3 class="font-display font-semibold text-xl text-white mb-5">For students</h3>
+            <ul class="space-y-4 text-sm text-inkdim">
+              <li class="flex gap-3"><span class="text-gold mt-0.5">＋</span>Show a score that updates as you actually improve, instead of a static resume bullet.</li>
+              <li class="flex gap-3"><span class="text-gold mt-0.5">＋</span>One link — skillproof.me/you — replaces a pile of certificates no one opens.</li>
+              <li class="flex gap-3"><span class="text-gold mt-0.5">＋</span>See exactly where your evidence is thin, and what to work on next.</li>
+            </ul>
+          </div>
+          <div class="reveal glass-card rounded-2xl p-8">
+            <h3 class="font-display font-semibold text-xl text-white mb-5">For recruiters &amp; institutions</h3>
+            <ul class="space-y-4 text-sm text-inkdim">
+              <li class="flex gap-3"><span class="text-cyan mt-0.5">＋</span>Skip the take-home test — the evidence trail already answers "can they actually do this?"</li>
+              <li class="flex gap-3"><span class="text-cyan mt-0.5">＋</span>Compare candidates on confidence level, not on how well they write a resume.</li>
+              <li class="flex gap-3"><span class="text-cyan mt-0.5">＋</span>Every claim links back to a timestamped record you can inspect.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ FINAL CTA ============ -->
+    <section class="py-24 px-5 sm:px-8 border-t border-white/5">
+      <div class="reveal max-w-3xl mx-auto text-center">
+        <h2 class="font-display font-semibold text-3xl sm:text-4xl text-white tracking-tight">Stop claiming. Start proving.</h2>
+        <p class="mt-4 text-inkdim">Your first three skill scores are ready in minutes, backed by evidence from day one.</p>
+        <a href="signup.html" id="final-cta-btn" class="mt-8 inline-flex items-center gap-2 bg-brand text-white font-medium px-7 py-3.5 rounded-full hover:bg-brand-hover shadow-lg shadow-brand/25 transition-all hover:scale-105 active:scale-95">
+          Build your skill profile
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="border-t border-white/5 px-5 sm:px-8 py-14">
+    <div class="max-w-7xl mx-auto grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
+      <div>
+        <div class="flex items-center gap-2.5 mb-4">
+          <svg class="h-6 w-auto shrink-0" viewBox="0 0 240 150" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Kredora">
+            <defs>
+              <linearGradient id="kredora-logo-grad-ftr" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FF243C" />
+                <stop offset="100%" stop-color="#D7001C" />
+              </linearGradient>
+            </defs>
+            <g fill="url(#kredora-logo-grad-ftr)">
+              <path d="M 4,0 L 108,0 C 90,32 52,65 0,68 L 0,4 C 0,1.8 1.8,0 4,0 Z" />
+              <path d="M 0,82 C 52,85 90,118 108,150 L 4,150 C 1.8,150 0,148.2 0,146 L 0,82 Z" />
+              <path d="M 138,0 L 236,0 C 238.2,0 240,1.8 240,4 L 240,146 C 240,148.2 238.2,150 236,150 L 138,150 C 122,125 102,96 86,75 C 102,54 122,25 138,0 Z" />
+            </g>
+          </svg>
+          <span class="font-display font-semibold text-ink">Kredora</span>
+        </div>
+        <p class="text-sm text-inkdim leading-relaxed max-w-[220px]">Don't just claim a skill. Prove it.</p>
+      </div>
+
+      <div>
+        <p class="text-sm font-medium text-ink mb-4">Product</p>
+        <ul class="space-y-2.5 text-sm text-inkdim">
+          <li><a href="dashboard.html" class="hover:text-ink transition-colors">Dashboard</a></li>
+          <li><a href="evidence.html" class="hover:text-ink transition-colors">Evidence</a></li>
+          <li><a href="profile.html" class="hover:text-ink transition-colors">Public profiles</a></li>
+          <li><a href="skillproof.zip" download="skillproof.zip" class="text-gold hover:underline flex items-center gap-1.5 font-mono text-xs pt-1">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+            Download ZIP
+          </a></li>
+        </ul>
+      </div>
+
+      <div>
+        <p class="text-sm font-medium text-ink mb-4">Authentication</p>
+        <ul class="space-y-2.5 text-sm text-inkdim">
+          <li><a href="login.html" class="hover:text-ink transition-colors">Log In</a></li>
+          <li><a href="signup.html" class="hover:text-ink transition-colors">Sign Up</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <p class="text-sm font-medium text-ink mb-4">Legal</p>
+        <ul class="space-y-2.5 text-sm text-inkdim">
+          <li><a href="#" class="hover:text-ink transition-colors">Privacy</a></li>
+          <li><a href="#" class="hover:text-ink transition-colors">Terms</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto mt-12 pt-6 border-t border-white/5 text-xs text-inkdim flex flex-col sm:flex-row gap-2 justify-between">
+      <p>© <span id="current-year"></span> Kredora. All rights reserved.</p>
+      <p>Secure evidence verification system.</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    // Update CTAs if already logged in
+    document.addEventListener("DOMContentLoaded", () => {
+      if (window.Auth && window.Auth.isAuthenticated()) {
+        const heroCta = document.getElementById("hero-cta-btn");
+        if (heroCta) {
+          heroCta.textContent = "Go to your Dashboard";
+          heroCta.href = "dashboard.html";
+        }
+        const finalCta = document.getElementById("final-cta-btn");
+        if (finalCta) {
+          finalCta.textContent = "Go to your Dashboard";
+          finalCta.href = "dashboard.html";
+        }
+      }
+    });
+  </script>
+</body>
+</html>

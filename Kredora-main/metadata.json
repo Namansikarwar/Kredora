@@ -1,0 +1,6 @@
+{
+  "name": "Kredora",
+  "description": "Evidence-backed skill verification and algorithmic coding practice platform with real-time test runner, code editor, and Supabase cloud persistence.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
