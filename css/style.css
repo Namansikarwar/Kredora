@@ -1,0 +1,360 @@
+/* ---------------------------------------------------------------
+   Kredora — Design System & Custom Styles
+   Font: Outfit
+   Primary Brand Accent: Kredora Crimson (#E50926) matching the logo
+   Aesthetic: Obsidian Glassmorphism with rich backdrop blurs
+----------------------------------------------------------------- */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  --sp-base: #090d18;
+  --sp-surface: #111728;
+  --sp-surface-2: #182238;
+  --sp-border: #232e48;
+  --sp-text: #f0f4fc;
+  --sp-text-dim: #8e99b2;
+  --sp-brand: #E50926;
+  --sp-brand-hover: #f01e38;
+  --sp-brand-bright: #ff334c;
+  --sp-brand-dim: #990819;
+  --sp-brand-glow: rgba(229, 9, 38, 0.35);
+  --sp-gold: #E50926; /* Aliased so any existing gold styles automatically resolve to Kredora Crimson */
+  --sp-gold-dim: #990819;
+  --sp-cyan: #38bdf8;
+}
+
+* {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    scroll-behavior: auto;
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+html,
+body {
+  background-color: var(--sp-base);
+  color: var(--sp-text);
+  font-family: "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  letter-spacing: -0.01em;
+}
+
+.font-display {
+  font-family: "Outfit", sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.font-mono {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+}
+
+/* Atmospheric grid with vibrant Kredora crimson ambient radial glow */
+.hero-field {
+  background-image:
+    radial-gradient(circle at 75% 20%, rgba(229, 9, 38, 0.16), transparent 45%),
+    radial-gradient(circle at 20% 80%, rgba(255, 51, 76, 0.09), transparent 42%),
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: auto, auto, 42px 42px, 42px 42px;
+  background-position: 0 0, 0 0, -1px -1px, -1px -1px;
+}
+
+/* Glassmorphic cards with rich multi-layer backdrop-filter blur and premium hover glow */
+.glass-card {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.015));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.35);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), background 0.4s ease;
+}
+
+.glass-card:hover {
+  border-color: rgba(229, 9, 38, 0.32);
+  box-shadow: 0 16px 44px -12px rgba(0, 0, 0, 0.5), 0 0 24px rgba(229, 9, 38, 0.12);
+}
+
+.glass-navbar {
+  background: rgba(8, 12, 22, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(44px);
+  -webkit-backdrop-filter: blur(44px);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65), 0 0 40px rgba(229, 9, 38, 0.15);
+  border-radius: 9999px;
+}
+
+.glass-panel {
+  background: rgba(17, 23, 40, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* Atmospheric ambient blurred glowing orb */
+.ambient-glow {
+  position: absolute;
+  border-radius: 9999px;
+  pointer-events: none;
+  filter: blur(100px);
+  opacity: 0.22;
+  background: #E50926;
+  z-index: 0;
+}
+
+/* Score ring: driven by a CSS custom property --pct set inline per instance */
+.score-ring {
+  --pct: 0;
+  background: conic-gradient(
+    var(--sp-brand) calc(var(--pct) * 1%),
+    rgba(255, 255, 255, 0.08) 0
+  );
+  transition: background 1.1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.score-ring-inner {
+  background: var(--sp-surface);
+}
+
+/* Underline that draws itself in, styled with Kredora crimson */
+.ink-underline {
+  position: relative;
+  white-space: nowrap;
+}
+
+.ink-underline svg {
+  position: absolute;
+  left: 0;
+  bottom: -0.08em;
+  width: 100%;
+  height: 0.3em;
+  overflow: visible;
+}
+
+.ink-underline path {
+  stroke: var(--sp-brand);
+  stroke-width: 5;
+  fill: none;
+  stroke-linecap: round;
+  stroke-dasharray: 340;
+  stroke-dashoffset: 340;
+  animation: draw-underline 0.9s 0.9s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+}
+
+@keyframes draw-underline {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* One orchestrated hero entrance — staggered via animation-delay utility classes below */
+.enter {
+  opacity: 0;
+  transform: translateY(14px);
+  animation: enter-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes enter-up {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.delay-1 { animation-delay: 0.05s; }
+.delay-2 { animation-delay: 0.18s; }
+.delay-3 { animation-delay: 0.31s; }
+.delay-4 { animation-delay: 0.44s; }
+.delay-5 { animation-delay: 0.57s; }
+
+/* Scroll-reveal for below-the-fold sections, triggered by IntersectionObserver in main.js */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Evidence sample strip — a thin terminal-style readout */
+.evidence-sample {
+  background: rgba(13, 18, 32, 0.85);
+  border: 1px solid var(--sp-border);
+  backdrop-filter: blur(12px);
+}
+
+.evidence-sample::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--sp-brand-bright);
+  margin-right: 8px;
+  box-shadow: 0 0 8px 1px var(--sp-brand-glow);
+}
+
+/* Nav link underline sweep on hover in Kredora crimson */
+.nav-link {
+  position: relative;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 0;
+  height: 2px;
+  background: var(--sp-brand);
+  border-radius: 2px;
+  transition: width 0.25s ease;
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+/* Mobile menu panel with blur */
+#mobile-menu {
+  max-height: 0;
+  overflow: hidden;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#mobile-menu.open {
+  max-height: 420px;
+}
+
+/* Keep focus visible for keyboard users */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--sp-brand);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------
+   Evidence → Score breakdown
+----------------------------------------------------------------- */
+
+.factor-row + .factor-row {
+  position: relative;
+  padding-top: 1.25rem;
+}
+
+.factor-row + .factor-row::before {
+  content: "+";
+  position: absolute;
+  top: -0.55rem;
+  left: 0;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  color: var(--sp-text-dim);
+  opacity: 0.6;
+}
+
+.factor-bar {
+  width: 0%;
+  transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ---------------------------------------------------------------
+   Claims vs. proof contrast
+----------------------------------------------------------------- */
+
+.resume-card {
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+  filter: saturate(0.6);
+  backdrop-filter: blur(10px);
+}
+
+.evidence-chip {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  color: var(--sp-text);
+  background: rgba(229, 9, 38, 0.08);
+  border: 1px solid rgba(229, 9, 38, 0.25);
+  border-radius: 999px;
+  padding: 5px 12px;
+  backdrop-filter: blur(8px);
+}
+
+/* ---------------------------------------------------------------
+   Micro-interactions
+----------------------------------------------------------------- */
+
+.lift-on-hover {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.lift-on-hover:hover {
+  transform: translateY(-6px) scale-[1.012];
+  border-color: rgba(229, 9, 38, 0.45);
+  box-shadow: 0 22px 50px -12px rgba(229, 9, 38, 0.28), 0 0 35px rgba(0, 0, 0, 0.6);
+}
+
+/* Premium button micro-interaction */
+.btn-premium {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-premium:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(229, 9, 38, 0.4);
+}
+
+.btn-premium:active {
+  transform: translateY(0);
+}
+
+/* Auth specific helper styles with blur */
+.auth-input-group {
+  position: relative;
+}
+
+.auth-input {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  color: #fff;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: all 0.2s ease;
+}
+
+.auth-input:focus {
+  border-color: rgba(229, 9, 38, 0.75);
+  box-shadow: 0 0 0 3px rgba(229, 9, 38, 0.2);
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 0.85rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #8b93a9;
+  cursor: pointer;
+  padding: 0.25rem;
+  transition: color 0.15s ease;
+}
+
+.password-toggle-btn:hover {
+  color: #e9ecf4;
+}

@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Account — Kredora</title>
+  <meta name="description" content="Create your Kredora account to start turning coding achievements into verified skill evidence." />
+  <link rel="icon" type="image/svg+xml" href="kredora-logo.svg" />
+  <link rel="alternate icon" href="kredora-logo.png" type="image/png" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            base: "#080c16",
+            surface: "#101627",
+            surface2: "#182136",
+            borderc: "#232e48",
+            ink: "#f0f4fc",
+            inkdim: "#8e99b2",
+            brand: {
+              DEFAULT: "#E50926",
+              bright: "#ff334c",
+              hover: "#d7001c",
+              dim: "#990819",
+              glow: "rgba(229, 9, 38, 0.35)",
+            },
+            gold: {
+              DEFAULT: "#E50926",
+              dim: "#990819",
+              bright: "#ff334c",
+            },
+            cyan: {
+              DEFAULT: "#38bdf8",
+            },
+          },
+          fontFamily: {
+            display: ['"Outfit"', "ui-sans-serif", "sans-serif"],
+            sans: ['"Outfit"', "ui-sans-serif", "sans-serif"],
+            mono: ['"JetBrains Mono"', "ui-monospace", "monospace"],
+          },
+        },
+      },
+    };
+  </script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="min-h-screen bg-base text-ink flex flex-col justify-between antialiased relative overflow-x-hidden">
+  <!-- Ambient backdrop blur orb -->
+  <div class="fixed top-1/4 left-1/2 -translate-x-1/2 w-[650px] h-[450px] bg-brand/12 rounded-full blur-[140px] pointer-events-none -z-10"></div>
+
+  <!-- Top bar with Back to Home -->
+  <header class="w-full px-6 py-5 border-b border-white/10 bg-[#080c16]/70 backdrop-blur-xl">
+    <div class="max-w-6xl mx-auto flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-2 group text-sm text-inkdim hover:text-white transition-colors">
+        <svg class="w-4 h-4 transition-transform group-hover:-translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        <span>Back to Kredora</span>
+      </a>
+
+      <div class="flex items-center gap-3 text-xs text-inkdim font-mono">
+        <span>Already have an account?</span>
+        <a href="login.html" class="text-brand-bright hover:underline font-semibold">Log in →</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Sign Up Container -->
+  <main class="flex-1 flex items-center justify-center px-5 py-10 relative z-10">
+    <div class="w-full max-w-lg">
+
+      <!-- Brand Logo -->
+      <div class="text-center mb-6">
+        <a href="index.html" class="inline-flex items-center gap-3 group">
+          <svg class="h-8 w-auto transition-transform group-hover:scale-105 shrink-0" viewBox="0 0 240 150" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Kredora Logo">
+            <defs>
+              <linearGradient id="kredora-logo-grad-signup" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FF243C" />
+                <stop offset="100%" stop-color="#D7001C" />
+              </linearGradient>
+            </defs>
+            <g fill="url(#kredora-logo-grad-signup)">
+              <path d="M 4,0 L 108,0 C 90,32 52,65 0,68 L 0,4 C 0,1.8 1.8,0 4,0 Z" />
+              <path d="M 0,82 C 52,85 90,118 108,150 L 4,150 C 1.8,150 0,148.2 0,146 L 0,82 Z" />
+              <path d="M 138,0 L 236,0 C 238.2,0 240,1.8 240,4 L 240,146 C 240,148.2 238.2,150 236,150 L 138,150 C 122,125 102,96 86,75 C 102,54 122,25 138,0 Z" />
+            </g>
+          </svg>
+          <span class="font-display font-bold text-2xl tracking-tight text-white">Kredora</span>
+        </a>
+      </div>
+
+      <!-- Auth Card -->
+      <div class="glass-card rounded-3xl p-8 sm:p-9 shadow-2xl relative overflow-hidden border border-white/10 backdrop-blur-2xl bg-surface/75">
+
+        <!-- Header -->
+        <div class="text-center mb-7">
+          <p class="font-mono text-xs uppercase tracking-[0.2em] text-cyan mb-2">Get Started</p>
+          <h1 class="font-display text-2xl sm:text-3xl font-bold text-white tracking-tight">Create your account</h1>
+          <p class="mt-2 text-sm text-inkdim">Start turning your work into an evidence-backed skill profile.</p>
+        </div>
+
+        <!-- Form -->
+        <form id="signupForm" class="space-y-4" novalidate>
+
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label for="signupName" class="mb-1.5 block text-xs font-mono uppercase tracking-wider text-inkdim">
+                Full Name
+              </label>
+              <input
+                id="signupName"
+                type="text"
+                required
+                autocomplete="name"
+                placeholder="e.g. Alex Chen"
+                class="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-2.5 text-white text-sm outline-none transition focus:border-gold/70 focus:ring-1 focus:ring-gold/40">
+            </div>
+
+            <div>
+              <label for="signupUsername" class="mb-1.5 block text-xs font-mono uppercase tracking-wider text-inkdim">
+                Username <span class="text-red-400">*</span>
+              </label>
+              <input
+                id="signupUsername"
+                type="text"
+                required
+                autocomplete="username"
+                placeholder="e.g. alexchen"
+                class="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-2.5 text-white text-sm outline-none transition focus:border-gold/70 focus:ring-1 focus:ring-gold/40">
+            </div>
+          </div>
+
+          <div>
+            <label for="signupPassword" class="mb-1.5 block text-xs font-mono uppercase tracking-wider text-inkdim">
+              Password <span class="text-red-400">*</span>
+            </label>
+            <div class="relative">
+              <input
+                id="signupPassword"
+                type="password"
+                required
+                minlength="6"
+                autocomplete="new-password"
+                placeholder="At least 6 characters"
+                class="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-2.5 text-white text-sm outline-none transition focus:border-gold/70 focus:ring-1 focus:ring-gold/40 pr-10">
+              <button
+                type="button"
+                id="toggleSignupPasswordBtn"
+                aria-label="Toggle password visibility"
+                class="absolute right-3.5 top-3 text-inkdim hover:text-white transition-colors">
+                <svg id="signupEyeIcon" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg id="signupEyeOffIcon" class="w-4 h-4 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24M1 1l22 22"/></svg>
+              </button>
+            </div>
+
+            <!-- Password strength bar -->
+            <div class="mt-2">
+              <div class="h-1 w-full bg-white/10 rounded-full overflow-hidden flex">
+                <div id="strengthBar" class="h-full w-0 transition-all duration-300 rounded-full"></div>
+              </div>
+              <p id="strengthText" class="text-[10px] font-mono text-inkdim mt-1">Enter a strong password</p>
+            </div>
+          </div>
+
+          <div>
+            <label for="signupConfirm" class="mb-1.5 block text-xs font-mono uppercase tracking-wider text-inkdim">
+              Confirm Password <span class="text-red-400">*</span>
+            </label>
+            <div class="relative">
+              <input
+                id="signupConfirm"
+                type="password"
+                required
+                minlength="6"
+                autocomplete="new-password"
+                placeholder="Repeat your password"
+                class="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-2.5 text-white text-sm outline-none transition focus:border-gold/70 focus:ring-1 focus:ring-gold/40 pr-10">
+              <button
+                type="button"
+                id="toggleSignupConfirmBtn"
+                aria-label="Toggle confirm password visibility"
+                class="absolute right-3.5 top-3 text-inkdim hover:text-white transition-colors">
+                <svg id="confirmEyeIcon" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg id="confirmEyeOffIcon" class="w-4 h-4 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24M1 1l22 22"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="pt-1">
+            <label class="flex items-start gap-2.5 cursor-pointer text-xs text-inkdim select-none">
+              <input type="checkbox" id="termsCheck" required checked class="mt-0.5 rounded border-white/20 bg-black/30 text-gold focus:ring-gold/30">
+              <span>I agree to the <a href="#" class="text-gold hover:underline">Terms of Service</a> and acknowledge that skill evidence is recorded transparently.</span>
+            </label>
+          </div>
+
+          <p id="signupError" class="hidden text-xs text-red-400 font-mono bg-red-500/10 border border-red-500/20 p-2.5 rounded-lg"></p>
+
+          <button
+            type="submit"
+            id="signupSubmitBtn"
+            class="w-full rounded-xl bg-brand py-3.5 text-sm font-semibold text-white transition-all hover:bg-brand-hover hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2 shadow-lg shadow-brand/25">
+            <span>Create Account & Continue</span>
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+
+        </form>
+
+        <!-- Seamless Switch to Login -->
+        <div class="mt-7 pt-5 border-t border-white/5 text-center text-sm text-inkdim">
+          <span>Already have an account?</span>
+          <a href="login.html" class="text-brand-bright font-semibold hover:underline ml-1">
+            Log in instead
+          </a>
+        </div>
+
+      </div>
+
+      <!-- Footer trust badge -->
+      <div class="mt-6 flex items-center justify-center gap-2 text-xs text-inkdim/70 font-mono">
+        <svg class="w-3.5 h-3.5 text-cyan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        <span>Zero fake ratings · Evidence-driven skill profiles</span>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="w-full px-6 py-4 text-center text-xs text-inkdim/60 border-t border-white/5">
+    © <span id="current-year"></span> Kredora. All rights reserved.
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const yearEl = document.getElementById("current-year");
+      if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+      // Check if user is already authenticated
+      if (window.Auth && window.Auth.isAuthenticated()) {
+        window.location.href = "dashboard.html";
+        return;
+      }
+
+      // Toggle password
+      const passwordInput = document.getElementById("signupPassword");
+      const confirmInput = document.getElementById("signupConfirm");
+      const togglePasswordBtn = document.getElementById("toggleSignupPasswordBtn");
+      const toggleConfirmBtn = document.getElementById("toggleSignupConfirmBtn");
+
+      togglePasswordBtn.addEventListener("click", () => {
+        const isPw = passwordInput.type === "password";
+        passwordInput.type = isPw ? "text" : "password";
+        document.getElementById("signupEyeIcon").classList.toggle("hidden", isPw);
+        document.getElementById("signupEyeOffIcon").classList.toggle("hidden", !isPw);
+      });
+
+      toggleConfirmBtn.addEventListener("click", () => {
+        const isPw = confirmInput.type === "password";
+        confirmInput.type = isPw ? "text" : "password";
+        document.getElementById("confirmEyeIcon").classList.toggle("hidden", isPw);
+        document.getElementById("confirmEyeOffIcon").classList.toggle("hidden", !isPw);
+      });
+
+      // Password strength meter
+      const strengthBar = document.getElementById("strengthBar");
+      const strengthText = document.getElementById("strengthText");
+
+      passwordInput.addEventListener("input", () => {
+        const val = passwordInput.value;
+        let score = 0;
+        if (val.length >= 6) score++;
+        if (val.length >= 8) score++;
+        if (/[A-Z]/.test(val) && /[a-z]/.test(val)) score++;
+        if (/[0-9]/.test(val)) score++;
+        if (/[^A-Za-z0-9]/.test(val)) score++;
+
+        if (val.length === 0) {
+          strengthBar.style.width = "0%";
+          strengthText.textContent = "Enter a password (min 6 characters)";
+          strengthText.className = "text-[10px] font-mono text-inkdim mt-1";
+        } else if (score <= 1) {
+          strengthBar.style.width = "25%";
+          strengthBar.className = "h-full bg-red-400 rounded-full transition-all duration-300";
+          strengthText.textContent = "Weak password";
+          strengthText.className = "text-[10px] font-mono text-red-400 mt-1";
+        } else if (score <= 3) {
+          strengthBar.style.width = "65%";
+          strengthBar.className = "h-full bg-amber-400 rounded-full transition-all duration-300";
+          strengthText.textContent = "Moderate strength";
+          strengthText.className = "text-[10px] font-mono text-amber-400 mt-1";
+        } else {
+          strengthBar.style.width = "100%";
+          strengthBar.className = "h-full bg-emerald-400 rounded-full transition-all duration-300";
+          strengthText.textContent = "Strong password";
+          strengthText.className = "text-[10px] font-mono text-emerald-400 mt-1";
+        }
+      });
+
+      // Form submission
+      const form = document.getElementById("signupForm");
+      const errorEl = document.getElementById("signupError");
+      const submitBtn = document.getElementById("signupSubmitBtn");
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        errorEl.classList.add("hidden");
+
+        const name = document.getElementById("signupName").value.trim();
+        const username = document.getElementById("signupUsername").value.trim();
+        const password = passwordInput.value;
+        const confirmPassword = confirmInput.value;
+        const terms = document.getElementById("termsCheck").checked;
+
+        if (!terms) {
+          errorEl.textContent = "Please agree to the Terms of Service to continue.";
+          errorEl.classList.remove("hidden");
+          return;
+        }
+
+        if (password !== confirmPassword) {
+          errorEl.textContent = "Passwords do not match.";
+          errorEl.classList.remove("hidden");
+          return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `
+          <svg class="animate-spin h-4 w-4 text-base" viewBox="0 0 24 24" fill="none">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+          </svg>
+          <span>Creating account...</span>
+        `;
+
+        setTimeout(() => {
+          const result = window.Auth.signup({
+            name: name || username,
+            username,
+            password,
+            confirmPassword,
+          });
+
+          if (!result.success) {
+            errorEl.textContent = result.message || "Failed to create account.";
+            errorEl.classList.remove("hidden");
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = `
+              <span>Create Account & Continue</span>
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            `;
+            return;
+          }
+
+          // Automatically redirects to dashboard
+          window.location.href = "dashboard.html";
+        }, 400);
+      });
+    });
+  </script>
+</body>
+</html>

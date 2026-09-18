@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skill Analysis: Java — Kredora</title>
+  <meta name="description" content="In-depth evidence breakdown for Java programming on Kredora." />
+  <link rel="icon" type="image/svg+xml" href="kredora-logo.svg" />
+  <link rel="alternate icon" href="kredora-logo.png" type="image/png" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            base: "#0a0f1c",
+            surface: "#131a2b",
+            surface2: "#1a2338",
+            borderc: "#232d44",
+            ink: "#e9ecf4",
+            inkdim: "#8b93a9",
+            gold: {
+              DEFAULT: "#f2b544",
+              dim: "#a9863a",
+            },
+            cyan: {
+              DEFAULT: "#4cc9e8",
+            },
+          },
+          fontFamily: {
+            display: ['"Space Grotesk"', "Inter", "sans-serif"],
+            sans: ["Inter", "ui-sans-serif", "sans-serif"],
+            mono: ['"JetBrains Mono"', "ui-monospace", "monospace"],
+          },
+        },
+      },
+    };
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/auth.js"></script>
+</head>
+
+<body class="min-h-screen bg-[#0a0f1c] text-white">
+
+  <!-- NAVBAR -->
+  <header class="glass-navbar fixed top-4 inset-x-4 sm:inset-x-6 lg:inset-x-8 max-w-7xl mx-auto z-50 px-6 py-4 flex items-center justify-between">
+    <div class="mx-auto w-full flex items-center justify-between">
+
+      <a href="index.html" class="flex items-center gap-2.5 group">
+        <svg class="h-7 w-auto transition-transform group-hover:scale-105 shrink-0" viewBox="0 0 240 150" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Kredora Logo">
+          <defs>
+            <linearGradient id="kredora-logo-grad-skill" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#FF243C" />
+              <stop offset="100%" stop-color="#D7001C" />
+            </linearGradient>
+          </defs>
+          <g fill="url(#kredora-logo-grad-skill)">
+            <path d="M 4,0 L 108,0 C 90,32 52,65 0,68 L 0,4 C 0,1.8 1.8,0 4,0 Z" />
+            <path d="M 0,82 C 52,85 90,118 108,150 L 4,150 C 1.8,150 0,148.2 0,146 L 0,82 Z" />
+            <path d="M 138,0 L 236,0 C 238.2,0 240,1.8 240,4 L 240,146 C 240,148.2 238.2,150 236,150 L 138,150 C 122,125 102,96 86,75 C 102,54 122,25 138,0 Z" />
+          </g>
+        </svg>
+        <span class="text-xl font-bold tracking-tight font-display text-white">
+          Kredora
+        </span>
+      </a>
+
+      <nav class="hidden items-center gap-7 md:flex">
+        <a href="dashboard.html" class="text-sm text-white/60 transition hover:text-white">Dashboard</a>
+        <a href="evidence.html" class="text-sm text-white/60 transition hover:text-white">Evidence</a>
+        <a href="profile.html" class="text-sm text-white/60 transition hover:text-white">Profile</a>
+      </nav>
+
+      <div class="flex items-center gap-3">
+        <div data-auth-nav></div>
+      </div>
+
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-7xl px-6 py-10 pt-28">
+
+    <!-- BREADCRUMB -->
+    <div class="mb-8 flex items-center gap-2 text-sm text-white/40 font-mono">
+      <a href="dashboard.html" class="hover:text-gold transition-colors">Dashboard</a>
+      <span>/</span>
+      <a href="dashboard.html" class="hover:text-gold transition-colors">Skills</a>
+      <span>/</span>
+      <span class="text-white font-medium">Java</span>
+    </div>
+
+    <!-- HEADER -->
+    <section class="mb-8 grid gap-6 lg:grid-cols-[1fr_320px]">
+
+      <div class="rounded-3xl border border-white/10 bg-[#111827] p-8">
+        <div class="mb-5 flex items-center gap-4">
+          <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#f2b544]/10 text-xl font-bold text-[#f2b544] font-display">
+            J
+          </div>
+
+          <div>
+            <p class="font-mono text-xs uppercase tracking-[0.2em] text-white/40">
+              Verified Skill Breakdown
+            </p>
+
+            <h1 class="mt-1 text-3xl sm:text-4xl font-bold font-display">
+              Java
+            </h1>
+          </div>
+        </div>
+
+        <p class="max-w-2xl leading-7 text-white/55">
+          Your Java skill is supported by coding problems, practical project implementations,
+          assessments, and verified programming concepts.
+        </p>
+
+        <div class="mt-8 flex flex-wrap gap-3">
+          <span class="rounded-full border border-[#f2b544]/20 bg-[#f2b544]/10 px-3 py-1.5 text-xs text-[#f2b544] font-mono">
+            High confidence
+          </span>
+
+          <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/55 font-mono">
+            47 evidence items
+          </span>
+
+          <span class="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-xs text-emerald-400 font-mono">
+            Active streak
+          </span>
+        </div>
+      </div>
+
+      <!-- SCORE -->
+      <div class="rounded-3xl border border-white/10 bg-[#111827] p-8 text-center flex flex-col justify-center items-center">
+        <p class="font-mono text-xs uppercase tracking-[0.2em] text-white/40">
+          Total skill score
+        </p>
+
+        <div class="mx-auto mt-5 flex h-36 w-36 items-center justify-center rounded-full border-[8px] border-[#f2b544]/30 bg-white/[0.02]">
+          <div>
+            <div class="text-4xl font-bold text-[#f2b544] font-display">82</div>
+            <div class="font-mono text-xs text-white/40">/ 100</div>
+          </div>
+        </div>
+
+        <p class="mt-4 text-xs font-mono text-white/50">
+          Calculated from 5 verified factors
+        </p>
+      </div>
+
+    </section>
+
+    <!-- SCORE BREAKDOWN -->
+    <section class="mb-8">
+      <div class="mb-5">
+        <p class="font-mono text-xs uppercase tracking-[0.2em] text-[#4cc9e8]">
+          Evidence analysis
+        </p>
+
+        <h2 class="mt-2 text-2xl font-bold font-display">
+          Why your score is 82
+        </h2>
+      </div>
+
+      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+
+        <div class="rounded-2xl border border-white/10 bg-[#111827] p-6">
+          <div class="flex items-center justify-between">
+            <span class="font-semibold text-white">Coding Problems</span>
+            <span class="font-mono text-[#f2b544] font-bold">90%</span>
+          </div>
+          <div class="mt-4 h-2 overflow-hidden rounded-full bg-white/5">
+            <div class="h-full w-[90%] rounded-full bg-[#f2b544]"></div>
+          </div>
+          <p class="mt-3 text-xs text-white/40 font-mono">
+            47 problems solved
+          </p>
+        </div>
+
+        <div class="rounded-2xl border border-white/10 bg-[#111827] p-6">
+          <div class="flex items-center justify-between">
+            <span class="font-semibold text-white">Projects</span>
+            <span class="font-mono text-[#4cc9e8] font-bold">80%</span>
+          </div>
+          <div class="mt-4 h-2 overflow-hidden rounded-full bg-white/5">
+            <div class="h-full w-[80%] rounded-full bg-[#4cc9e8]"></div>
+          </div>
+          <p class="mt-3 text-xs text-white/40 font-mono">
+            3 projects demonstrated
+          </p>
+        </div>
+
+        <div class="rounded-2xl border border-white/10 bg-[#111827] p-6">
+          <div class="flex items-center justify-between">
+            <span class="font-semibold text-white">Assessments</span>
+            <span class="font-mono text-[#f2b544] font-bold">88%</span>
+          </div>
+          <div class="mt-4 h-2 overflow-hidden rounded-full bg-white/5">
+            <div class="h-full w-[88%] rounded-full bg-[#f2b544]"></div>
+          </div>
+          <p class="mt-3 text-xs text-white/40 font-mono">
+            4 assessments completed
+          </p>
+        </div>
+
+        <div class="rounded-2xl border border-white/10 bg-[#111827] p-6">
+          <div class="flex items-center justify-between">
+            <span class="font-semibold text-white">Concept Coverage</span>
+            <span class="font-mono text-[#4cc9e8] font-bold">84%</span>
+          </div>
+          <div class="mt-4 h-2 overflow-hidden rounded-full bg-white/5">
+            <div class="h-full w-[84%] rounded-full bg-[#4cc9e8]"></div>
+          </div>
+          <p class="mt-3 text-xs text-white/40 font-mono">
+            12 concepts demonstrated
+          </p>
+        </div>
+
+        <div class="rounded-2xl border border-white/10 bg-[#111827] p-6">
+          <div class="flex items-center justify-between">
+            <span class="font-semibold text-white">Consistency</span>
+            <span class="font-mono text-[#f2b544] font-bold">70%</span>
+          </div>
+          <div class="mt-4 h-2 overflow-hidden rounded-full bg-white/5">
+            <div class="h-full w-[70%] rounded-full bg-[#f2b544]"></div>
+          </div>
+          <p class="mt-3 text-xs text-white/40 font-mono">
+            Regular activity detected
+          </p>
+        </div>
+
+        <div class="rounded-2xl border border-white/10 bg-[#111827] p-6">
+          <div class="flex items-center justify-between">
+            <span class="font-semibold text-white">Recency</span>
+            <span class="font-mono text-[#4cc9e8] font-bold">76%</span>
+          </div>
+          <div class="mt-4 h-2 overflow-hidden rounded-full bg-white/5">
+            <div class="h-full w-[76%] rounded-full bg-[#4cc9e8]"></div>
+          </div>
+          <p class="mt-3 text-xs text-white/40 font-mono">
+            Recent evidence available
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- EVIDENCE TIMELINE & IMPROVEMENT -->
+    <section class="grid gap-6 lg:grid-cols-[1fr_360px]">
+
+      <div class="rounded-3xl border border-white/10 bg-[#111827] p-7">
+        <div class="mb-7 flex items-center justify-between">
+          <div>
+            <p class="font-mono text-xs uppercase tracking-[0.2em] text-white/40">
+              Timeline
+            </p>
+            <h2 class="mt-1 text-2xl font-bold font-display">
+              Recent evidence
+            </h2>
+          </div>
+
+          <a href="evidence.html" class="text-sm text-[#f2b544] hover:underline font-mono">
+            View all →
+          </a>
+        </div>
+
+        <div class="space-y-6">
+          <div class="flex gap-4">
+            <div class="mt-1.5 h-3 w-3 rounded-full bg-[#f2b544] shrink-0"></div>
+            <div>
+              <h3 class="font-semibold text-white">Solved Two Sum</h3>
+              <p class="mt-1 text-sm text-white/40">
+                Coding problem · Array fundamentals
+              </p>
+              <p class="mt-2 font-mono text-xs text-white/25">
+                2 days ago
+              </p>
+            </div>
+          </div>
+
+          <div class="flex gap-4">
+            <div class="mt-1.5 h-3 w-3 rounded-full bg-[#4cc9e8] shrink-0"></div>
+            <div>
+              <h3 class="font-semibold text-white">Library Management System</h3>
+              <p class="mt-1 text-sm text-white/40">
+                Project · Java + SQL CRUD
+              </p>
+              <p class="mt-2 font-mono text-xs text-white/25">
+                6 days ago
+              </p>
+            </div>
+          </div>
+
+          <div class="flex gap-4">
+            <div class="mt-1.5 h-3 w-3 rounded-full bg-[#f2b544] shrink-0"></div>
+            <div>
+              <h3 class="font-semibold text-white">OOP Assessment</h3>
+              <p class="mt-1 text-sm text-white/40">
+                Assessment · Object-oriented design
+              </p>
+              <p class="mt-2 font-mono text-xs text-white/25">
+                12 days ago
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- IMPROVEMENT -->
+      <div class="rounded-3xl border border-[#f2b544]/20 bg-[#f2b544]/5 p-7 flex flex-col justify-between">
+        <div>
+          <p class="font-mono text-xs uppercase tracking-[0.2em] text-[#f2b544]">
+            Next step
+          </p>
+
+          <h2 class="mt-3 text-2xl font-bold font-display">
+            Improve your evidence
+          </h2>
+
+          <p class="mt-4 leading-7 text-white/50 text-sm">
+            Your Java evidence is strong, but adding recent
+            Collections and exception-handling evidence could increase
+            your confidence score to Very High.
+          </p>
+        </div>
+
+        <button
+          onclick="window.location.href='evidence.html'"
+          class="mt-7 w-full rounded-xl bg-[#f2b544] px-5 py-3 font-semibold text-black transition hover:bg-amber-300">
+          + Add Java Evidence
+        </button>
+      </div>
+
+    </section>
+
+  </main>
+
+</body>
+</html>

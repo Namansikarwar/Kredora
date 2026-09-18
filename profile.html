@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Public Profile — Kredora</title>
+    <meta name="description" content="Verified Kredora profile backed by code and assessment evidence." />
+    <link rel="icon" type="image/svg+xml" href="kredora-logo.svg" />
+    <link rel="alternate icon" href="kredora-logo.png" type="image/png" />
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              base: "#0a0f1c",
+              surface: "#131a2b",
+              surface2: "#1a2338",
+              borderc: "#232d44",
+              ink: "#e9ecf4",
+              inkdim: "#8b93a9",
+              gold: {
+                DEFAULT: "#f2b544",
+                dim: "#a9863a",
+              },
+              cyan: {
+                DEFAULT: "#4cc9e8",
+              },
+            },
+            fontFamily: {
+              display: ['"Space Grotesk"', "Inter", "sans-serif"],
+              sans: ["Inter", "ui-sans-serif", "sans-serif"],
+              mono: ['"JetBrains Mono"', "ui-monospace", "monospace"],
+            },
+          },
+        },
+      };
+    </script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="js/auth.js"></script>
+  </head>
+
+  <body class="min-h-screen bg-[#0a0f1c] text-white">
+    <!-- NAV -->
+    <header class="glass-navbar fixed top-4 inset-x-4 sm:inset-x-6 lg:inset-x-8 max-w-7xl mx-auto z-50 px-6 py-4 flex items-center justify-between">
+      <div class="mx-auto w-full flex items-center justify-between">
+        <a href="index.html" class="flex items-center gap-2.5 text-xl font-bold font-display group">
+          <svg class="h-7 w-auto transition-transform group-hover:scale-105 shrink-0" viewBox="0 0 240 150" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Kredora Logo">
+            <defs>
+              <linearGradient id="kredora-logo-grad-prof" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FF243C" />
+                <stop offset="100%" stop-color="#D7001C" />
+              </linearGradient>
+            </defs>
+            <g fill="url(#kredora-logo-grad-prof)">
+              <path d="M 4,0 L 108,0 C 90,32 52,65 0,68 L 0,4 C 0,1.8 1.8,0 4,0 Z" />
+              <path d="M 0,82 C 52,85 90,118 108,150 L 4,150 C 1.8,150 0,148.2 0,146 L 0,82 Z" />
+              <path d="M 138,0 L 236,0 C 238.2,0 240,1.8 240,4 L 240,146 C 240,148.2 238.2,150 236,150 L 138,150 C 122,125 102,96 86,75 C 102,54 122,25 138,0 Z" />
+            </g>
+          </svg>
+          <span class="text-white tracking-tight">Kredora</span>
+        </a>
+
+        <div class="flex items-center gap-4">
+          <a
+            href="dashboard.html"
+            class="text-sm text-white/60 hover:text-white transition-colors"
+          >
+            Dashboard
+          </a>
+
+          <a
+            href="evidence.html"
+            class="text-sm text-white/60 hover:text-white transition-colors"
+          >
+            Evidence
+          </a>
+
+          <button
+            onclick="copyProfileLink()"
+            id="shareBtn"
+            class="rounded-xl border border-[#f2b544]/30 bg-[#f2b544]/10 px-4 py-2 text-sm text-[#f2b544] hover:bg-[#f2b544]/20 transition-colors"
+          >
+            Share profile
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-6xl px-6 py-12 pt-28">
+      <!-- PROFILE HEADER -->
+      <section
+        class="rounded-3xl border border-white/10 bg-[#111827] p-8 md:p-10"
+      >
+        <div
+          class="flex flex-col gap-8 md:flex-row md:items-center md:justify-between"
+        >
+          <div class="flex items-center gap-5">
+            <div
+              id="profileAvatar"
+              class="flex h-20 w-20 items-center justify-center rounded-3xl bg-[#f2b544] text-3xl font-bold text-black font-display"
+            >
+              N
+            </div>
+
+            <div>
+              <p
+                class="font-mono text-xs uppercase tracking-[0.2em] text-[#4cc9e8]"
+              >
+                Verified Kredora profile
+              </p>
+
+              <h1 id="profileName" class="mt-2 text-3xl sm:text-4xl font-bold font-display">Naman Singh</h1>
+
+              <p class="mt-2 text-white/50">
+                Computer Science Student · Web Developer
+              </p>
+            </div>
+          </div>
+
+          <div class="text-left md:text-right">
+            <p
+              class="font-mono text-xs uppercase tracking-[0.2em] text-white/40"
+            >
+              Overall skill score
+            </p>
+
+            <div class="mt-2 text-5xl font-bold text-[#f2b544] font-display">79</div>
+
+            <p class="font-mono text-xs text-white/30">/ 100</p>
+          </div>
+        </div>
+
+        <div class="mt-8 border-t border-white/10 pt-7">
+          <p class="max-w-3xl leading-7 text-white/55">
+            A frontend-focused computer science student building practical
+            projects and continuously developing skills across programming,
+            databases and web development.
+          </p>
+        </div>
+      </section>
+
+      <!-- STATS -->
+      <section class="my-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="rounded-2xl border border-white/10 bg-[#111827] p-6">
+          <p class="text-sm text-white/40 font-mono">Skills</p>
+          <p class="mt-2 text-3xl font-bold font-display">4</p>
+        </div>
+
+        <div class="rounded-2xl border border-white/10 bg-[#111827] p-6">
+          <p class="text-sm text-white/40 font-mono">Projects</p>
+          <p class="mt-2 text-3xl font-bold font-display text-cyan">7</p>
+        </div>
+
+        <div class="rounded-2xl border border-white/10 bg-[#111827] p-6">
+          <p class="text-sm text-white/40 font-mono">Problems</p>
+          <p class="mt-2 text-3xl font-bold font-display text-gold">47</p>
+        </div>
+
+        <div class="rounded-2xl border border-white/10 bg-[#111827] p-6">
+          <p class="text-sm text-white/40 font-mono">Evidence</p>
+          <p class="mt-2 text-3xl font-bold font-display">72</p>
+        </div>
+      </section>
+
+      <!-- SKILLS -->
+      <section class="rounded-3xl border border-white/10 bg-[#111827] p-8">
+        <div class="mb-7">
+          <p
+            class="font-mono text-xs uppercase tracking-[0.2em] text-[#4cc9e8]"
+          >
+            Evidence-backed skills
+          </p>
+
+          <h2 class="mt-2 text-2xl font-bold font-display">What I can prove</h2>
+        </div>
+
+        <div class="space-y-5">
+          <!-- JAVA -->
+          <a
+            href="skill.html"
+            class="block rounded-2xl border border-white/10 bg-white/[0.02] p-5 transition hover:border-[#f2b544]/50 group"
+          >
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="font-semibold group-hover:text-gold transition-colors font-display text-lg">Java</h3>
+                <p class="mt-1 text-sm text-white/40 font-mono">
+                  47 problems · 3 projects · 4 assessments
+                </p>
+              </div>
+
+              <span class="font-mono text-2xl font-bold text-[#f2b544]"> 82 </span>
+            </div>
+
+            <div class="mt-4 h-2 rounded-full bg-white/5 overflow-hidden">
+              <div class="h-full w-[82%] rounded-full bg-gradient-to-r from-cyan to-gold"></div>
+            </div>
+          </a>
+
+          <!-- JAVASCRIPT -->
+          <div class="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="font-semibold font-display text-lg">JavaScript</h3>
+                <p class="mt-1 text-sm text-white/40 font-mono">
+                  39 problems · 4 projects · 2 assessments
+                </p>
+              </div>
+
+              <span class="font-mono text-2xl font-bold text-[#4cc9e8]"> 76 </span>
+            </div>
+
+            <div class="mt-4 h-2 rounded-full bg-white/5 overflow-hidden">
+              <div class="h-full w-[76%] rounded-full bg-gradient-to-r from-cyan to-gold"></div>
+            </div>
+          </div>
+
+          <!-- SQL -->
+          <div class="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="font-semibold font-display text-lg">SQL</h3>
+                <p class="mt-1 text-sm text-white/40 font-mono">
+                  28 problems · 2 projects · 3 assessments
+                </p>
+              </div>
+
+              <span class="font-mono text-2xl font-bold text-[#f2b544]"> 88 </span>
+            </div>
+
+            <div class="mt-4 h-2 rounded-full bg-white/5 overflow-hidden">
+              <div class="h-full w-[88%] rounded-full bg-gradient-to-r from-cyan to-gold"></div>
+            </div>
+          </div>
+
+          <!-- MONGODB -->
+          <div class="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="font-semibold font-display text-lg">MongoDB</h3>
+                <p class="mt-1 text-sm text-white/40 font-mono">
+                  17 activities · 2 projects
+                </p>
+              </div>
+
+              <span class="font-mono text-2xl font-bold text-[#4cc9e8]"> 71 </span>
+            </div>
+
+            <div class="mt-4 h-2 rounded-full bg-white/5 overflow-hidden">
+              <div class="h-full w-[71%] rounded-full bg-gradient-to-r from-cyan to-gold"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PROJECTS -->
+      <section class="mt-6 rounded-3xl border border-white/10 bg-[#111827] p-8">
+        <div class="mb-7">
+          <p
+            class="font-mono text-xs uppercase tracking-[0.2em] text-[#f2b544]"
+          >
+            Projects
+          </p>
+
+          <h2 class="mt-2 text-2xl font-bold font-display">
+            Work that supports the profile
+          </h2>
+        </div>
+
+        <div class="grid gap-4 md:grid-cols-2">
+          <div class="rounded-2xl border border-white/10 p-5 bg-white/[0.01]">
+            <div class="flex items-center justify-between">
+              <h3 class="font-semibold font-display text-base">Portfolio Website</h3>
+              <span class="text-xs font-mono px-2 py-0.5 rounded bg-cyan/10 text-cyan border border-cyan/20">Web</span>
+            </div>
+
+            <p class="mt-3 text-sm leading-6 text-white/40">
+              Responsive personal portfolio demonstrating HTML, CSS and JavaScript development.
+            </p>
+          </div>
+
+          <div class="rounded-2xl border border-white/10 p-5 bg-white/[0.01]">
+            <div class="flex items-center justify-between">
+              <h3 class="font-semibold font-display text-base">Library Management System</h3>
+              <span class="text-xs font-mono px-2 py-0.5 rounded bg-gold/10 text-gold border border-gold/20">Java</span>
+            </div>
+
+            <p class="mt-3 text-sm leading-6 text-white/40">
+              A practical management application demonstrating programming and database concepts.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- VERIFICATION -->
+      <section
+        class="mt-6 rounded-3xl border border-[#4cc9e8]/20 bg-[#4cc9e8]/5 p-8"
+      >
+        <div
+          class="flex flex-col gap-5 md:flex-row md:items-center md:justify-between"
+        >
+          <div>
+            <p
+              class="font-mono text-xs uppercase tracking-[0.2em] text-[#4cc9e8]"
+            >
+              Kredora principle
+            </p>
+
+            <h2 class="mt-2 text-2xl font-bold font-display">
+              Every score has evidence behind it.
+            </h2>
+
+            <p class="mt-3 max-w-2xl text-white/45">
+              This profile focuses on demonstrated work instead of self-reported
+              skill ratings.
+            </p>
+          </div>
+
+          <a
+            href="evidence.html"
+            class="shrink-0 rounded-xl bg-gold text-base px-5 py-3 text-sm font-semibold hover:bg-amber-300 transition-colors"
+          >
+            View evidence
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const user = window.Auth ? window.Auth.getCurrentUser() : null;
+        if (user) {
+          const profileName = document.getElementById("profileName");
+          if (profileName) profileName.textContent = user.name || user.username;
+
+          const avatar = document.getElementById("profileAvatar");
+          if (avatar && window.Auth.getInitials) {
+            avatar.textContent = window.Auth.getInitials(user.name || user.username);
+          }
+        }
+      });
+
+      function copyProfileLink() {
+        navigator.clipboard.writeText(window.location.href);
+        const button = document.getElementById("shareBtn");
+        const original = button.innerText;
+        button.innerText = "Link Copied!";
+        setTimeout(() => {
+          button.innerText = original;
+        }, 2000);
+      }
+    </script>
+  </body>
+</html>
