@@ -14,34 +14,42 @@
       theme: {
         extend: {
           colors: {
-            base: "#080c16",
-            surface: "#101627",
-            surface2: "#182136",
-            borderc: "#232e48",
-            ink: "#f0f4fc",
-            inkdim: "#8e99b2",
+            base: "#080B12",
+            surface: "#0D111A",
+            surface2: "#111722",
+            elevated: "#151C29",
+            borderc: "#202938",
+            ink: "#F4F7FB",
+            inkdim: "#98A2B3",
+            muted: "#667085",
             brand: {
-              DEFAULT: "#E50926",
-              bright: "#ff334c",
-              hover: "#d7001c",
-              dim: "#990819",
-              glow: "rgba(229, 9, 38, 0.35)",
+              DEFAULT: "#7C5CFC",
+              bright: "#9D85FF",
+              hover: "#6E4DEE",
+              dim: "#4C39A8",
+              glow: "rgba(124, 92, 252, 0.35)",
             },
             gold: {
-              DEFAULT: "#E50926",
-              dim: "#990819",
-              bright: "#ff334c",
+              DEFAULT: "#7C5CFC",
+              dim: "#4C39A8",
+              bright: "#9D85FF",
             },
             cyan: {
-              DEFAULT: "#38bdf8",
+              DEFAULT: "#4CC9F0",
             },
-            easy: "#10b981",
-            medium: "#f59e0b",
-            hard: "#ef4444"
+            accent: {
+              DEFAULT: "#4CC9F0",
+              success: "#32D583",
+              warning: "#FDB022",
+              danger: "#F97066",
+            },
+            easy: "#32D583",
+            medium: "#FDB022",
+            hard: "#F97066"
           },
           fontFamily: {
-            display: ['"Outfit"', "ui-sans-serif", "sans-serif"],
-            sans: ['"Outfit"', "ui-sans-serif", "sans-serif"],
+            display: ['"Space Grotesk"', '"Inter"', "ui-sans-serif", "sans-serif"],
+            sans: ['"Inter"', "ui-sans-serif", "sans-serif"],
             mono: ['"JetBrains Mono"', "ui-monospace", "monospace"],
           },
         },
@@ -51,7 +59,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -72,8 +80,8 @@
         <svg class="h-7 w-auto transition-transform group-hover:scale-105 shrink-0" viewBox="0 0 240 150" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Kredora Logo">
           <defs>
             <linearGradient id="kredora-logo-grad-prob" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#FF243C" />
-              <stop offset="100%" stop-color="#D7001C" />
+              <stop offset="0%" stop-color="#9D85FF" />
+              <stop offset="100%" stop-color="#7C5CFC" />
             </linearGradient>
           </defs>
           <g fill="url(#kredora-logo-grad-prob)">
@@ -90,27 +98,41 @@
         </span>
       </a>
 
-      <nav class="hidden items-center gap-7 md:flex">
-        <a href="dashboard.html" class="text-sm text-inkdim transition hover:text-white">Dashboard</a>
-        <a href="problems.html" class="text-sm text-brand-bright font-semibold transition">Problems</a>
-        <a href="evidence.html" class="text-sm text-inkdim transition hover:text-white">Evidence</a>
-        <a href="profile.html" class="text-sm text-inkdim transition hover:text-white">Profile</a>
-      </nav>
-
-      <div class="flex items-center gap-3">
-        <button id="pickRandomBtn" class="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-white/15 bg-white/5 backdrop-blur-md text-xs font-mono hover:bg-white/10 hover:border-brand/40 transition">
+      <nav class="hidden items-center gap-1 md:flex">
+        <a href="dashboard.html" class="nav-item">Dashboard</a>
+        <a href="problems.html" class="nav-item nav-item-active">Problems</a>
+        <a href="evidence.html" class="nav-item">Evidence</a>
+        <a href="skill.html" class="nav-item">Skills</a>
+        <a href="profile.html" class="nav-item">Profile</a>
+      </nav>        <div class="flex items-center gap-3">
+        <button id="pickRandomBtn" class="hidden lg:flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg border border-white/15 bg-white/5 backdrop-blur-md text-xs font-mono hover:bg-white/10 hover:border-brand/40 transition whitespace-nowrap">
           <svg class="w-3.5 h-3.5 text-brand-bright" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
           </svg>
           Pick Random
         </button>
         <div data-auth-nav></div>
+        <button id="nav-toggle" aria-label="Toggle menu" aria-expanded="false" class="md:hidden p-2 -mr-2 text-ink">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+        </div>
       </div>
-    </div>
+
+      <!-- Mobile menu -->
+      <div id="mobile-menu" class="md:hidden border-t border-white/10 bg-base/95 backdrop-blur-2xl">
+        <div class="px-5 py-4 flex flex-col gap-1 text-sm">
+          <a href="dashboard.html" class="py-2.5 text-inkdim hover:text-ink">Dashboard</a>
+          <a href="problems.html" class="py-2.5 text-white font-semibold">Problems</a>
+          <a href="evidence.html" class="py-2.5 text-inkdim hover:text-ink">Evidence</a>
+          <a href="skill.html" class="py-2.5 text-inkdim hover:text-ink">Skills</a>
+          <a href="profile.html" class="py-2.5 text-inkdim hover:text-ink">Profile</a>
+          <div data-mobile-auth-nav></div>
+        </div>
+      </div>
   </header>
 
   <!-- MAIN WRAPPER -->
-  <main class="flex-1 mx-auto w-full max-w-7xl px-6 py-8 pt-28">
+  <main class="flex-1 mx-auto w-full max-w-7xl px-6 py-8 pt-28 page-enter">
 
     <!-- HERO PROGRESS BANNER -->
     <section class="mb-8 rounded-3xl border border-white/10 bg-[#111827]/80 frosted-panel p-6 sm:p-8 relative overflow-hidden">
@@ -124,7 +146,7 @@
           <div class="relative w-28 h-28 shrink-0 flex items-center justify-center">
             <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
               <circle cx="50" cy="50" r="40" stroke="#1f293d" stroke-width="8" fill="transparent" />
-              <circle id="progressCircle" cx="50" cy="50" r="40" stroke="#f2b544" stroke-width="8" stroke-dasharray="251.2" stroke-dashoffset="180" stroke-linecap="round" fill="transparent" class="transition-all duration-700" />
+              <circle id="progressCircle" cx="50" cy="50" r="40" stroke="#7C5CFC" stroke-width="8" stroke-dasharray="251.2" stroke-dashoffset="180" stroke-linecap="round" fill="transparent" class="transition-all duration-700" />
             </svg>
             <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
               <span id="solvedTotalDisplay" class="font-display text-2xl font-bold text-white">0</span>
@@ -184,7 +206,7 @@
           <div class="grid grid-cols-2 gap-2 text-center">
             <div class="rounded-xl border border-white/5 bg-white/[0.02] frosted-panel p-3">
               <span class="block text-[11px] font-mono text-white/40 uppercase">Streak</span>
-              <span id="streakDisplay" class="font-display text-xl font-bold text-gold">4 Days 🔥</span>
+              <span id="streakDisplay" class="font-display text-xl font-bold text-brand-bright">4 Days</span>
             </div>
             <div class="rounded-xl border border-white/5 bg-white/[0.02] frosted-panel p-3">
               <span class="block text-[11px] font-mono text-white/40 uppercase">Verified Pts</span>
@@ -192,8 +214,8 @@
             </div>
           </div>
 
-          <a href="problem.html?id=two-sum" class="w-full text-center py-2.5 px-4 rounded-xl font-semibold text-sm bg-gradient-to-r from-gold to-amber-500 text-black hover:opacity-95 transition shadow-lg shadow-gold/10">
-            Start Practicing Now →
+          <a href="problem.html?id=two-sum" class="w-full text-center py-2.5 px-4 rounded-lg font-semibold text-sm bg-brand text-white hover:bg-brand-bright transition shadow-lg shadow-brand/20">
+            Start Practicing →
           </a>
         </div>
       </div>
@@ -321,7 +343,7 @@
         document.getElementById("hardStats").textContent = `${stats.hard.solved} / ${stats.hard.total}`;
         document.getElementById("hardBar").style.width = stats.hard.total > 0 ? `${(stats.hard.solved / stats.hard.total) * 100}%` : "0%";
 
-        document.getElementById("streakDisplay").textContent = `${stats.streakDays} Days 🔥`;
+        document.getElementById("streakDisplay").textContent = `${stats.streakDays} Days`;
         document.getElementById("pointsDisplay").textContent = `${stats.solvedTotal * 6} pts`;
       }
 

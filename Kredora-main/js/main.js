@@ -1,5 +1,5 @@
 /**
- * SkillProof — Landing Page and Dashboard Interactivity
+ * Kredora — Landing Page and Dashboard Interactivity
  */
 
 function initMobileNav() {
@@ -123,7 +123,7 @@ function renderScoreBreakdown() {
           </p>
         </div>
         <div class="h-2 rounded-full bg-white/5 overflow-hidden">
-          <div class="factor-bar h-full rounded-full bg-gradient-to-r from-cyan to-gold"></div>
+          <div class="factor-bar h-full rounded-full bg-gradient-to-r from-cyan to-brand"></div>
         </div>
         <p class="mt-1.5 text-xs text-inkdim font-mono">${factor.detail}</p>
       </div>`
@@ -181,9 +181,9 @@ function renderExampleSkills() {
       <li class="flex items-center gap-4 py-3 border-b border-white/5 last:border-b-0">
         <span class="w-24 shrink-0 font-display text-sm text-slate-200">${skill.name}</span>
         <span class="flex-1 h-1.5 rounded-full bg-white/5 overflow-hidden">
-          <span class="block h-full rounded-full bg-gradient-to-r from-amber-400 to-amber-300" style="width:${skill.score}%"></span>
+          <span class="block h-full rounded-full bg-gradient-to-r from-cyan to-brand" style="width:${skill.score}%"></span>
         </span>
-        <span class="w-10 shrink-0 text-right font-mono text-sm text-amber-300">${skill.score}</span>
+        <span class="w-10 shrink-0 text-right font-mono text-sm text-brand-bright">${skill.score}</span>
       </li>`
     )
     .join("");
@@ -240,16 +240,16 @@ function renderDashboard() {
     cardsGrid.innerHTML = SKILLPROOF_DATA.skills
       .map(
         (s) => `
-      <a href="skill.html" class="glass-card lift-on-hover rounded-2xl p-5 block transition-colors hover:border-gold/50 group">
+      <a href="skill.html" class="glass-card lift-on-hover rounded-2xl p-5 block transition-colors hover:border-brand/50 group">
         <div class="flex items-center justify-between mb-4">
           <div>
-            <h3 class="font-display font-semibold text-white group-hover:text-gold transition-colors">${s.name}</h3>
+            <h3 class="font-display font-semibold text-white group-hover:text-brand-bright transition-colors">${s.name}</h3>
             <p class="text-xs text-inkdim font-mono">${s.confidence} confidence</p>
           </div>
-          <span class="font-display font-semibold text-2xl text-gold">${s.score}</span>
+          <span class="font-display font-semibold text-2xl text-brand-bright">${s.score}</span>
         </div>
         <div class="h-1.5 rounded-full bg-white/5 overflow-hidden mb-4">
-          <div class="h-full rounded-full bg-gradient-to-r from-cyan to-gold" style="width:${s.score}%"></div>
+          <div class="h-full rounded-full bg-gradient-to-r from-cyan to-brand" style="width:${s.score}%"></div>
         </div>
         <div class="flex items-center justify-between text-xs text-inkdim font-mono">
           <span>${s.problems} problems</span>
@@ -278,7 +278,7 @@ function renderDashboard() {
           <p class="text-ink text-xs font-medium truncate">${a.text}</p>
           <span class="text-[10px] text-inkdim font-mono">${a.time}</span>
         </div>
-        <span class="text-[10px] font-mono px-2 py-0.5 rounded-md bg-gold/10 text-gold border border-gold/20 shrink-0">${a.badge}</span>
+        <span class="text-[10px] font-mono px-2 py-0.5 rounded-md bg-brand/10 text-brand-bright border border-brand/20 shrink-0">${a.badge}</span>
       </div>`
       )
       .join("");
@@ -310,7 +310,7 @@ function renderDashboard() {
         <div class="p-4 rounded-xl border border-amber-500/20 bg-amber-500/5 frosted-panel">
           <div class="flex items-center justify-between mb-2">
             <span class="font-display font-semibold text-white">${weakest.name}</span>
-            <span class="font-mono text-sm text-gold">${weakest.score}/100</span>
+            <span class="font-mono text-sm text-brand-bright">${weakest.score}/100</span>
           </div>
           <p class="text-xs text-inkdim leading-relaxed mb-4">
             Only ${weakest.evidenceCount} verified evidence records logged so far. Recommended to add project demonstrations or index queries to boost confidence.
@@ -351,7 +351,7 @@ function renderArenaProgress() {
   if (hardEl) hardEl.textContent = `${stats.hard.solved} / ${stats.hard.total} Hard`;
 
   const streakEl = document.getElementById("dashStreak");
-  if (streakEl) streakEl.textContent = `${stats.streakDays} Days 🔥`;
+  if (streakEl) streakEl.textContent = `${stats.streakDays} Days`;
 
   const pointsEl = document.getElementById("dashPoints");
   if (pointsEl) pointsEl.textContent = `${stats.solvedTotal * 6} pts`;
@@ -362,18 +362,18 @@ function renderArenaProgress() {
     if (solvedItems.length > 0) {
       recentList.innerHTML = solvedItems.slice(0, 3).map(item => {
         let diffColor = "text-emerald-400 border-emerald-500/30 bg-emerald-500/10";
-        if (item.difficulty === "Medium") diffColor = "text-amber-400 border-amber-500/30 bg-amber-500/10";
-        if (item.difficulty === "Hard") diffColor = "text-rose-400 border-rose-500/30 bg-rose-500/10";
+        if (item.difficulty === "Medium") diffColor = "text-medium border-medium/30 bg-medium/10";
+        if (item.difficulty === "Hard") diffColor = "text-hard border-hard/30 bg-hard/10";
 
         return `
-          <div class="rounded-xl border border-white/5 bg-white/[0.02] frosted-panel p-3 flex flex-col justify-between hover:border-gold/30 transition">
+          <div class="rounded-xl border border-white/5 bg-white/[0.02] frosted-panel p-3 flex flex-col justify-between hover:border-brand/30 transition">
             <div class="flex items-start justify-between gap-2">
               <span class="font-display font-semibold text-sm text-white">${item.title}</span>
               <span class="px-2 py-0.5 rounded text-[10px] font-mono border ${diffColor}">${item.difficulty}</span>
             </div>
             <div class="flex items-center justify-between mt-3 text-xs">
               <span class="text-white/40 font-mono text-[11px]">✓ Verified</span>
-              <a href="problem.html?id=${item.id}" class="text-gold hover:underline font-mono text-xs">Review Code →</a>
+              <a href="problem.html?id=${item.id}" class="text-brand-bright hover:underline font-mono text-xs">Review Code →</a>
             </div>
           </div>
         `;
@@ -382,14 +382,14 @@ function renderArenaProgress() {
       // Show recommendations if none yet
       const recommendations = allProblems.slice(0, 3);
       recentList.innerHTML = recommendations.map(p => `
-        <div class="rounded-xl border border-white/5 bg-white/[0.02] frosted-panel p-3 flex flex-col justify-between hover:border-gold/30 transition">
+        <div class="rounded-xl border border-white/5 bg-white/[0.02] frosted-panel p-3 flex flex-col justify-between hover:border-brand/30 transition">
           <div class="flex items-start justify-between gap-2">
             <span class="font-display font-semibold text-sm text-white">${p.number}. ${p.title}</span>
-            <span class="px-2 py-0.5 rounded text-[10px] font-mono border text-emerald-400 border-emerald-500/30 bg-emerald-500/10">${p.difficulty}</span>
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono border text-easy border-easy/30 bg-easy/10">${p.difficulty}</span>
           </div>
           <div class="flex items-center justify-between mt-3 text-xs">
             <span class="text-white/40 font-mono text-[11px]">${p.category}</span>
-            <a href="problem.html?id=${p.id}" class="text-gold hover:underline font-mono text-xs">Solve Now →</a>
+            <a href="problem.html?id=${p.id}" class="text-brand-bright hover:underline font-mono text-xs">Solve Now →</a>
           </div>
         </div>
       `).join("");

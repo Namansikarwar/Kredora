@@ -15,7 +15,7 @@
 <!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
 
 <!-- Tailwind CDN -->
 <script src="https://cdn.tailwindcss.com"></script>
@@ -24,31 +24,42 @@
     theme: {
       extend: {
         colors: {
-          base: "#080c16",
-          surface: "#101627",
-          surface2: "#182136",
-          borderc: "#232e48",
-          ink: "#f0f4fc",
-          inkdim: "#8e99b2",
+          base: "#080B12",
+          surface: "#0D111A",
+          surface2: "#111722",
+          elevated: "#151C29",
+          borderc: "#202938",
+          ink: "#F4F7FB",
+          inkdim: "#98A2B3",
+          muted: "#667085",
           brand: {
-            DEFAULT: "#E50926",
-            bright: "#ff334c",
-            hover: "#d7001c",
-            dim: "#990819",
-            glow: "rgba(229, 9, 38, 0.35)",
+            DEFAULT: "#7C5CFC",
+            bright: "#9D85FF",
+            hover: "#6E4DEE",
+            dim: "#4C39A8",
+            glow: "rgba(124, 92, 252, 0.35)",
           },
           gold: {
-            DEFAULT: "#E50926",
-            dim: "#990819",
-            bright: "#ff334c",
+            DEFAULT: "#7C5CFC",
+            dim: "#4C39A8",
+            bright: "#9D85FF",
           },
           cyan: {
-            DEFAULT: "#38bdf8",
+            DEFAULT: "#4CC9F0",
           },
+          accent: {
+            DEFAULT: "#4CC9F0",
+            success: "#32D583",
+            warning: "#FDB022",
+            danger: "#F97066",
+          },
+          easy: "#32D583",
+          medium: "#FDB022",
+          hard: "#F97066",
         },
         fontFamily: {
-          display: ['"Outfit"', "ui-sans-serif", "sans-serif"],
-          sans: ['"Outfit"', "ui-sans-serif", "sans-serif"],
+          display: ['"Space Grotesk"', '"Inter"', "ui-sans-serif", "sans-serif"],
+          sans: ['"Inter"', "ui-sans-serif", "sans-serif"],
           mono: ['"JetBrains Mono"', "ui-monospace", "monospace"],
         },
       },
@@ -69,8 +80,8 @@
         <svg class="h-7 w-auto transition-transform group-hover:scale-105 shrink-0" viewBox="0 0 240 150" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Kredora Logo">
           <defs>
             <linearGradient id="kredora-logo-grad-nav" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#FF243C" />
-              <stop offset="100%" stop-color="#D7001C" />
+              <stop offset="0%" stop-color="#9D85FF" />
+              <stop offset="100%" stop-color="#7C5CFC" />
             </linearGradient>
           </defs>
           <g fill="url(#kredora-logo-grad-nav)">
@@ -82,14 +93,14 @@
         <span class="font-display font-bold text-xl tracking-tight text-white">Kredora</span>
       </a>
 
-      <nav class="hidden md:flex items-center gap-8 text-sm text-inkdim">
-        <a href="#how-it-works" class="nav-link hover:text-ink transition-colors">How it works</a>
-        <a href="problems.html" class="nav-link text-brand-bright font-medium hover:text-white transition-colors flex items-center gap-1.5">
+      <nav class="hidden md:flex items-center gap-1 text-sm">
+        <a href="#how-it-works" class="nav-item">How it works</a>
+        <a href="problems.html" class="nav-item flex items-center gap-1.5">
           <span>Problems</span>
-          <span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-brand/15 border border-brand/30 text-brand-bright">Arena</span>
+          <span class="px-1.5 py-0.5 rounded-md text-[10px] font-mono bg-brand/15 border border-brand/30 text-brand-bright">Arena</span>
         </a>
-        <a href="#evidence" class="nav-link hover:text-ink transition-colors">Evidence</a>
-        <a href="#benefits" class="nav-link hover:text-ink transition-colors">Benefits</a>
+        <a href="#evidence" class="nav-item">Evidence</a>
+        <a href="#benefits" class="nav-item">Benefits</a>
       </nav>
 
       <!-- Dynamic Auth Nav: changes based on login status -->
@@ -126,7 +137,7 @@
     </div>
   </header>
 
-  <main id="top">
+  <main id="top" class="page-enter">
 
     <!-- ============ HERO ============ -->
     <section class="hero-field relative pt-40 pb-28 px-5 sm:px-8 overflow-hidden">
@@ -435,8 +446,8 @@
           <svg class="h-6 w-auto shrink-0" viewBox="0 0 240 150" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Kredora">
             <defs>
               <linearGradient id="kredora-logo-grad-ftr" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#FF243C" />
-                <stop offset="100%" stop-color="#D7001C" />
+                <stop offset="0%" stop-color="#9D85FF" />
+                <stop offset="100%" stop-color="#7C5CFC" />
               </linearGradient>
             </defs>
             <g fill="url(#kredora-logo-grad-ftr)">

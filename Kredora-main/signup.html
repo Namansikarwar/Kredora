@@ -11,7 +11,7 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -19,31 +19,33 @@
       theme: {
         extend: {
           colors: {
-            base: "#080c16",
-            surface: "#101627",
-            surface2: "#182136",
-            borderc: "#232e48",
-            ink: "#f0f4fc",
-            inkdim: "#8e99b2",
+            base: "#080B12",
+            surface: "#0D111A",
+            surface2: "#111722",
+            elevated: "#151C29",
+            borderc: "#202938",
+            ink: "#F4F7FB",
+            inkdim: "#98A2B3",
+            muted: "#667085",
             brand: {
-              DEFAULT: "#E50926",
-              bright: "#ff334c",
-              hover: "#d7001c",
-              dim: "#990819",
-              glow: "rgba(229, 9, 38, 0.35)",
+              DEFAULT: "#7C5CFC",
+              bright: "#9D85FF",
+              hover: "#6E4DEE",
+              dim: "#4C39A8",
+              glow: "rgba(124, 92, 252, 0.35)",
             },
             gold: {
-              DEFAULT: "#E50926",
-              dim: "#990819",
-              bright: "#ff334c",
+              DEFAULT: "#7C5CFC",
+              dim: "#4C39A8",
+              bright: "#9D85FF",
             },
             cyan: {
-              DEFAULT: "#38bdf8",
+              DEFAULT: "#4CC9F0",
             },
           },
           fontFamily: {
-            display: ['"Outfit"', "ui-sans-serif", "sans-serif"],
-            sans: ['"Outfit"', "ui-sans-serif", "sans-serif"],
+            display: ['"Space Grotesk"', '"Inter"', "ui-sans-serif", "sans-serif"],
+            sans: ['"Inter"', "ui-sans-serif", "sans-serif"],
             mono: ['"JetBrains Mono"', "ui-monospace", "monospace"],
           },
         },
@@ -74,7 +76,7 @@
   </header>
 
   <!-- Main Sign Up Container -->
-  <main class="flex-1 flex items-center justify-center px-5 py-10 relative z-10">
+  <main class="flex-1 flex items-center justify-center px-5 py-10 relative z-10 page-enter">
     <div class="w-full max-w-lg">
 
       <!-- Brand Logo -->
@@ -82,10 +84,10 @@
         <a href="index.html" class="inline-flex items-center gap-3 group">
           <svg class="h-8 w-auto transition-transform group-hover:scale-105 shrink-0" viewBox="0 0 240 150" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Kredora Logo">
             <defs>
-              <linearGradient id="kredora-logo-grad-signup" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#FF243C" />
-                <stop offset="100%" stop-color="#D7001C" />
-              </linearGradient>
+            <linearGradient id="kredora-logo-grad-signup" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#9D85FF" />
+              <stop offset="100%" stop-color="#7C5CFC" />
+            </linearGradient>
             </defs>
             <g fill="url(#kredora-logo-grad-signup)">
               <path d="M 4,0 L 108,0 C 90,32 52,65 0,68 L 0,4 C 0,1.8 1.8,0 4,0 Z" />
@@ -206,7 +208,7 @@
           <button
             type="submit"
             id="signupSubmitBtn"
-            class="w-full rounded-xl bg-brand py-3.5 text-sm font-semibold text-white transition-all hover:bg-brand-hover hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2 shadow-lg shadow-brand/25">
+            class="w-full rounded-lg bg-brand py-3 text-sm font-semibold text-white transition-all hover:bg-brand-bright active:scale-[0.99] flex items-center justify-center gap-2 shadow-lg shadow-brand/25">
             <span>Create Account & Continue</span>
             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </button>
