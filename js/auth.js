@@ -1,5 +1,6 @@
 /**
  * SkillProof — Authentication and Navigation Guard Module
+ * Kredora — Authentication and Navigation Guard Module
  * Handles session state, user registration, login, logout,
  * password validation, and secure route transitions.
  */
@@ -233,18 +234,18 @@
                 Dashboard
               </a>
               <div class="relative group">
-                <button type="button" class="flex items-center gap-2 py-1 px-2.5 rounded-full bg-white/5 border border-white/10 hover:border-gold/50 transition-colors" id="user-menu-btn" aria-haspopup="true">
-                  <span class="w-7 h-7 rounded-full bg-gradient-to-br from-gold to-amber-600 grid place-items-center font-display font-semibold text-[11px] text-base">
+                <button type="button" class="flex items-center gap-2 py-1 px-2.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md hover:border-brand/50 transition-colors" id="user-menu-btn" aria-haspopup="true">
+                  <span class="w-7 h-7 rounded-full bg-brand grid place-items-center font-display font-semibold text-[11px] text-white">
                     ${initials}
                   </span>
-                  <span class="text-xs text-ink font-medium max-w-[100px] truncate hidden sm:inline">
+                  <span class="text-xs text-ink font-medium max-w-[100px] truncate hidden lg:inline">
                     ${user.name || user.username}
                   </span>
                   <svg class="w-3.5 h-3.5 text-inkdim" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                   </svg>
                 </button>
-                <div class="absolute right-0 mt-2 w-48 rounded-xl border border-white/10 bg-[#131a2b] shadow-2xl py-1 text-sm hidden group-hover:block hover:block z-50">
+                <div class="absolute right-0 mt-2 w-48 rounded-xl border border-white/10 bg-elevated/95 backdrop-blur-xl shadow-2xl py-1 text-sm hidden group-hover:block hover:block z-50">
                   <div class="px-4 py-2 border-b border-white/5">
                     <p class="text-xs text-inkdim font-mono">Signed in as</p>
                     <p class="text-sm font-semibold text-white truncate">${user.name || user.username}</p>
@@ -265,7 +266,7 @@
           slot.innerHTML = `
             <div class="flex items-center gap-3">
               <a href="login.html" class="text-sm text-inkdim hover:text-ink transition-colors px-3 py-2">Log in</a>
-              <a href="signup.html" class="text-sm font-medium bg-gold text-base px-4 py-2 rounded-full hover:bg-amber-300 transition-colors">
+              <a href="signup.html" class="text-sm font-medium bg-brand text-white px-4 py-2 rounded-lg hover:bg-brand-bright transition-colors">
                 Sign up
               </a>
             </div>
@@ -287,7 +288,7 @@
           slot.innerHTML = `
             <div class="h-px bg-white/5 my-2"></div>
             <a href="login.html" class="py-2.5 text-inkdim hover:text-ink">Log in</a>
-            <a href="signup.html" class="mt-1 text-center font-medium bg-gold text-base px-4 py-2.5 rounded-full">Sign up</a>
+            <a href="signup.html" class="mt-1 text-center font-medium bg-brand text-white px-4 py-2.5 rounded-lg">Sign up</a>
           `;
         }
       });

@@ -13,26 +13,36 @@
       tailwind.config = {
         theme: {
           extend: {
-            colors: {
-              base: "#0a0f1c",
-              surface: "#131a2b",
-              surface2: "#1a2338",
-              borderc: "#232d44",
-              ink: "#e9ecf4",
-              inkdim: "#8b93a9",
-              gold: {
-                DEFAULT: "#f2b544",
-                dim: "#a9863a",
-              },
-              cyan: {
-                DEFAULT: "#4cc9e8",
-              },
+          colors: {
+            base: "#080B12",
+            surface: "#0D111A",
+            surface2: "#111722",
+            elevated: "#151C29",
+            borderc: "#202938",
+            ink: "#F4F7FB",
+            inkdim: "#98A2B3",
+            muted: "#667085",
+            brand: {
+              DEFAULT: "#7C5CFC",
+              bright: "#9D85FF",
+              hover: "#6E4DEE",
+              dim: "#4C39A8",
+              glow: "rgba(124, 92, 252, 0.35)",
             },
-            fontFamily: {
-              display: ['"Space Grotesk"', "Inter", "sans-serif"],
-              sans: ["Inter", "ui-sans-serif", "sans-serif"],
-              mono: ['"JetBrains Mono"', "ui-monospace", "monospace"],
+            gold: {
+              DEFAULT: "#7C5CFC",
+              dim: "#4C39A8",
+              bright: "#9D85FF",
             },
+            cyan: {
+              DEFAULT: "#4CC9F0",
+            },
+          },
+          fontFamily: {
+            display: ['"Space Grotesk"', '"Inter"', "ui-sans-serif", "sans-serif"],
+            sans: ['"Inter"', "ui-sans-serif", "sans-serif"],
+            mono: ['"JetBrains Mono"', "ui-monospace", "monospace"],
+          },
           },
         },
       };
@@ -48,17 +58,25 @@
     <script src="js/auth.js"></script>
   </head>
 
-  <body class="min-h-screen bg-[#0a0f1c] text-white">
+  <body class="min-h-screen bg-base text-white relative overflow-x-hidden">
+    <!-- Ambient blurred glow orbs -->
+    <div
+      class="fixed top-10 left-1/4 w-[520px] h-[320px] bg-brand/10 rounded-full blur-[130px] pointer-events-none -z-10"
+    ></div>
+    <div
+      class="fixed bottom-16 right-1/4 w-[440px] h-[300px] bg-cyan/10 rounded-full blur-[120px] pointer-events-none -z-10"
+    ></div>
+
     <!-- NAV -->
     <header class="glass-navbar fixed top-4 inset-x-4 sm:inset-x-6 lg:inset-x-8 max-w-7xl mx-auto z-50 px-6 py-4 flex items-center justify-between">
       <div class="mx-auto w-full flex items-center justify-between">
         <a href="index.html" class="flex items-center gap-2.5 text-xl font-bold font-display group">
           <svg class="h-7 w-auto transition-transform group-hover:scale-105 shrink-0" viewBox="0 0 240 150" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Kredora Logo">
             <defs>
-              <linearGradient id="kredora-logo-grad-prof" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#FF243C" />
-                <stop offset="100%" stop-color="#D7001C" />
-              </linearGradient>
+            <linearGradient id="kredora-logo-grad-prof" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#9D85FF" />
+              <stop offset="100%" stop-color="#7C5CFC" />
+            </linearGradient>
             </defs>
             <g fill="url(#kredora-logo-grad-prof)">
               <path d="M 4,0 L 108,0 C 90,32 52,65 0,68 L 0,4 C 0,1.8 1.8,0 4,0 Z" />
@@ -69,36 +87,47 @@
           <span class="text-white tracking-tight">Kredora</span>
         </a>
 
-        <div class="flex items-center gap-4">
-          <a
-            href="dashboard.html"
-            class="text-sm text-white/60 hover:text-white transition-colors"
-          >
-            Dashboard
-          </a>
+        <nav class="hidden gap-1 md:flex items-center">
+          <a href="dashboard.html" class="nav-item">Dashboard</a>
+          <a href="problems.html" class="nav-item">Problems</a>
+          <a href="evidence.html" class="nav-item">Evidence</a>
+          <a href="skill.html" class="nav-item">Skills</a>
+          <a href="profile.html" class="nav-item nav-item-active">Profile</a>
+        </nav>
 
-          <a
-            href="evidence.html"
-            class="text-sm text-white/60 hover:text-white transition-colors"
-          >
-            Evidence
-          </a>
-
+        <div class="flex items-center gap-3">
           <button
             onclick="copyProfileLink()"
             id="shareBtn"
-            class="rounded-xl border border-[#f2b544]/30 bg-[#f2b544]/10 px-4 py-2 text-sm text-[#f2b544] hover:bg-[#f2b544]/20 transition-colors"
+            class="hidden sm:inline-flex rounded-lg border border-brand/30 bg-brand/10 px-4 py-2 text-sm text-brand-bright hover:bg-brand/20 transition-colors"
           >
             Share profile
           </button>
+          <div data-auth-nav></div>
+          <button id="nav-toggle" aria-label="Toggle menu" aria-expanded="false" class="md:hidden p-2 -mr-2 text-ink">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+          </button>
         </div>
+      </div>
+
+      <!-- Mobile menu -->
+      <div id="mobile-menu" class="md:hidden border-t border-white/10 bg-base/95 backdrop-blur-2xl">
+        <div class="px-5 py-4 flex flex-col gap-1 text-sm">
+          <a href="dashboard.html" class="py-2.5 text-inkdim hover:text-ink">Dashboard</a>
+          <a href="problems.html" class="py-2.5 text-inkdim hover:text-ink">Problems</a>
+          <a href="evidence.html" class="py-2.5 text-inkdim hover:text-ink">Evidence</a>
+          <a href="skill.html" class="py-2.5 text-inkdim hover:text-ink">Skills</a>
+          <a href="profile.html" class="py-2.5 text-white font-semibold">Profile</a>
+          <div data-mobile-auth-nav></div>
+        </div>
+      </div>
       </div>
     </header>
 
-    <main class="mx-auto max-w-6xl px-6 py-12 pt-28">
+    <main class="mx-auto max-w-6xl px-6 py-12 pt-28 page-enter">
       <!-- PROFILE HEADER -->
       <section
-        class="rounded-3xl border border-white/10 bg-[#111827] p-8 md:p-10"
+        class="rounded-3xl border border-white/10 bg-[#111827]/80 frosted-panel p-8 md:p-10"
       >
         <div
           class="flex flex-col gap-8 md:flex-row md:items-center md:justify-between"
@@ -106,14 +135,14 @@
           <div class="flex items-center gap-5">
             <div
               id="profileAvatar"
-              class="flex h-20 w-20 items-center justify-center rounded-3xl bg-[#f2b544] text-3xl font-bold text-black font-display"
+              class="flex h-20 w-20 items-center justify-center rounded-2xl bg-brand text-3xl font-bold text-white font-display shadow-lg shadow-brand/25"
             >
               N
             </div>
 
             <div>
               <p
-                class="font-mono text-xs uppercase tracking-[0.2em] text-[#4cc9e8]"
+                class="font-mono text-xs uppercase tracking-[0.2em] text-cyan"
               >
                 Verified Kredora profile
               </p>
@@ -133,7 +162,7 @@
               Overall skill score
             </p>
 
-            <div class="mt-2 text-5xl font-bold text-[#f2b544] font-display">79</div>
+            <div class="mt-2 text-5xl font-bold text-brand-bright font-display">79</div>
 
             <p class="font-mono text-xs text-white/30">/ 100</p>
           </div>
@@ -150,32 +179,32 @@
 
       <!-- STATS -->
       <section class="my-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div class="rounded-2xl border border-white/10 bg-[#111827] p-6">
+        <div class="rounded-2xl border border-white/10 bg-[#111827]/80 frosted-panel p-6">
           <p class="text-sm text-white/40 font-mono">Skills</p>
           <p class="mt-2 text-3xl font-bold font-display">4</p>
         </div>
 
-        <div class="rounded-2xl border border-white/10 bg-[#111827] p-6">
+        <div class="rounded-2xl border border-white/10 bg-[#111827]/80 frosted-panel p-6">
           <p class="text-sm text-white/40 font-mono">Projects</p>
           <p class="mt-2 text-3xl font-bold font-display text-cyan">7</p>
         </div>
 
-        <div class="rounded-2xl border border-white/10 bg-[#111827] p-6">
+        <div class="rounded-2xl border border-white/10 bg-[#111827]/80 frosted-panel p-6">
           <p class="text-sm text-white/40 font-mono">Problems</p>
           <p class="mt-2 text-3xl font-bold font-display text-gold">47</p>
         </div>
 
-        <div class="rounded-2xl border border-white/10 bg-[#111827] p-6">
+        <div class="rounded-2xl border border-white/10 bg-[#111827]/80 frosted-panel p-6">
           <p class="text-sm text-white/40 font-mono">Evidence</p>
           <p class="mt-2 text-3xl font-bold font-display">72</p>
         </div>
       </section>
 
       <!-- SKILLS -->
-      <section class="rounded-3xl border border-white/10 bg-[#111827] p-8">
+      <section class="rounded-3xl border border-white/10 bg-[#111827]/80 frosted-panel p-8">
         <div class="mb-7">
           <p
-            class="font-mono text-xs uppercase tracking-[0.2em] text-[#4cc9e8]"
+            class="font-mono text-xs uppercase tracking-[0.2em] text-cyan"
           >
             Evidence-backed skills
           </p>
@@ -187,26 +216,26 @@
           <!-- JAVA -->
           <a
             href="skill.html"
-            class="block rounded-2xl border border-white/10 bg-white/[0.02] p-5 transition hover:border-[#f2b544]/50 group"
+            class="block rounded-2xl border border-white/10 bg-white/[0.02] frosted-panel p-5 transition hover:border-brand/50 group"
           >
             <div class="flex items-center justify-between">
               <div>
-                <h3 class="font-semibold group-hover:text-gold transition-colors font-display text-lg">Java</h3>
+                <h3 class="font-semibold group-hover:text-brand-bright transition-colors font-display text-lg">Java</h3>
                 <p class="mt-1 text-sm text-white/40 font-mono">
                   47 problems · 3 projects · 4 assessments
                 </p>
               </div>
 
-              <span class="font-mono text-2xl font-bold text-[#f2b544]"> 82 </span>
+              <span class="font-mono text-2xl font-bold text-brand-bright"> 82 </span>
             </div>
 
             <div class="mt-4 h-2 rounded-full bg-white/5 overflow-hidden">
-              <div class="h-full w-[82%] rounded-full bg-gradient-to-r from-cyan to-gold"></div>
+              <div class="h-full w-[82%] rounded-full bg-gradient-to-r from-cyan to-brand"></div>
             </div>
           </a>
 
           <!-- JAVASCRIPT -->
-          <div class="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
+          <div class="rounded-2xl border border-white/10 bg-white/[0.02] frosted-panel p-5">
             <div class="flex items-center justify-between">
               <div>
                 <h3 class="font-semibold font-display text-lg">JavaScript</h3>
@@ -215,16 +244,16 @@
                 </p>
               </div>
 
-              <span class="font-mono text-2xl font-bold text-[#4cc9e8]"> 76 </span>
+              <span class="font-mono text-2xl font-bold text-cyan"> 76 </span>
             </div>
 
             <div class="mt-4 h-2 rounded-full bg-white/5 overflow-hidden">
-              <div class="h-full w-[76%] rounded-full bg-gradient-to-r from-cyan to-gold"></div>
+              <div class="h-full w-[76%] rounded-full bg-gradient-to-r from-cyan to-brand"></div>
             </div>
           </div>
 
           <!-- SQL -->
-          <div class="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
+          <div class="rounded-2xl border border-white/10 bg-white/[0.02] frosted-panel p-5">
             <div class="flex items-center justify-between">
               <div>
                 <h3 class="font-semibold font-display text-lg">SQL</h3>
@@ -233,16 +262,16 @@
                 </p>
               </div>
 
-              <span class="font-mono text-2xl font-bold text-[#f2b544]"> 88 </span>
+              <span class="font-mono text-2xl font-bold text-brand-bright"> 88 </span>
             </div>
 
             <div class="mt-4 h-2 rounded-full bg-white/5 overflow-hidden">
-              <div class="h-full w-[88%] rounded-full bg-gradient-to-r from-cyan to-gold"></div>
+              <div class="h-full w-[88%] rounded-full bg-gradient-to-r from-cyan to-brand"></div>
             </div>
           </div>
 
           <!-- MONGODB -->
-          <div class="rounded-2xl border border-white/10 bg-white/[0.02] p-5">
+          <div class="rounded-2xl border border-white/10 bg-white/[0.02] frosted-panel p-5">
             <div class="flex items-center justify-between">
               <div>
                 <h3 class="font-semibold font-display text-lg">MongoDB</h3>
@@ -251,21 +280,21 @@
                 </p>
               </div>
 
-              <span class="font-mono text-2xl font-bold text-[#4cc9e8]"> 71 </span>
+              <span class="font-mono text-2xl font-bold text-cyan"> 71 </span>
             </div>
 
             <div class="mt-4 h-2 rounded-full bg-white/5 overflow-hidden">
-              <div class="h-full w-[71%] rounded-full bg-gradient-to-r from-cyan to-gold"></div>
+              <div class="h-full w-[71%] rounded-full bg-gradient-to-r from-cyan to-brand"></div>
             </div>
           </div>
         </div>
       </section>
 
       <!-- PROJECTS -->
-      <section class="mt-6 rounded-3xl border border-white/10 bg-[#111827] p-8">
+      <section class="mt-6 rounded-3xl border border-white/10 bg-[#111827]/80 frosted-panel p-8">
         <div class="mb-7">
           <p
-            class="font-mono text-xs uppercase tracking-[0.2em] text-[#f2b544]"
+            class="font-mono text-xs uppercase tracking-[0.2em] text-brand-bright"
           >
             Projects
           </p>
@@ -276,7 +305,7 @@
         </div>
 
         <div class="grid gap-4 md:grid-cols-2">
-          <div class="rounded-2xl border border-white/10 p-5 bg-white/[0.01]">
+          <div class="rounded-2xl border border-white/10 p-5 bg-white/[0.01] frosted-panel">
             <div class="flex items-center justify-between">
               <h3 class="font-semibold font-display text-base">Portfolio Website</h3>
               <span class="text-xs font-mono px-2 py-0.5 rounded bg-cyan/10 text-cyan border border-cyan/20">Web</span>
@@ -287,7 +316,7 @@
             </p>
           </div>
 
-          <div class="rounded-2xl border border-white/10 p-5 bg-white/[0.01]">
+          <div class="rounded-2xl border border-white/10 p-5 bg-white/[0.01] frosted-panel">
             <div class="flex items-center justify-between">
               <h3 class="font-semibold font-display text-base">Library Management System</h3>
               <span class="text-xs font-mono px-2 py-0.5 rounded bg-gold/10 text-gold border border-gold/20">Java</span>
@@ -302,14 +331,14 @@
 
       <!-- VERIFICATION -->
       <section
-        class="mt-6 rounded-3xl border border-[#4cc9e8]/20 bg-[#4cc9e8]/5 p-8"
+        class="mt-6 rounded-3xl border border-cyan/20 bg-cyan/5 frosted-panel p-8"
       >
         <div
           class="flex flex-col gap-5 md:flex-row md:items-center md:justify-between"
         >
           <div>
             <p
-              class="font-mono text-xs uppercase tracking-[0.2em] text-[#4cc9e8]"
+              class="font-mono text-xs uppercase tracking-[0.2em] text-cyan"
             >
               Kredora principle
             </p>
@@ -326,7 +355,7 @@
 
           <a
             href="evidence.html"
-            class="shrink-0 rounded-xl bg-gold text-base px-5 py-3 text-sm font-semibold hover:bg-amber-300 transition-colors"
+            class="shrink-0 rounded-lg bg-brand text-white px-5 py-2.5 text-sm font-semibold hover:bg-brand-bright transition-colors"
           >
             View evidence
           </a>

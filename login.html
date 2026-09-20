@@ -11,7 +11,7 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -19,31 +19,33 @@
       theme: {
         extend: {
           colors: {
-            base: "#080c16",
-            surface: "#101627",
-            surface2: "#182136",
-            borderc: "#232e48",
-            ink: "#f0f4fc",
-            inkdim: "#8e99b2",
+            base: "#080B12",
+            surface: "#0D111A",
+            surface2: "#111722",
+            elevated: "#151C29",
+            borderc: "#202938",
+            ink: "#F4F7FB",
+            inkdim: "#98A2B3",
+            muted: "#667085",
             brand: {
-              DEFAULT: "#E50926",
-              bright: "#ff334c",
-              hover: "#d7001c",
-              dim: "#990819",
-              glow: "rgba(229, 9, 38, 0.35)",
+              DEFAULT: "#7C5CFC",
+              bright: "#9D85FF",
+              hover: "#6E4DEE",
+              dim: "#4C39A8",
+              glow: "rgba(124, 92, 252, 0.35)",
             },
             gold: {
-              DEFAULT: "#E50926",
-              dim: "#990819",
-              bright: "#ff334c",
+              DEFAULT: "#7C5CFC",
+              dim: "#4C39A8",
+              bright: "#9D85FF",
             },
             cyan: {
-              DEFAULT: "#38bdf8",
+              DEFAULT: "#4CC9F0",
             },
           },
           fontFamily: {
-            display: ['"Outfit"', "ui-sans-serif", "sans-serif"],
-            sans: ['"Outfit"', "ui-sans-serif", "sans-serif"],
+            display: ['"Space Grotesk"', '"Inter"', "ui-sans-serif", "sans-serif"],
+            sans: ['"Inter"', "ui-sans-serif", "sans-serif"],
             mono: ['"JetBrains Mono"', "ui-monospace", "monospace"],
           },
         },
@@ -55,7 +57,8 @@
 
 <body class="min-h-screen bg-base text-ink flex flex-col justify-between antialiased relative overflow-x-hidden">
   <!-- Ambient backdrop blur orb -->
-  <div class="fixed top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-brand/12 rounded-full blur-[140px] pointer-events-none -z-10"></div>
+  <div class="fixed top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-brand/15 rounded-full blur-[140px] pointer-events-none -z-10"></div>
+  <div class="fixed bottom-10 right-1/4 w-[420px] h-[300px] bg-cyan/10 rounded-full blur-[120px] pointer-events-none -z-10"></div>
 
   <!-- Top bar with Back to Home -->
   <header class="w-full px-6 py-5 border-b border-white/10 bg-[#080c16]/70 backdrop-blur-xl">
@@ -73,7 +76,7 @@
   </header>
 
   <!-- Main Login Container -->
-  <main class="flex-1 flex items-center justify-center px-5 py-12 relative z-10">
+  <main class="flex-1 flex items-center justify-center px-5 py-12 relative z-10 page-enter">
     <div class="w-full max-w-md">
 
       <!-- Brand Logo -->
@@ -81,10 +84,10 @@
         <a href="index.html" class="inline-flex items-center gap-3 group">
           <svg class="h-8 w-auto transition-transform group-hover:scale-105 shrink-0" viewBox="0 0 240 150" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Kredora Logo">
             <defs>
-              <linearGradient id="kredora-logo-grad-login" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#FF243C" />
-                <stop offset="100%" stop-color="#D7001C" />
-              </linearGradient>
+            <linearGradient id="kredora-logo-grad-login" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#9D85FF" />
+              <stop offset="100%" stop-color="#7C5CFC" />
+            </linearGradient>
             </defs>
             <g fill="url(#kredora-logo-grad-login)">
               <path d="M 4,0 L 108,0 C 90,32 52,65 0,68 L 0,4 C 0,1.8 1.8,0 4,0 Z" />
@@ -110,7 +113,7 @@
         <div id="statusMessage" class="hidden mb-5 p-3.5 rounded-xl text-xs font-mono leading-relaxed"></div>
 
         <!-- Demo account quick prefill helper -->
-        <div class="mb-6 p-3 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center justify-between">
+        <div class="mb-6 p-3 rounded-2xl bg-white/[0.03] border border-white/5 backdrop-blur-sm flex items-center justify-between">
           <div class="text-left">
             <span class="text-[11px] font-mono text-inkdim block">Demo Account:</span>
             <span class="text-xs font-medium text-white">naman <span class="text-inkdim">(password123)</span></span>
@@ -179,12 +182,12 @@
             </label>
           </div>
 
-          <p id="loginError" class="hidden text-xs text-red-400 font-mono bg-red-500/10 border border-red-500/20 p-2.5 rounded-lg"></p>
+          <p id="loginError" class="hidden text-xs text-red-400 font-mono bg-red-500/10 border border-red-500/20 backdrop-blur-sm p-2.5 rounded-lg"></p>
 
           <button
             type="submit"
             id="submitBtn"
-            class="w-full rounded-xl bg-brand py-3.5 text-sm font-semibold text-white transition-all hover:bg-brand-hover hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2 shadow-lg shadow-brand/25">
+            class="w-full rounded-lg bg-brand py-3 text-sm font-semibold text-white transition-all hover:bg-brand-bright active:scale-[0.99] flex items-center justify-center gap-2 shadow-lg shadow-brand/25">
             <span>Sign In</span>
             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </button>
@@ -211,7 +214,7 @@
   </main>
 
   <!-- Footer -->
-  <footer class="w-full px-6 py-4 text-center text-xs text-inkdim/60 border-t border-white/5">
+  <footer class="w-full px-6 py-4 text-center text-xs text-inkdim/60 border-t border-white/5 backdrop-blur-md bg-[#080c16]/40">
     © <span id="current-year"></span> Kredora. All rights reserved.
   </footer>
 

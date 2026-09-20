@@ -14,23 +14,33 @@
       theme: {
         extend: {
           colors: {
-            base: "#0a0f1c",
-            surface: "#131a2b",
-            surface2: "#1a2338",
-            borderc: "#232d44",
-            ink: "#e9ecf4",
-            inkdim: "#8b93a9",
+            base: "#080B12",
+            surface: "#0D111A",
+            surface2: "#111722",
+            elevated: "#151C29",
+            borderc: "#202938",
+            ink: "#F4F7FB",
+            inkdim: "#98A2B3",
+            muted: "#667085",
+            brand: {
+              DEFAULT: "#7C5CFC",
+              bright: "#9D85FF",
+              hover: "#6E4DEE",
+              dim: "#4C39A8",
+              glow: "rgba(124, 92, 252, 0.35)",
+            },
             gold: {
-              DEFAULT: "#f2b544",
-              dim: "#a9863a",
+              DEFAULT: "#7C5CFC",
+              dim: "#4C39A8",
+              bright: "#9D85FF",
             },
             cyan: {
-              DEFAULT: "#4cc9e8",
+              DEFAULT: "#4CC9F0",
             },
           },
           fontFamily: {
-            display: ['"Space Grotesk"', "Inter", "sans-serif"],
-            sans: ["Inter", "ui-sans-serif", "sans-serif"],
+            display: ['"Space Grotesk"', '"Inter"', "ui-sans-serif", "sans-serif"],
+            sans: ['"Inter"', "ui-sans-serif", "sans-serif"],
             mono: ['"JetBrains Mono"', "ui-monospace", "monospace"],
           },
         },
@@ -43,9 +53,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <script src="js/auth.js"></script>
-</head>
+</head>  <body class="min-h-screen bg-base text-white relative overflow-x-hidden">
 
-<body class="min-h-screen bg-[#0a0f1c] text-white">
+  <!-- Ambient blurred glow orbs -->
+  <div class="fixed top-10 right-1/4 w-[520px] h-[320px] bg-brand/10 rounded-full blur-[130px] pointer-events-none -z-10"></div>
+  <div class="fixed bottom-16 left-10 w-[420px] h-[300px] bg-cyan/10 rounded-full blur-[120px] pointer-events-none -z-10"></div>
 
   <!-- NAVBAR -->
   <header class="glass-navbar fixed top-4 inset-x-4 sm:inset-x-6 lg:inset-x-8 max-w-7xl mx-auto z-50 px-6 py-4 flex items-center justify-between">
@@ -55,8 +67,8 @@
         <svg class="h-7 w-auto transition-transform group-hover:scale-105 shrink-0" viewBox="0 0 240 150" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Kredora Logo">
           <defs>
             <linearGradient id="kredora-logo-grad-skill" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#FF243C" />
-              <stop offset="100%" stop-color="#D7001C" />
+              <stop offset="0%" stop-color="#9D85FF" />
+              <stop offset="100%" stop-color="#7C5CFC" />
             </linearGradient>
           </defs>
           <g fill="url(#kredora-logo-grad-skill)">
@@ -70,26 +82,31 @@
         </span>
       </a>
 
-      <nav class="hidden items-center gap-7 md:flex">
-        <a href="dashboard.html" class="text-sm text-white/60 transition hover:text-white">Dashboard</a>
-        <a href="evidence.html" class="text-sm text-white/60 transition hover:text-white">Evidence</a>
-        <a href="profile.html" class="text-sm text-white/60 transition hover:text-white">Profile</a>
+      <nav class="hidden items-center gap-1 md:flex">
+        <a href="dashboard.html" class="nav-item">Dashboard</a>
+        <a href="problems.html" class="nav-item">Problems</a>
+        <a href="evidence.html" class="nav-item">Evidence</a>
+        <a href="skill.html" class="nav-item nav-item-active">Skills</a>
+        <a href="profile.html" class="nav-item">Profile</a>
       </nav>
 
       <div class="flex items-center gap-3">
         <div data-auth-nav></div>
+        <button id="nav-toggle" aria-label="Toggle menu" aria-expanded="false" class="md:hidden p-2 -mr-2 text-ink">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
       </div>
 
     </div>
   </header>
 
-  <main class="mx-auto max-w-7xl px-6 py-10 pt-28">
+  <main class="mx-auto max-w-7xl px-6 py-10 pt-28 page-enter">
 
     <!-- BREADCRUMB -->
     <div class="mb-8 flex items-center gap-2 text-sm text-white/40 font-mono">
-      <a href="dashboard.html" class="hover:text-gold transition-colors">Dashboard</a>
+      <a href="dashboard.html" class="hover:text-brand-bright transition-colors">Dashboard</a>
       <span>/</span>
-      <a href="dashboard.html" class="hover:text-gold transition-colors">Skills</a>
+      <a href="dashboard.html" class="hover:text-brand-bright transition-colors">Skills</a>
       <span>/</span>
       <span class="text-white font-medium">Java</span>
     </div>
@@ -97,9 +114,9 @@
     <!-- HEADER -->
     <section class="mb-8 grid gap-6 lg:grid-cols-[1fr_320px]">
 
-      <div class="rounded-3xl border border-white/10 bg-[#111827] p-8">
+      <div class="rounded-3xl border border-white/10 bg-[#111827]/80 frosted-panel p-8">
         <div class="mb-5 flex items-center gap-4">
-          <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#f2b544]/10 text-xl font-bold text-[#f2b544] font-display">
+          <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand/10 text-xl font-bold text-brand-bright font-display">
             J
           </div>
 
@@ -120,7 +137,7 @@
         </p>
 
         <div class="mt-8 flex flex-wrap gap-3">
-          <span class="rounded-full border border-[#f2b544]/20 bg-[#f2b544]/10 px-3 py-1.5 text-xs text-[#f2b544] font-mono">
+          <span class="rounded-full border border-brand/20 bg-brand/10 px-3 py-1.5 text-xs text-brand-bright font-mono">
             High confidence
           </span>
 
@@ -135,14 +152,14 @@
       </div>
 
       <!-- SCORE -->
-      <div class="rounded-3xl border border-white/10 bg-[#111827] p-8 text-center flex flex-col justify-center items-center">
+      <div class="rounded-3xl border border-white/10 bg-[#111827]/80 frosted-panel p-8 text-center flex flex-col justify-center items-center">
         <p class="font-mono text-xs uppercase tracking-[0.2em] text-white/40">
           Total skill score
         </p>
 
-        <div class="mx-auto mt-5 flex h-36 w-36 items-center justify-center rounded-full border-[8px] border-[#f2b544]/30 bg-white/[0.02]">
+        <div class="mx-auto mt-5 flex h-36 w-36 items-center justify-center rounded-full border-[8px] border-brand/30 bg-white/[0.02] frosted-panel">
           <div>
-            <div class="text-4xl font-bold text-[#f2b544] font-display">82</div>
+            <div class="text-4xl font-bold text-brand-bright font-display">82</div>
             <div class="font-mono text-xs text-white/40">/ 100</div>
           </div>
         </div>
@@ -157,7 +174,7 @@
     <!-- SCORE BREAKDOWN -->
     <section class="mb-8">
       <div class="mb-5">
-        <p class="font-mono text-xs uppercase tracking-[0.2em] text-[#4cc9e8]">
+        <p class="font-mono text-xs uppercase tracking-[0.2em] text-cyan">
           Evidence analysis
         </p>
 
@@ -168,78 +185,78 @@
 
       <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
 
-        <div class="rounded-2xl border border-white/10 bg-[#111827] p-6">
+        <div class="rounded-2xl border border-white/10 bg-[#111827]/80 frosted-panel p-6">
           <div class="flex items-center justify-between">
             <span class="font-semibold text-white">Coding Problems</span>
-            <span class="font-mono text-[#f2b544] font-bold">90%</span>
+            <span class="font-mono text-brand-bright font-bold">90%</span>
           </div>
           <div class="mt-4 h-2 overflow-hidden rounded-full bg-white/5">
-            <div class="h-full w-[90%] rounded-full bg-[#f2b544]"></div>
+            <div class="h-full w-[90%] rounded-full bg-brand"></div>
           </div>
           <p class="mt-3 text-xs text-white/40 font-mono">
             47 problems solved
           </p>
         </div>
 
-        <div class="rounded-2xl border border-white/10 bg-[#111827] p-6">
+        <div class="rounded-2xl border border-white/10 bg-[#111827]/80 frosted-panel p-6">
           <div class="flex items-center justify-between">
             <span class="font-semibold text-white">Projects</span>
-            <span class="font-mono text-[#4cc9e8] font-bold">80%</span>
+            <span class="font-mono text-cyan font-bold">80%</span>
           </div>
           <div class="mt-4 h-2 overflow-hidden rounded-full bg-white/5">
-            <div class="h-full w-[80%] rounded-full bg-[#4cc9e8]"></div>
+            <div class="h-full w-[80%] rounded-full bg-cyan"></div>
           </div>
           <p class="mt-3 text-xs text-white/40 font-mono">
             3 projects demonstrated
           </p>
         </div>
 
-        <div class="rounded-2xl border border-white/10 bg-[#111827] p-6">
+        <div class="rounded-2xl border border-white/10 bg-[#111827]/80 frosted-panel p-6">
           <div class="flex items-center justify-between">
             <span class="font-semibold text-white">Assessments</span>
-            <span class="font-mono text-[#f2b544] font-bold">88%</span>
+            <span class="font-mono text-brand-bright font-bold">88%</span>
           </div>
           <div class="mt-4 h-2 overflow-hidden rounded-full bg-white/5">
-            <div class="h-full w-[88%] rounded-full bg-[#f2b544]"></div>
+            <div class="h-full w-[88%] rounded-full bg-brand"></div>
           </div>
           <p class="mt-3 text-xs text-white/40 font-mono">
             4 assessments completed
           </p>
         </div>
 
-        <div class="rounded-2xl border border-white/10 bg-[#111827] p-6">
+        <div class="rounded-2xl border border-white/10 bg-[#111827]/80 frosted-panel p-6">
           <div class="flex items-center justify-between">
             <span class="font-semibold text-white">Concept Coverage</span>
-            <span class="font-mono text-[#4cc9e8] font-bold">84%</span>
+            <span class="font-mono text-cyan font-bold">84%</span>
           </div>
           <div class="mt-4 h-2 overflow-hidden rounded-full bg-white/5">
-            <div class="h-full w-[84%] rounded-full bg-[#4cc9e8]"></div>
+            <div class="h-full w-[84%] rounded-full bg-cyan"></div>
           </div>
           <p class="mt-3 text-xs text-white/40 font-mono">
             12 concepts demonstrated
           </p>
         </div>
 
-        <div class="rounded-2xl border border-white/10 bg-[#111827] p-6">
+        <div class="rounded-2xl border border-white/10 bg-[#111827]/80 frosted-panel p-6">
           <div class="flex items-center justify-between">
             <span class="font-semibold text-white">Consistency</span>
-            <span class="font-mono text-[#f2b544] font-bold">70%</span>
+            <span class="font-mono text-brand-bright font-bold">70%</span>
           </div>
           <div class="mt-4 h-2 overflow-hidden rounded-full bg-white/5">
-            <div class="h-full w-[70%] rounded-full bg-[#f2b544]"></div>
+            <div class="h-full w-[70%] rounded-full bg-brand"></div>
           </div>
           <p class="mt-3 text-xs text-white/40 font-mono">
             Regular activity detected
           </p>
         </div>
 
-        <div class="rounded-2xl border border-white/10 bg-[#111827] p-6">
+        <div class="rounded-2xl border border-white/10 bg-[#111827]/80 frosted-panel p-6">
           <div class="flex items-center justify-between">
             <span class="font-semibold text-white">Recency</span>
-            <span class="font-mono text-[#4cc9e8] font-bold">76%</span>
+            <span class="font-mono text-cyan font-bold">76%</span>
           </div>
           <div class="mt-4 h-2 overflow-hidden rounded-full bg-white/5">
-            <div class="h-full w-[76%] rounded-full bg-[#4cc9e8]"></div>
+            <div class="h-full w-[76%] rounded-full bg-cyan"></div>
           </div>
           <p class="mt-3 text-xs text-white/40 font-mono">
             Recent evidence available
@@ -252,7 +269,7 @@
     <!-- EVIDENCE TIMELINE & IMPROVEMENT -->
     <section class="grid gap-6 lg:grid-cols-[1fr_360px]">
 
-      <div class="rounded-3xl border border-white/10 bg-[#111827] p-7">
+      <div class="rounded-3xl border border-white/10 bg-[#111827]/80 frosted-panel p-7">
         <div class="mb-7 flex items-center justify-between">
           <div>
             <p class="font-mono text-xs uppercase tracking-[0.2em] text-white/40">
@@ -263,14 +280,14 @@
             </h2>
           </div>
 
-          <a href="evidence.html" class="text-sm text-[#f2b544] hover:underline font-mono">
+          <a href="evidence.html" class="text-sm text-brand-bright hover:underline font-mono">
             View all →
           </a>
         </div>
 
         <div class="space-y-6">
           <div class="flex gap-4">
-            <div class="mt-1.5 h-3 w-3 rounded-full bg-[#f2b544] shrink-0"></div>
+            <div class="mt-1.5 h-3 w-3 rounded-full bg-brand shrink-0"></div>
             <div>
               <h3 class="font-semibold text-white">Solved Two Sum</h3>
               <p class="mt-1 text-sm text-white/40">
@@ -283,7 +300,7 @@
           </div>
 
           <div class="flex gap-4">
-            <div class="mt-1.5 h-3 w-3 rounded-full bg-[#4cc9e8] shrink-0"></div>
+            <div class="mt-1.5 h-3 w-3 rounded-full bg-cyan shrink-0"></div>
             <div>
               <h3 class="font-semibold text-white">Library Management System</h3>
               <p class="mt-1 text-sm text-white/40">
@@ -296,7 +313,7 @@
           </div>
 
           <div class="flex gap-4">
-            <div class="mt-1.5 h-3 w-3 rounded-full bg-[#f2b544] shrink-0"></div>
+            <div class="mt-1.5 h-3 w-3 rounded-full bg-brand shrink-0"></div>
             <div>
               <h3 class="font-semibold text-white">OOP Assessment</h3>
               <p class="mt-1 text-sm text-white/40">
@@ -311,9 +328,9 @@
       </div>
 
       <!-- IMPROVEMENT -->
-      <div class="rounded-3xl border border-[#f2b544]/20 bg-[#f2b544]/5 p-7 flex flex-col justify-between">
+      <div class="rounded-3xl border border-brand/20 bg-brand/5 frosted-panel p-7 flex flex-col justify-between">
         <div>
-          <p class="font-mono text-xs uppercase tracking-[0.2em] text-[#f2b544]">
+          <p class="font-mono text-xs uppercase tracking-[0.2em] text-brand-bright">
             Next step
           </p>
 
@@ -330,7 +347,7 @@
 
         <button
           onclick="window.location.href='evidence.html'"
-          class="mt-7 w-full rounded-xl bg-[#f2b544] px-5 py-3 font-semibold text-black transition hover:bg-amber-300">
+          class="mt-7 w-full rounded-lg bg-brand px-5 py-3 font-semibold text-white transition hover:bg-brand-bright">
           + Add Java Evidence
         </button>
       </div>

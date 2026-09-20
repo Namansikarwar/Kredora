@@ -14,23 +14,33 @@
       theme: {
         extend: {
           colors: {
-            base: "#0a0f1c",
-            surface: "#131a2b",
-            surface2: "#1a2338",
-            borderc: "#232d44",
-            ink: "#e9ecf4",
-            inkdim: "#8b93a9",
+            base: "#080B12",
+            surface: "#0D111A",
+            surface2: "#111722",
+            elevated: "#151C29",
+            borderc: "#202938",
+            ink: "#F4F7FB",
+            inkdim: "#98A2B3",
+            muted: "#667085",
+            brand: {
+              DEFAULT: "#7C5CFC",
+              bright: "#9D85FF",
+              hover: "#6E4DEE",
+              dim: "#4C39A8",
+              glow: "rgba(124, 92, 252, 0.35)",
+            },
             gold: {
-              DEFAULT: "#f2b544",
-              dim: "#a9863a",
+              DEFAULT: "#7C5CFC",
+              dim: "#4C39A8",
+              bright: "#9D85FF",
             },
             cyan: {
-              DEFAULT: "#4cc9e8",
+              DEFAULT: "#4CC9F0",
             },
           },
           fontFamily: {
-            display: ['"Space Grotesk"', "Inter", "sans-serif"],
-            sans: ["Inter", "ui-sans-serif", "sans-serif"],
+            display: ['"Space Grotesk"', '"Inter"', "ui-sans-serif", "sans-serif"],
+            sans: ['"Inter"', "ui-sans-serif", "sans-serif"],
             mono: ['"JetBrains Mono"', "ui-monospace", "monospace"],
           },
         },
@@ -43,6 +53,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase.js"></script>
   <script src="js/auth.js"></script>
   <script>
     if (!window.Auth.requireAuth("evidence.html")) {
@@ -51,7 +63,11 @@
   </script>
 </head>
 
-<body class="min-h-screen bg-[#0a0f1c] text-white">
+<body class="min-h-screen bg-base text-white relative overflow-x-hidden">
+
+  <!-- Ambient blurred glow orbs -->
+  <div class="fixed top-10 left-1/3 w-[520px] h-[320px] bg-brand/10 rounded-full blur-[130px] pointer-events-none -z-10"></div>
+  <div class="fixed bottom-16 right-10 w-[420px] h-[300px] bg-cyan/10 rounded-full blur-[120px] pointer-events-none -z-10"></div>
 
   <!-- NAV -->
   <header class="glass-navbar fixed top-4 inset-x-4 sm:inset-x-6 lg:inset-x-8 max-w-7xl mx-auto z-50 px-6 py-4 flex items-center justify-between">
@@ -61,8 +77,8 @@
         <svg class="h-7 w-auto transition-transform group-hover:scale-105 shrink-0" viewBox="0 0 240 150" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Kredora Logo">
           <defs>
             <linearGradient id="kredora-logo-grad-evid" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#FF243C" />
-              <stop offset="100%" stop-color="#D7001C" />
+              <stop offset="0%" stop-color="#9D85FF" />
+              <stop offset="100%" stop-color="#7C5CFC" />
             </linearGradient>
           </defs>
           <g fill="url(#kredora-logo-grad-evid)">
@@ -74,27 +90,40 @@
         <span class="font-display font-semibold text-lg tracking-tight text-white">Kredora</span>
       </a>
 
-      <nav class="hidden gap-7 md:flex items-center">
-        <a href="dashboard.html" class="text-sm text-white/60 hover:text-white transition-colors">Dashboard</a>
-        <a href="evidence.html" class="text-sm text-white font-medium">Evidence</a>
-        <a href="profile.html" class="text-sm text-white/60 hover:text-white transition-colors">Profile</a>
+      <nav class="hidden gap-1 md:flex items-center">
+        <a href="dashboard.html" class="nav-item">Dashboard</a>
+        <a href="problems.html" class="nav-item">Problems</a>
+        <a href="evidence.html" class="nav-item nav-item-active">Evidence</a>
+        <a href="skill.html" class="nav-item">Skills</a>
+        <a href="profile.html" class="nav-item">Profile</a>
       </nav>
 
       <div class="flex items-center gap-3">
         <div class="hidden sm:block" data-auth-nav></div>
-        <button onclick="Auth.logout()" class="text-xs font-mono text-white/50 hover:text-red-400 transition-colors px-2 py-1">
-          Log out
+        <button id="nav-toggle" aria-label="Toggle menu" aria-expanded="false" class="md:hidden p-2 -mr-2 text-ink">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
         </button>
       </div>
+    </div>
 
+    <!-- Mobile menu -->
+    <div id="mobile-menu" class="md:hidden border-t border-white/10 bg-base/95 backdrop-blur-2xl">
+      <div class="px-5 py-4 flex flex-col gap-1 text-sm">
+        <a href="dashboard.html" class="py-2.5 text-inkdim hover:text-ink">Dashboard</a>
+        <a href="problems.html" class="py-2.5 text-inkdim hover:text-ink">Problems</a>
+        <a href="evidence.html" class="py-2.5 text-white font-semibold">Evidence</a>
+        <a href="skill.html" class="py-2.5 text-inkdim hover:text-ink">Skills</a>
+        <a href="profile.html" class="py-2.5 text-inkdim hover:text-ink">Profile</a>
+        <div data-mobile-auth-nav></div>
+      </div>
     </div>
   </header>
 
-  <main class="mx-auto max-w-7xl px-6 py-10 pt-28">
+  <main class="mx-auto max-w-7xl px-6 py-10 pt-28 page-enter">
 
     <!-- HEADER -->
     <section class="mb-10">
-      <p class="font-mono text-xs uppercase tracking-[0.2em] text-[#4cc9e8]">
+      <p class="font-mono text-xs uppercase tracking-[0.2em] text-cyan">
         Evidence Log
       </p>
 
@@ -111,7 +140,7 @@
 
         <button
           onclick="document.getElementById('evidenceModal').classList.remove('hidden')"
-          class="inline-flex items-center justify-center gap-2 rounded-xl bg-[#f2b544] px-5 py-3 font-semibold text-black transition hover:bg-amber-300 shadow-lg shadow-[#f2b544]/10">
+          class="inline-flex items-center justify-center gap-2 rounded-lg bg-brand px-5 py-2.5 font-semibold text-white transition hover:bg-brand-bright shadow-lg shadow-brand/20">
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
           Add Evidence
         </button>
@@ -120,22 +149,22 @@
 
     <!-- STATS -->
     <section class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <div class="rounded-2xl border border-white/10 bg-[#111827] p-6">
+      <div class="rounded-2xl border border-white/10 bg-surface2/80 frosted-panel p-6">
         <p class="text-xs font-mono uppercase tracking-wider text-white/40">Total evidence</p>
         <p class="mt-2 text-3xl font-bold font-display" id="total-evidence-count">72</p>
       </div>
 
-      <div class="rounded-2xl border border-white/10 bg-[#111827] p-6">
+      <div class="rounded-2xl border border-white/10 bg-surface2/80 frosted-panel p-6">
         <p class="text-xs font-mono uppercase tracking-wider text-white/40">Projects</p>
-        <p class="mt-2 text-3xl font-bold font-display text-[#4cc9e8]" id="total-projects-count">7</p>
+        <p class="mt-2 text-3xl font-bold font-display text-cyan" id="total-projects-count">7</p>
       </div>
 
-      <div class="rounded-2xl border border-white/10 bg-[#111827] p-6">
+      <div class="rounded-2xl border border-white/10 bg-surface2/80 frosted-panel p-6">
         <p class="text-xs font-mono uppercase tracking-wider text-white/40">Problems</p>
-        <p class="mt-2 text-3xl font-bold font-display text-[#f2b544]" id="total-problems-count">47</p>
+        <p class="mt-2 text-3xl font-bold font-display text-brand-bright" id="total-problems-count">47</p>
       </div>
 
-      <div class="rounded-2xl border border-white/10 bg-[#111827] p-6">
+      <div class="rounded-2xl border border-white/10 bg-surface2/80 frosted-panel p-6">
         <p class="text-xs font-mono uppercase tracking-wider text-white/40">Assessments</p>
         <p class="mt-2 text-3xl font-bold font-display" id="total-assessments-count">6</p>
       </div>
@@ -143,16 +172,16 @@
 
     <!-- FILTER -->
     <section class="mb-6 flex flex-wrap gap-2.5">
-      <button onclick="filterEvidence('all')" id="btn-filter-all" class="filter-btn rounded-full bg-[#f2b544] px-4 py-2 text-sm font-semibold text-black transition">
+      <button onclick="filterEvidence('all')" id="btn-filter-all" class="filter-btn rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white transition">
         All
       </button>
-      <button onclick="filterEvidence('problem')" id="btn-filter-problem" class="filter-btn rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/60 hover:text-white transition">
+      <button onclick="filterEvidence('problem')" id="btn-filter-problem" class="filter-btn rounded-full border border-white/10 bg-white/5 backdrop-blur-sm px-4 py-2 text-sm text-white/60 hover:text-white transition">
         Problems
       </button>
-      <button onclick="filterEvidence('project')" id="btn-filter-project" class="filter-btn rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/60 hover:text-white transition">
+      <button onclick="filterEvidence('project')" id="btn-filter-project" class="filter-btn rounded-full border border-white/10 bg-white/5 backdrop-blur-sm px-4 py-2 text-sm text-white/60 hover:text-white transition">
         Projects
       </button>
-      <button onclick="filterEvidence('assessment')" id="btn-filter-assessment" class="filter-btn rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/60 hover:text-white transition">
+      <button onclick="filterEvidence('assessment')" id="btn-filter-assessment" class="filter-btn rounded-full border border-white/10 bg-white/5 backdrop-blur-sm px-4 py-2 text-sm text-white/60 hover:text-white transition">
         Assessments
       </button>
     </section>
@@ -160,15 +189,15 @@
     <!-- EVIDENCE LIST -->
     <section id="evidenceList" class="space-y-4">
 
-      <div data-type="problem" class="evidence-item flex flex-col justify-between gap-5 rounded-2xl border border-white/10 bg-[#111827] p-6 transition hover:border-[#f2b544]/30 md:flex-row md:items-center">
+      <div data-type="problem" class="evidence-item flex flex-col justify-between gap-5 rounded-2xl border border-white/10 bg-surface2/80 frosted-panel p-6 transition hover:border-brand/30 md:flex-row md:items-center">
         <div class="flex gap-4">
-          <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#f2b544]/10 text-[#f2b544] font-mono font-bold">
+          <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand-bright font-mono font-bold">
             #
           </div>
           <div>
             <div class="flex flex-wrap items-center gap-3">
               <h3 class="font-semibold text-white">Two Sum</h3>
-              <span class="rounded-full bg-[#f2b544]/10 border border-[#f2b544]/20 px-2.5 py-0.5 text-xs text-[#f2b544] font-mono">
+              <span class="rounded-full bg-brand/10 border border-brand/20 px-2.5 py-0.5 text-xs text-brand-bright font-mono">
                 Coding Problem
               </span>
             </div>
@@ -180,20 +209,20 @@
             </p>
           </div>
         </div>
-        <span class="font-mono text-sm text-[#4cc9e8] bg-[#4cc9e8]/10 px-3 py-1 rounded-full border border-[#4cc9e8]/20 self-start md:self-auto">
+        <span class="font-mono text-sm text-cyan bg-cyan/10 px-3 py-1 rounded-full border border-cyan/20 self-start md:self-auto">
           +2 evidence points
         </span>
       </div>
 
-      <div data-type="project" class="evidence-item flex flex-col justify-between gap-5 rounded-2xl border border-white/10 bg-[#111827] p-6 transition hover:border-[#4cc9e8]/30 md:flex-row md:items-center">
+      <div data-type="project" class="evidence-item flex flex-col justify-between gap-5 rounded-2xl border border-white/10 bg-surface2/80 frosted-panel p-6 transition hover:border-cyan/30 md:flex-row md:items-center">
         <div class="flex gap-4">
-          <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#4cc9e8]/10 text-[#4cc9e8] font-mono font-bold">
+          <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-cyan/10 text-cyan font-mono font-bold">
             ◇
           </div>
           <div>
             <div class="flex flex-wrap items-center gap-3">
               <h3 class="font-semibold text-white">Library Management System</h3>
-              <span class="rounded-full bg-[#4cc9e8]/10 border border-[#4cc9e8]/20 px-2.5 py-0.5 text-xs text-[#4cc9e8] font-mono">
+              <span class="rounded-full bg-cyan/10 border border-cyan/20 px-2.5 py-0.5 text-xs text-cyan font-mono">
                 Project
               </span>
             </div>
@@ -205,20 +234,20 @@
             </p>
           </div>
         </div>
-        <span class="font-mono text-sm text-[#4cc9e8] bg-[#4cc9e8]/10 px-3 py-1 rounded-full border border-[#4cc9e8]/20 self-start md:self-auto">
+        <span class="font-mono text-sm text-cyan bg-cyan/10 px-3 py-1 rounded-full border border-cyan/20 self-start md:self-auto">
           +8 evidence points
         </span>
       </div>
 
-      <div data-type="assessment" class="evidence-item flex flex-col justify-between gap-5 rounded-2xl border border-white/10 bg-[#111827] p-6 transition hover:border-[#f2b544]/30 md:flex-row md:items-center">
+      <div data-type="assessment" class="evidence-item flex flex-col justify-between gap-5 rounded-2xl border border-white/10 bg-surface2/80 frosted-panel p-6 transition hover:border-brand/30 md:flex-row md:items-center">
         <div class="flex gap-4">
-          <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#f2b544]/10 text-[#f2b544] font-mono font-bold">
+          <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand-bright font-mono font-bold">
             ✓
           </div>
           <div>
             <div class="flex flex-wrap items-center gap-3">
               <h3 class="font-semibold text-white">Java OOP Assessment</h3>
-              <span class="rounded-full bg-[#f2b544]/10 border border-[#f2b544]/20 px-2.5 py-0.5 text-xs text-[#f2b544] font-mono">
+              <span class="rounded-full bg-brand/10 border border-brand/20 px-2.5 py-0.5 text-xs text-brand-bright font-mono">
                 Assessment
               </span>
             </div>
@@ -230,20 +259,20 @@
             </p>
           </div>
         </div>
-        <span class="font-mono text-sm text-[#f2b544] bg-[#f2b544]/10 px-3 py-1 rounded-full border border-[#f2b544]/20 self-start md:self-auto">
+        <span class="font-mono text-sm text-brand-bright bg-brand/10 px-3 py-1 rounded-full border border-brand/20 self-start md:self-auto">
           +6 evidence points
         </span>
       </div>
 
-      <div data-type="problem" class="evidence-item flex flex-col justify-between gap-5 rounded-2xl border border-white/10 bg-[#111827] p-6 transition hover:border-[#f2b544]/30 md:flex-row md:items-center">
+      <div data-type="problem" class="evidence-item flex flex-col justify-between gap-5 rounded-2xl border border-white/10 bg-surface2/80 frosted-panel p-6 transition hover:border-brand/30 md:flex-row md:items-center">
         <div class="flex gap-4">
-          <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#f2b544]/10 text-[#f2b544] font-mono font-bold">
+          <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand-bright font-mono font-bold">
             #
           </div>
           <div>
             <div class="flex flex-wrap items-center gap-3">
               <h3 class="font-semibold text-white">Reverse Linked List</h3>
-              <span class="rounded-full bg-[#f2b544]/10 border border-[#f2b544]/20 px-2.5 py-0.5 text-xs text-[#f2b544] font-mono">
+              <span class="rounded-full bg-brand/10 border border-brand/20 px-2.5 py-0.5 text-xs text-brand-bright font-mono">
                 Coding Problem
               </span>
             </div>
@@ -255,7 +284,7 @@
             </p>
           </div>
         </div>
-        <span class="font-mono text-sm text-[#f2b544] bg-[#f2b544]/10 px-3 py-1 rounded-full border border-[#f2b544]/20 self-start md:self-auto">
+        <span class="font-mono text-sm text-brand-bright bg-brand/10 px-3 py-1 rounded-full border border-brand/20 self-start md:self-auto">
           +2 evidence points
         </span>
       </div>
@@ -265,8 +294,8 @@
   </main>
 
   <!-- ADD EVIDENCE MODAL -->
-  <div id="evidenceModal" class="fixed inset-0 z-[100] hidden bg-black/80 p-6 backdrop-blur-sm flex items-center justify-center">
-    <div class="w-full max-w-lg rounded-3xl border border-white/10 bg-[#111827] p-7 shadow-2xl">
+  <div id="evidenceModal" class="fixed inset-0 z-[100] hidden bg-black/80 p-6 backdrop-blur-xl flex items-center justify-center">
+    <div class="w-full max-w-lg rounded-3xl border border-white/10 bg-surface2/90 backdrop-blur-2xl p-7 shadow-2xl">
 
       <div class="flex items-center justify-between pb-4 border-b border-white/5">
         <h2 class="text-xl font-bold font-display text-white">
@@ -289,7 +318,7 @@
             type="text"
             required
             placeholder="e.g. Binary Tree Inorder Traversal"
-            class="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-2.5 text-white text-sm outline-none transition focus:border-[#f2b544]/70">
+            class="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-2.5 text-white text-sm outline-none transition focus:border-brand/70">
         </div>
 
         <div class="grid grid-cols-2 gap-4">
@@ -297,7 +326,7 @@
             <label class="mb-1.5 block text-xs font-mono uppercase tracking-wider text-white/50">
               Type
             </label>
-            <select id="evType" class="w-full rounded-xl border border-white/10 bg-[#0a0f1c] px-4 py-2.5 text-white text-sm outline-none">
+            <select id="evType" class="w-full rounded-xl border border-white/10 bg-base px-4 py-2.5 text-white text-sm outline-none">
               <option value="problem">Coding Problem</option>
               <option value="project">Project</option>
               <option value="assessment">Assessment</option>
@@ -308,7 +337,7 @@
             <label class="mb-1.5 block text-xs font-mono uppercase tracking-wider text-white/50">
               Skill
             </label>
-            <select id="evSkill" class="w-full rounded-xl border border-white/10 bg-[#0a0f1c] px-4 py-2.5 text-white text-sm outline-none">
+            <select id="evSkill" class="w-full rounded-xl border border-white/10 bg-base px-4 py-2.5 text-white text-sm outline-none">
               <option value="Java">Java</option>
               <option value="JavaScript">JavaScript</option>
               <option value="SQL">SQL</option>
@@ -325,7 +354,7 @@
             id="evDetail"
             type="text"
             placeholder="e.g. Tree recursion · Solved in 12m"
-            class="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-2.5 text-white text-sm outline-none transition focus:border-[#f2b544]/70">
+            class="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-2.5 text-white text-sm outline-none transition focus:border-brand/70">
         </div>
 
         <div class="pt-2 flex items-center gap-3">
@@ -337,7 +366,7 @@
           </button>
           <button
             type="submit"
-            class="flex-1 rounded-xl bg-[#f2b544] py-3 font-semibold text-black hover:bg-amber-300 transition">
+            class="flex-1 rounded-lg bg-brand py-3 font-semibold text-white hover:bg-brand-bright transition">
             Save Evidence
           </button>
         </div>
@@ -357,7 +386,7 @@
 
       const activeBtn = document.getElementById("btn-filter-" + type);
       if (activeBtn) {
-        activeBtn.className = "filter-btn rounded-full bg-[#f2b544] px-4 py-2 text-sm font-semibold text-black transition";
+        activeBtn.className = "filter-btn rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white transition";
       }
 
       items.forEach((item) => {
@@ -380,7 +409,7 @@
       const list = document.getElementById("evidenceList");
       const newItem = document.createElement("div");
       newItem.setAttribute("data-type", type);
-      newItem.className = "evidence-item flex flex-col justify-between gap-5 rounded-2xl border border-gold/30 bg-[#111827] p-6 transition hover:border-[#f2b544]/50 md:flex-row md:items-center";
+      newItem.className = "evidence-item flex flex-col justify-between gap-5 rounded-2xl border border-gold/30 bg-surface2/80 frosted-panel p-6 transition hover:border-brand/50 md:flex-row md:items-center";
 
       const icon = type === "problem" ? "#" : (type === "project" ? "◇" : "✓");
       const typeLabel = type === "problem" ? "Coding Problem" : (type === "project" ? "Project" : "Assessment");
@@ -388,13 +417,13 @@
 
       newItem.innerHTML = `
         <div class="flex gap-4">
-          <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#f2b544]/10 text-[#f2b544] font-mono font-bold">
+          <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand-bright font-mono font-bold">
             ${icon}
           </div>
           <div>
             <div class="flex flex-wrap items-center gap-3">
               <h3 class="font-semibold text-white">${name}</h3>
-              <span class="rounded-full bg-[#f2b544]/10 border border-[#f2b544]/20 px-2.5 py-0.5 text-xs text-[#f2b544] font-mono">
+              <span class="rounded-full bg-brand/10 border border-brand/20 px-2.5 py-0.5 text-xs text-brand-bright font-mono">
                 ${typeLabel}
               </span>
             </div>
@@ -406,7 +435,7 @@
             </p>
           </div>
         </div>
-        <span class="font-mono text-sm text-[#4cc9e8] bg-[#4cc9e8]/10 px-3 py-1 rounded-full border border-[#4cc9e8]/20 self-start md:self-auto">
+        <span class="font-mono text-sm text-cyan bg-cyan/10 px-3 py-1 rounded-full border border-cyan/20 self-start md:self-auto">
           ${pts}
         </span>
       `;

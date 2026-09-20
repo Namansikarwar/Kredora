@@ -11,7 +11,7 @@
 <!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
 
 <!-- Tailwind -->
 <script src="https://cdn.tailwindcss.com"></script>
@@ -20,43 +20,48 @@
     theme: {
       extend: {
         colors: {
-          base: "#080c16",
-          surface: "#101627",
-          surface2: "#182136",
-          borderc: "#232e48",
-          ink: "#f0f4fc",
-          inkdim: "#8e99b2",
+          base: "#080B12",
+          surface: "#0D111A",
+          surface2: "#111722",
+          elevated: "#151C29",
+          borderc: "#202938",
+          ink: "#F4F7FB",
+          inkdim: "#98A2B3",
+          muted: "#667085",
           brand: {
-            DEFAULT: "#E50926",
-            bright: "#ff334c",
-            hover: "#d7001c",
-            dim: "#990819",
-            glow: "rgba(229, 9, 38, 0.35)",
+            DEFAULT: "#7C5CFC",
+            bright: "#9D85FF",
+            hover: "#6E4DEE",
+            dim: "#4C39A8",
+            glow: "rgba(124, 92, 252, 0.35)",
           },
           gold: {
-            DEFAULT: "#E50926",
-            dim: "#990819",
-            bright: "#ff334c",
+            DEFAULT: "#7C5CFC",
+            dim: "#4C39A8",
+            bright: "#9D85FF",
           },
           cyan: {
-            DEFAULT: "#38bdf8",
+            DEFAULT: "#4CC9F0",
+          },
+          accent: {
+            DEFAULT: "#4CC9F0",
+            success: "#32D583",
+            warning: "#FDB022",
+            danger: "#F97066",
           },
         },
         fontFamily: {
-          display: ['"Outfit"', "ui-sans-serif", "sans-serif"],
-          sans: ['"Outfit"', "ui-sans-serif", "sans-serif"],
+          display: ['"Space Grotesk"', '"Inter"', "ui-sans-serif", "sans-serif"],
+          sans: ['"Inter"', "ui-sans-serif", "sans-serif"],
           mono: ['"JetBrains Mono"', "ui-monospace", "monospace"],
         },
       },
     },
   };
 </script>
-
-<link rel="stylesheet" href="css/style.css" />
-
-<!-- Early Auth Check before rendering to protect dashboard -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/supabase.js"></script>
+<link rel="stylesheet" href="css/style.css" />
 <script src="js/auth.js"></script>
 <script src="js/problems-data.js"></script>
 <script>
@@ -79,8 +84,8 @@
         <svg class="h-7 w-auto transition-transform group-hover:scale-105 shrink-0" viewBox="0 0 240 150" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Kredora Logo">
           <defs>
             <linearGradient id="kredora-logo-grad-dash-nav" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#FF243C" />
-              <stop offset="100%" stop-color="#D7001C" />
+              <stop offset="0%" stop-color="#9D85FF" />
+              <stop offset="100%" stop-color="#7C5CFC" />
             </linearGradient>
           </defs>
           <g fill="url(#kredora-logo-grad-dash-nav)">
@@ -92,14 +97,15 @@
         <span class="font-display font-bold text-xl tracking-tight text-white">Kredora</span>
       </a>
 
-      <nav class="hidden md:flex items-center gap-8 text-sm text-inkdim">
-        <a href="dashboard.html" class="nav-link text-white font-semibold">Dashboard</a>
-        <a href="problems.html" class="nav-link hover:text-ink transition-colors flex items-center gap-1.5">
+      <nav class="hidden md:flex items-center gap-1 text-sm">
+        <a href="dashboard.html" class="nav-item nav-item-active">Dashboard</a>
+        <a href="problems.html" class="nav-item items-center gap-1.5">
           <span>Problems</span>
-          <span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-brand/15 text-brand-bright border border-brand/30">Arena</span>
+          <span class="px-1.5 py-0.5 rounded-md text-[10px] font-mono bg-brand/15 text-brand-bright border border-brand/30">Arena</span>
         </a>
-        <a href="evidence.html" class="nav-link hover:text-ink transition-colors">Evidence</a>
-        <a href="profile.html" class="nav-link hover:text-ink transition-colors">Public profile</a>
+        <a href="evidence.html" class="nav-item">Evidence</a>
+        <a href="skill.html" class="nav-item">Skills</a>
+        <a href="profile.html" class="nav-item">Profile</a>
       </nav>
 
       <div class="hidden md:flex items-center gap-4">
@@ -122,7 +128,7 @@
     </div>
 
     <!-- Mobile menu with rich backdrop blur -->
-    <div id="mobile-menu" class="md:hidden border-t border-white/10 bg-[#080c16]/95 backdrop-blur-2xl">
+    <div id="mobile-menu" class="md:hidden border-t border-white/10 bg-base/95 backdrop-blur-2xl">
       <div class="px-5 py-4 flex flex-col gap-1 text-sm">
         <a href="dashboard.html" class="py-2.5 text-white font-semibold">Dashboard</a>
         <a href="problems.html" class="py-2.5 text-inkdim hover:text-ink flex items-center justify-between">
@@ -130,15 +136,16 @@
           <span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-brand/15 text-brand-bright">Code</span>
         </a>
         <a href="evidence.html" class="py-2.5 text-inkdim hover:text-ink">Evidence</a>
+        <a href="skill.html" class="py-2.5 text-inkdim hover:text-ink">Skills</a>
         <a href="profile.html" class="py-2.5 text-inkdim hover:text-ink">Public profile</a>
         <div class="h-px bg-white/5 my-2"></div>
-        <a href="evidence.html" class="text-center font-medium bg-brand text-white px-4 py-2.5 rounded-full mb-2 shadow-md shadow-brand/20">Add Evidence</a>
+        <a href="evidence.html" class="text-center font-medium bg-brand text-white px-4 py-2.5 rounded-lg mb-2 shadow-md shadow-brand/20">Add Evidence</a>
         <div data-mobile-auth-nav></div>
       </div>
     </div>
   </header>
 
-  <main class="pt-28 pb-24 px-5 sm:px-8">
+  <main class="pt-28 pb-24 px-5 sm:px-8 page-enter">
     <div class="max-w-7xl mx-auto">
 
       <!-- ============ PAGE HEADER ============ -->
@@ -148,13 +155,13 @@
             <span class="text-xs text-inkdim font-mono">Dashboard</span>
             <span class="text-xs font-mono text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded-full border border-emerald-400/20">Authenticated Session</span>
           </div>
-          <h1 class="font-display font-semibold text-3xl sm:text-4xl text-white tracking-tight">
+          <h1 class="font-display font-semibold text-3xl sm:text-4xl tracking-tight bg-gradient-to-b from-white to-white/70 bg-clip-text text-transparent">
             Welcome back, <span id="dash-user-name">Naman</span>
           </h1>
           <p class="mt-2 text-inkdim">Your skills, backed by evidence — not by how you describe yourself.</p>
         </div>
         <div class="flex items-center gap-3">
-          <a href="evidence.html" class="inline-flex items-center gap-2 bg-brand text-white font-medium px-5 py-3 rounded-full hover:bg-brand-hover shadow-md shadow-brand/25 transition-all hover:scale-105 shrink-0">
+          <a href="evidence.html" class="inline-flex items-center gap-2 bg-brand text-white font-medium px-5 py-2.5 rounded-lg hover:bg-brand-bright shadow-md shadow-brand/25 transition-colors shrink-0">
             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
             Add Evidence
           </a>
@@ -166,18 +173,18 @@
 
       <!-- ============ STATS STRIP ============ -->
       <div class="reveal grid grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-        <div class="glass-card rounded-2xl p-6">
-          <p class="text-xs text-inkdim font-mono mb-2">Overall skill score</p>
+        <div class="glass-card stat-card rounded-2xl p-6">
+          <p class="stat-card-label text-xs text-inkdim font-mono mb-2">Overall skill score</p>
           <p class="font-display font-semibold text-3xl sm:text-4xl text-gold">
             <span id="stat-overall-score" data-count-to="0">0</span><span class="text-base text-inkdim">/100</span>
           </p>
         </div>
-        <div class="glass-card rounded-2xl p-6">
-          <p class="text-xs text-inkdim font-mono mb-2">Skills tracked</p>
+        <div class="glass-card stat-card rounded-2xl p-6">
+          <p class="stat-card-label text-xs text-inkdim font-mono mb-2">Skills tracked</p>
           <p class="font-display font-semibold text-3xl sm:text-4xl text-white" id="stat-total-skills">0</p>
         </div>
-        <div class="glass-card rounded-2xl p-6 col-span-2 lg:col-span-1">
-          <p class="text-xs text-inkdim font-mono mb-2">Evidence records</p>
+        <div class="glass-card stat-card rounded-2xl p-6 col-span-2 lg:col-span-1">
+          <p class="stat-card-label text-xs text-inkdim font-mono mb-2">Evidence records</p>
           <p class="font-display font-semibold text-3xl sm:text-4xl text-white" id="stat-total-evidence" data-count-to="0">0</p>
         </div>
       </div>
@@ -186,8 +193,8 @@
       <div id="dash-db-strip" class="reveal glass-card rounded-2xl p-5 mb-6 border border-emerald-500/20 bg-emerald-500/5">
         <div class="flex flex-wrap items-center justify-between gap-4">
           <div class="flex items-center gap-3">
-            <div id="dash-db-icon" class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center font-bold text-lg shrink-0">
-              ⚡
+            <div id="dash-db-icon" class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
             </div>
             <div>
               <div class="flex items-center gap-2 flex-wrap">
@@ -203,8 +210,8 @@
             </div>
           </div>
           <div class="flex items-center gap-2 flex-wrap">
-            <button id="dash-copy-sql-btn" type="button" class="px-3 py-1.5 rounded-xl border border-white/10 bg-white/5 text-xs text-ink hover:bg-white/10 transition font-mono flex items-center gap-1.5">
-              <span>📋</span> Copy Tables SQL
+            <button id="dash-copy-sql-btn" type="button" class="px-3 py-1.5 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm text-xs text-ink hover:bg-white/10 transition font-mono flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy Tables SQL
             </button>
             <a href="problem.html?id=two-sum" class="px-3.5 py-1.5 rounded-xl bg-gold/15 text-gold border border-gold/30 hover:bg-gold/25 transition text-xs font-semibold">
               Open Arena →
@@ -256,10 +263,10 @@
         <!-- Desktop: percentage-positioned flow diagram -->
         <div class="relative h-[300px] md:h-[340px] hidden sm:block">
           <svg class="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-            <path class="graph-flow-line" vector-effect="non-scaling-stroke" stroke="#f2b544" stroke-opacity="0.55" stroke-width="1.5" fill="none" d="M14 20 Q 32 55 50 82" />
-            <path class="graph-flow-line" vector-effect="non-scaling-stroke" stroke="#f2b544" stroke-opacity="0.55" stroke-width="1.5" fill="none" d="M38 20 Q 44 55 50 82" />
-            <path class="graph-flow-line" vector-effect="non-scaling-stroke" stroke="#f2b544" stroke-opacity="0.55" stroke-width="1.5" fill="none" d="M62 20 Q 56 55 50 82" />
-            <path class="graph-flow-line" vector-effect="non-scaling-stroke" stroke="#f2b544" stroke-opacity="0.55" stroke-width="1.5" fill="none" d="M86 20 Q 68 55 50 82" />
+            <path class="graph-flow-line" vector-effect="non-scaling-stroke" stroke="#7C5CFC" stroke-opacity="0.55" stroke-width="1.5" fill="none" d="M14 20 Q 32 55 50 82" />
+            <path class="graph-flow-line" vector-effect="non-scaling-stroke" stroke="#7C5CFC" stroke-opacity="0.55" stroke-width="1.5" fill="none" d="M38 20 Q 44 55 50 82" />
+            <path class="graph-flow-line" vector-effect="non-scaling-stroke" stroke="#7C5CFC" stroke-opacity="0.55" stroke-width="1.5" fill="none" d="M62 20 Q 56 55 50 82" />
+            <path class="graph-flow-line" vector-effect="non-scaling-stroke" stroke="#7C5CFC" stroke-opacity="0.55" stroke-width="1.5" fill="none" d="M86 20 Q 68 55 50 82" />
           </svg>
 
           <div class="absolute flex flex-col items-center" style="left:14%; top:20%; transform:translate(-50%,-50%)" data-skill-ring="java">
@@ -370,15 +377,15 @@
           </div>
 
           <div class="flex items-center gap-3">
-            <a href="problems.html" class="inline-flex items-center gap-2 bg-gradient-to-r from-gold to-amber-500 text-base font-semibold px-4 py-2.5 rounded-xl hover:opacity-95 transition text-xs sm:text-sm">
-              <svg class="w-4 h-4 text-base" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
-              Browse Problems →
+            <a href="problems.html" class="inline-flex items-center gap-2 bg-brand text-white font-semibold px-4 py-2.5 rounded-lg hover:bg-brand-bright transition-colors text-xs sm:text-sm">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+              Browse Problems
             </a>
           </div>
         </div>
 
         <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <div class="rounded-xl border border-white/5 bg-white/[0.02] p-4">
+          <div class="rounded-xl border border-white/5 bg-white/[0.02] frosted-panel p-4">
             <div class="flex items-center justify-between">
               <span class="text-xs text-inkdim font-mono">Total Solved</span>
               <span id="dashSolvedCount" class="font-display font-bold text-2xl text-gold">0</span>
@@ -386,7 +393,7 @@
             <p class="text-[11px] text-white/40 font-mono mt-2" id="dashTotalCount">/ 10 Problems</p>
           </div>
 
-          <div class="rounded-xl border border-white/5 bg-white/[0.02] p-4">
+          <div class="rounded-xl border border-white/5 bg-white/[0.02] frosted-panel p-4">
             <div class="flex items-center justify-between">
               <span class="text-xs text-inkdim font-mono">Difficulty Breakdown</span>
               <span class="text-xs font-mono text-emerald-400" id="dashEasyStats">0 Easy</span>
@@ -398,7 +405,7 @@
             </div>
           </div>
 
-          <div class="rounded-xl border border-white/5 bg-white/[0.02] p-4">
+          <div class="rounded-xl border border-white/5 bg-white/[0.02] frosted-panel p-4">
             <div class="flex items-center justify-between">
               <span class="text-xs text-inkdim font-mono">Current Streak</span>
               <span class="font-display font-bold text-2xl text-cyan" id="dashStreak">5 Days</span>
@@ -406,7 +413,7 @@
             <p class="text-[11px] text-white/40 font-mono mt-2">Active practice daily</p>
           </div>
 
-          <div class="rounded-xl border border-white/5 bg-white/[0.02] p-4">
+          <div class="rounded-xl border border-white/5 bg-white/[0.02] frosted-panel p-4">
             <div class="flex items-center justify-between">
               <span class="text-xs text-inkdim font-mono">Arena Verified Pts</span>
               <span class="font-display font-bold text-2xl text-white" id="dashPoints">18 pts</span>
@@ -473,8 +480,8 @@
           <svg class="h-6 w-auto shrink-0" viewBox="0 0 240 150" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Kredora">
             <defs>
               <linearGradient id="kredora-logo-grad-dash-ftr" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#FF243C" />
-                <stop offset="100%" stop-color="#D7001C" />
+                <stop offset="0%" stop-color="#9D85FF" />
+                <stop offset="100%" stop-color="#7C5CFC" />
               </linearGradient>
             </defs>
             <g fill="url(#kredora-logo-grad-dash-ftr)">
@@ -494,10 +501,6 @@
           <li><a href="dashboard.html" class="text-white font-medium">Dashboard</a></li>
           <li><a href="evidence.html" class="hover:text-ink transition-colors">Evidence</a></li>
           <li><a href="profile.html" class="hover:text-ink transition-colors">Public profiles</a></li>
-          <li><a href="skillproof.zip" download="skillproof.zip" class="text-gold hover:underline flex items-center gap-1.5 font-mono text-xs pt-1">
-            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-            Download ZIP
-          </a></li>
         </ul>
       </div>
 
@@ -550,7 +553,7 @@
               copyBtn.textContent = "✓ SQL Copied!";
               copyBtn.className = "px-3 py-1.5 rounded-xl bg-emerald-500 text-black font-semibold text-xs transition font-mono";
               setTimeout(() => {
-                copyBtn.textContent = "📋 Copy Tables SQL";
+              copyBtn.textContent = "Copy Tables SQL";
                 copyBtn.className = "px-3 py-1.5 rounded-xl border border-white/10 bg-white/5 text-xs text-ink hover:bg-white/10 transition font-mono flex items-center gap-1.5";
               }, 2500);
             });
