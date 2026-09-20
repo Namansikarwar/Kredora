@@ -37,11 +37,11 @@
             cyan: {
               DEFAULT: "#4CC9F0",
             },
-            accent: {
-              DEFAULT: "#4CC9F0",
-              success: "#32D583",
-              warning: "#FDB022",
-              danger: "#F97066",
+            success: "#32D583",
+            warning: "#FDB022",
+            danger: {
+              DEFAULT: "#F97066",
+              bright: "#FDA29B",
             },
             easy: "#32D583",
             medium: "#FDB022",
@@ -642,7 +642,7 @@ create policy "Allow upsert user progress" on public.user_progress for all using
         diffBadge.textContent = prob.difficulty;
         let diffColor = "text-emerald-400 bg-emerald-500/10 border-emerald-500/20";
         if (prob.difficulty === "Medium") diffColor = "text-amber-400 bg-amber-500/10 border-amber-500/20";
-        if (prob.difficulty === "Hard") diffColor = "text-rose-400 bg-rose-500/10 border-rose-500/20";
+        if (prob.difficulty === "Hard") diffColor = "text-danger bg-danger/10 border-danger/20";
         diffBadge.className = `px-2 py-0.5 rounded-full text-[11px] font-medium border ${diffColor}`;
 
         // Solved status
@@ -780,7 +780,7 @@ create policy "Allow upsert user progress" on public.user_progress for all using
         list.innerHTML = subs.map((s, idx) => `
           <div class="rounded-xl border border-white/10 bg-white/[0.02] backdrop-blur-sm p-3 text-xs flex items-center justify-between hover:border-white/20 transition cursor-pointer" data-sub-idx="${idx}">
             <div class="flex items-center gap-3">
-              <span class="font-bold ${s.status === 'Accepted' ? 'text-emerald-400' : 'text-rose-400'} font-display">${s.status}</span>
+              <span class="font-bold ${s.status === 'Accepted' ? 'text-emerald-400' : 'text-danger'} font-display">${s.status}</span>
               <span class="font-mono text-white/50 text-[11px]">${s.runtime || ''}</span>
               <span class="font-mono text-white/40 text-[11px]">${s.memory || ''}</span>
             </div>
@@ -977,11 +977,11 @@ create policy "Allow upsert user progress" on public.user_progress for all using
 
         const dot = document.getElementById("resultDot");
         dot.classList.remove("hidden");
-        dot.className = `w-2 h-2 rounded-full ${res.allPassed ? 'bg-emerald-400' : 'bg-rose-500'}`;
+        dot.className = `w-2 h-2 rounded-full ${res.allPassed ? 'bg-emerald-400' : 'bg-danger'}`;
 
         const statusBadge = document.getElementById("runStatusBadge");
         statusBadge.textContent = res.status;
-        statusBadge.className = `text-base font-bold font-display ${res.allPassed ? 'text-emerald-400' : 'text-rose-400'}`;
+        statusBadge.className = `text-base font-bold font-display ${res.allPassed ? 'text-emerald-400' : 'text-danger'}`;
 
         document.getElementById("runTimingBadge").textContent = `Runtime: ${res.runtime}`;
         document.getElementById("casesPassedBadge").textContent = `${res.passedCount} / ${res.totalCount} testcases passed`;
@@ -990,7 +990,7 @@ create policy "Allow upsert user progress" on public.user_progress for all using
         const caseTabs = document.getElementById("resultCaseTabs");
         caseTabs.innerHTML = res.testResults.map((tc, idx) => `
           <button class="result-case-btn px-3 py-1 rounded-lg border text-xs font-mono flex items-center gap-1.5 transition ${idx === activeResultCaseIndex ? 'border-gold/50 bg-gold/10 text-gold font-semibold' : 'border-white/10 bg-white/5 text-white/60 hover:text-white'}" data-rcase="${idx}">
-            <span class="w-1.5 h-1.5 rounded-full ${tc.passed ? 'bg-emerald-400' : 'bg-rose-400'}"></span>
+            <span class="w-1.5 h-1.5 rounded-full ${tc.passed ? 'bg-emerald-400' : 'bg-danger'}"></span>
             Case ${idx + 1}
           </button>
         `).join("");
@@ -1015,8 +1015,8 @@ create policy "Allow upsert user progress" on public.user_progress for all using
 
             <div class="space-y-2">
               <span class="text-[11px] text-white/40 uppercase tracking-wider block">Your Output</span>
-              <div class="rounded-xl border ${currCase.passed ? 'border-emerald-500/30 bg-emerald-500/5 text-emerald-300' : 'border-rose-500/30 bg-rose-500/5 text-rose-300'} p-2.5 font-mono text-xs overflow-x-auto">
-                ${currCase.error ? `<span class="text-rose-400 font-bold">Runtime Error: ${currCase.error}</span>` : currCase.userOutputDisplay}
+              <div class="rounded-xl border ${currCase.passed ? 'border-emerald-500/30 bg-emerald-500/5 text-emerald-300' : 'border-danger/30 bg-danger/5 text-danger'} p-2.5 font-mono text-xs overflow-x-auto">
+                ${currCase.error ? `<span class="text-danger font-bold">Runtime Error: ${currCase.error}</span>` : currCase.userOutputDisplay}
               </div>
             </div>
 
@@ -1163,9 +1163,9 @@ create policy "Allow upsert user progress" on public.user_progress for all using
               pill.title = "Connected to Supabase PostgreSQL database. Submissions and progress synced.";
             }
           } else {
-            dot.className = "w-1.5 h-1.5 rounded-full bg-rose-400";
+            dot.className = "w-1.5 h-1.5 rounded-full bg-danger";
             text.textContent = "Supabase Connection Error";
-            pill.className = "hidden xl:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl border border-rose-500/30 bg-rose-500/10 text-[11px] font-mono text-rose-300 hover:bg-rose-500/20 transition cursor-pointer";
+            pill.className = "hidden xl:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl border border-danger/30 bg-danger/10 text-[11px] font-mono text-danger hover:bg-danger/20 transition cursor-pointer";
             pill.title = "Supabase connection error. Click to diagnose.";
           }
         } else {

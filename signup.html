@@ -42,6 +42,12 @@
             cyan: {
               DEFAULT: "#4CC9F0",
             },
+            success: "#32D583",
+            warning: "#FDB022",
+            danger: {
+              DEFAULT: "#F97066",
+              bright: "#FDA29B",
+            },
           },
           fontFamily: {
             display: ['"Space Grotesk"', '"Inter"', "ui-sans-serif", "sans-serif"],
@@ -128,7 +134,7 @@
 
             <div>
               <label for="signupUsername" class="mb-1.5 block text-xs font-mono uppercase tracking-wider text-inkdim">
-                Username <span class="text-red-400">*</span>
+                Username <span class="text-danger">*</span>
               </label>
               <input
                 id="signupUsername"
@@ -142,7 +148,7 @@
 
           <div>
             <label for="signupPassword" class="mb-1.5 block text-xs font-mono uppercase tracking-wider text-inkdim">
-              Password <span class="text-red-400">*</span>
+              Password <span class="text-danger">*</span>
             </label>
             <div class="relative">
               <input
@@ -174,7 +180,7 @@
 
           <div>
             <label for="signupConfirm" class="mb-1.5 block text-xs font-mono uppercase tracking-wider text-inkdim">
-              Confirm Password <span class="text-red-400">*</span>
+              Confirm Password <span class="text-danger">*</span>
             </label>
             <div class="relative">
               <input
@@ -203,7 +209,7 @@
             </label>
           </div>
 
-          <p id="signupError" class="hidden text-xs text-red-400 font-mono bg-red-500/10 border border-red-500/20 backdrop-blur-sm p-2.5 rounded-lg"></p>
+          <p id="signupError" class="hidden text-xs text-danger font-mono bg-danger/10 border border-danger/20 backdrop-blur-sm p-2.5 rounded-lg"></p>
 
           <button
             type="submit"
@@ -293,9 +299,9 @@
           strengthText.className = "text-[10px] font-mono text-inkdim mt-1";
         } else if (score <= 1) {
           strengthBar.style.width = "25%";
-          strengthBar.className = "h-full bg-red-400 rounded-full transition-all duration-300";
+          strengthBar.className = "h-full bg-danger rounded-full transition-all duration-300";
           strengthText.textContent = "Weak password";
-          strengthText.className = "text-[10px] font-mono text-red-400 mt-1";
+          strengthText.className = "text-[10px] font-mono text-danger mt-1";
         } else if (score <= 3) {
           strengthBar.style.width = "65%";
           strengthBar.className = "h-full bg-amber-400 rounded-full transition-all duration-300";

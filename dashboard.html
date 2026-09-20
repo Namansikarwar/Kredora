@@ -43,11 +43,11 @@
           cyan: {
             DEFAULT: "#4CC9F0",
           },
-          accent: {
-            DEFAULT: "#4CC9F0",
-            success: "#32D583",
-            warning: "#FDB022",
-            danger: "#F97066",
+          success: "#32D583",
+          warning: "#FDB022",
+          danger: {
+            DEFAULT: "#F97066",
+            bright: "#FDA29B",
           },
         },
         fontFamily: {
@@ -165,7 +165,7 @@
             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
             Add Evidence
           </a>
-          <button onclick="Auth.logout()" class="sm:hidden px-4 py-3 rounded-full border border-red-500/30 text-red-400 text-xs font-mono">
+          <button onclick="Auth.logout()" class="sm:hidden px-4 py-3 rounded-full border border-danger/30 text-danger text-xs font-mono">
             Log out
           </button>
         </div>
@@ -401,7 +401,7 @@
             <div class="flex items-center gap-1.5 mt-3 text-[11px] font-mono">
               <span class="text-amber-400" id="dashMediumStats">0 Med</span>
               <span class="text-white/20">·</span>
-              <span class="text-rose-400" id="dashHardStats">0 Hard</span>
+              <span class="text-danger" id="dashHardStats">0 Hard</span>
             </div>
           </div>
 
@@ -508,7 +508,7 @@
         <p class="text-sm font-medium text-ink mb-4">Account</p>
         <ul class="space-y-2.5 text-sm text-inkdim">
           <li><a href="profile.html" class="hover:text-ink transition-colors">Profile Details</a></li>
-          <li><button onclick="Auth.logout()" class="hover:text-red-400 transition-colors text-left">Sign Out</button></li>
+          <li><button onclick="Auth.logout()" class="hover:text-danger transition-colors text-left">Sign Out</button></li>
         </ul>
       </div>
 

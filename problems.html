@@ -37,11 +37,11 @@
             cyan: {
               DEFAULT: "#4CC9F0",
             },
-            accent: {
-              DEFAULT: "#4CC9F0",
-              success: "#32D583",
-              warning: "#FDB022",
-              danger: "#F97066",
+            success: "#32D583",
+            warning: "#FDB022",
+            danger: {
+              DEFAULT: "#F97066",
+              bright: "#FDA29B",
             },
             easy: "#32D583",
             medium: "#FDB022",
@@ -191,13 +191,13 @@
           </div>
 
           <div class="flex items-center justify-between text-xs">
-            <span class="text-rose-400 font-medium flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-rose-400"></span> Hard
+            <span class="text-danger font-medium flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-danger"></span> Hard
             </span>
             <span id="hardStats" class="font-mono text-white/70">0 / 0</span>
           </div>
           <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-            <div id="hardBar" class="h-full bg-rose-400 rounded-full transition-all duration-500" style="width: 0%"></div>
+            <div id="hardBar" class="h-full bg-danger rounded-full transition-all duration-500" style="width: 0%"></div>
           </div>
         </div>
 
@@ -245,7 +245,7 @@
             <button class="filter-diff px-3 py-1.5 rounded-lg font-medium transition bg-white/10 text-white" data-diff="all">All</button>
             <button class="filter-diff px-3 py-1.5 rounded-lg font-medium transition text-emerald-400 hover:bg-white/5" data-diff="Easy">Easy</button>
             <button class="filter-diff px-3 py-1.5 rounded-lg font-medium transition text-amber-400 hover:bg-white/5" data-diff="Medium">Medium</button>
-            <button class="filter-diff px-3 py-1.5 rounded-lg font-medium transition text-rose-400 hover:bg-white/5" data-diff="Hard">Hard</button>
+            <button class="filter-diff px-3 py-1.5 rounded-lg font-medium transition text-danger hover:bg-white/5" data-diff="Hard">Hard</button>
           </div>
 
           <!-- Status Filter -->
@@ -392,7 +392,7 @@
 
           let diffColor = "text-emerald-400 bg-emerald-500/10 border-emerald-500/20";
           if (p.difficulty === "Medium") diffColor = "text-amber-400 bg-amber-500/10 border-amber-500/20";
-          if (p.difficulty === "Hard") diffColor = "text-rose-400 bg-rose-500/10 border-rose-500/20";
+          if (p.difficulty === "Hard") diffColor = "text-danger bg-danger/10 border-danger/20";
 
           const tr = document.createElement("tr");
           tr.className = "hover:bg-white/[0.02] transition-colors group cursor-pointer";

@@ -42,6 +42,12 @@
             cyan: {
               DEFAULT: "#4CC9F0",
             },
+            success: "#32D583",
+            warning: "#FDB022",
+            danger: {
+              DEFAULT: "#F97066",
+              bright: "#FDA29B",
+            },
           },
           fontFamily: {
             display: ['"Space Grotesk"', '"Inter"', "ui-sans-serif", "sans-serif"],
@@ -182,7 +188,7 @@
             </label>
           </div>
 
-          <p id="loginError" class="hidden text-xs text-red-400 font-mono bg-red-500/10 border border-red-500/20 backdrop-blur-sm p-2.5 rounded-lg"></p>
+          <p id="loginError" class="hidden text-xs text-danger font-mono bg-danger/10 border border-danger/20 backdrop-blur-sm p-2.5 rounded-lg"></p>
 
           <button
             type="submit"
