@@ -1544,3 +1544,5 @@ const ProgressTracker = {
 // Expose globally
 window.CODING_PROBLEMS = CODING_PROBLEMS;
 window.ProgressTracker = ProgressTracker;
+
+export {};

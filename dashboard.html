@@ -59,12 +59,13 @@
     },
   };
 </script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/supabase.js"></script>
+<script type="module" src="js/supabase-client.js"></script>
 <link rel="stylesheet" href="css/style.css" />
-<script src="js/auth.js"></script>
-<script src="js/problems-data.js"></script>
-<script>
+<script type="module" src="js/auth.js"></script>
+<script type="module" src="js/problems-data.js"></script>
+<script type="module">
+  import "./js/supabase-client.js";
+  import "./js/auth.js";
   if (!window.Auth.requireAuth("dashboard.html")) {
     // Execution will redirect to login.html
   }
@@ -527,12 +528,12 @@
     </div>
   </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/supabase.js"></script>
-  <script src="js/data.js"></script>
-  <script src="js/auth.js"></script>
-  <script src="js/main.js"></script>
-  <script>
+  <script type="module" src="js/data.js"></script>
+  <script type="module" src="js/main.js"></script>
+  <script type="module">
+    import "./js/supabase-client.js";
+    import "./js/auth.js";
+
     document.addEventListener("DOMContentLoaded", async () => {
       const user = window.Auth ? window.Auth.getCurrentUser() : null;
       if (user) {
@@ -540,20 +541,28 @@
         if (nameEl) nameEl.textContent = user.name || user.username;
       }
 
-      // Check Supabase Database Status
+      // Supabase connection indicator — lightweight client-side check:
+      // auth.getSession() round-trip + one select against each table.
       const statusPill = document.getElementById("dash-db-status-pill");
       const latencyEl = document.getElementById("dash-db-latency");
       const descEl = document.getElementById("dash-db-desc");
       const copyBtn = document.getElementById("dash-copy-sql-btn");
 
+      const PILL = {
+        ok: "px-2.5 py-0.5 rounded-full text-[10px] font-mono border text-emerald-400 bg-emerald-500/10 border-emerald-500/30",
+        warn: "px-2.5 py-0.5 rounded-full text-[10px] font-mono border text-amber-300 bg-amber-500/10 border-amber-500/30",
+        offline: "px-2.5 py-0.5 rounded-full text-[10px] font-mono border text-cyan bg-cyan/10 border-cyan/30",
+        error: "px-2.5 py-0.5 rounded-full text-[10px] font-mono border text-danger bg-danger/10 border-danger/30"
+      };
+
       if (copyBtn) {
         copyBtn.addEventListener("click", () => {
           if (window.SupabaseDB) {
             navigator.clipboard.writeText(window.SupabaseDB.getSchemaSQL()).then(() => {
-              copyBtn.textContent = "✓ SQL Copied!";
+              copyBtn.textContent = "SQL Copied!";
               copyBtn.className = "px-3 py-1.5 rounded-xl bg-emerald-500 text-black font-semibold text-xs transition font-mono";
               setTimeout(() => {
-              copyBtn.textContent = "Copy Tables SQL";
+                copyBtn.textContent = "Copy Tables SQL";
                 copyBtn.className = "px-3 py-1.5 rounded-xl border border-white/10 bg-white/5 text-xs text-ink hover:bg-white/10 transition font-mono flex items-center gap-1.5";
               }, 2500);
             });
@@ -561,29 +570,39 @@
         });
       }
 
-      if (window.SupabaseDB) {
-        try {
-          const testRes = await window.SupabaseDB.testConnection();
-          if (testRes && testRes.ok) {
-            latencyEl.textContent = `${testRes.latencyMs || 1} ms`;
-            if (testRes.schemaNeeded) {
-              statusPill.textContent = "⚡ Connected · Tables Setup Needed";
-              statusPill.className = "px-2.5 py-0.5 rounded-full text-[10px] font-mono border text-amber-300 bg-amber-500/10 border-amber-500/30";
-              descEl.textContent = `Host: ${testRes.projectUrl || "rrwinxiziqfqiokohsvj.supabase.co"} · Connected & Authenticated. Run SQL schema to enable remote tables.`;
-            } else {
-              statusPill.textContent = "✓ Tables Live & Synced";
-              statusPill.className = "px-2.5 py-0.5 rounded-full text-[10px] font-mono border text-emerald-400 bg-emerald-500/10 border-emerald-500/30";
-              descEl.textContent = `Host: ${testRes.projectUrl || "rrwinxiziqfqiokohsvj.supabase.co"} · Submissions & solved progress synced to Cloud PostgreSQL.`;
-            }
+      if (!window.SupabaseDB) return;
+
+      try {
+        const res = await window.SupabaseDB.testConnection();
+
+        if (!res.configured) {
+          statusPill.textContent = "Local Storage (No remote)";
+          statusPill.className = PILL.offline;
+          latencyEl.textContent = "-- ms";
+          descEl.textContent = "Running on local storage. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY build secrets to enable cloud sync.";
+        } else if (res.ok) {
+          latencyEl.textContent = `${res.latencyMs || 1} ms`;
+          const host = res.projectUrl || "supabase project";
+          if (res.schemaNeeded) {
+            statusPill.textContent = "Connected · Tables Setup Needed";
+            statusPill.className = PILL.warn;
+            descEl.textContent = `Host: ${host} · Authenticated in ${res.latencyMs || 1} ms. Run the SQL schema to enable remote tables.`;
           } else {
-            statusPill.textContent = "Local Storage (No remote)";
-            statusPill.className = "px-2.5 py-0.5 rounded-full text-[10px] font-mono border text-cyan bg-cyan/10 border-cyan/30";
-            latencyEl.textContent = "-- ms";
+            statusPill.textContent = "Connected · Tables Live";
+            statusPill.className = PILL.ok;
+            descEl.textContent = `Host: ${host} · Authenticated in ${res.latencyMs || 1} ms. Submissions and solved progress sync to cloud PostgreSQL.`;
           }
-        } catch (e) {
-          statusPill.textContent = "Local Storage Active";
-          statusPill.className = "px-2.5 py-0.5 rounded-full text-[10px] font-mono border text-cyan bg-cyan/10 border-cyan/30";
+        } else {
+          statusPill.textContent = "Connection Error";
+          statusPill.className = PILL.error;
+          latencyEl.textContent = "-- ms";
+          descEl.textContent = res.error || "Supabase is unreachable. Check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.";
         }
+      } catch (e) {
+        statusPill.textContent = "Connection Error";
+        statusPill.className = PILL.error;
+        latencyEl.textContent = "-- ms";
+        descEl.textContent = e && e.message ? e.message : "Unexpected error while checking Supabase.";
       }
     });
   </script>

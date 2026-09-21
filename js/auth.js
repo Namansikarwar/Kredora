@@ -1,10 +1,8 @@
 /**
- * SkillProof — Authentication and Navigation Guard Module
  * Kredora — Authentication and Navigation Guard Module
  * Handles session state, user registration, login, logout,
  * password validation, and secure route transitions.
  */
-
 (function () {
   const USERS_KEY = "skillproof_users";
   const SESSION_KEY = "skillproof_session";
@@ -304,3 +302,5 @@
     Auth.initNavAuth();
   }
 })();
+
+export {};

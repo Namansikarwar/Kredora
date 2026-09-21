@@ -117,3 +117,8 @@ const SKILLPROOF_DATA = {
     { label: "40-problem milestone in JavaScript", date: "1 week ago" },
   ],
 };
+
+// Expose for the page scripts (ES modules don't create globals)
+window.SKILLPROOF_DATA = SKILLPROOF_DATA;
+
+export {};

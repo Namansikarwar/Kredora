@@ -108,9 +108,10 @@ function animateCounter(el, target, duration = 1100) {
 
 function renderScoreBreakdown() {
   const list = document.getElementById("score-factor-list");
-  if (!list || typeof SKILLPROOF_DATA === "undefined") return;
+  const DATA = window.SKILLPROOF_DATA;
+  if (!list || !DATA) return;
 
-  const { factors } = SKILLPROOF_DATA.scoreBreakdown;
+  const { factors } = DATA.scoreBreakdown;
 
   list.innerHTML = factors
     .map(
@@ -148,7 +149,7 @@ function renderScoreBreakdown() {
     });
 
     if (totalCounter) {
-      animateCounter(totalCounter, SKILLPROOF_DATA.scoreBreakdown.total, 1300);
+      animateCounter(totalCounter, DATA.scoreBreakdown.total, 1300);
     }
   };
 
@@ -173,9 +174,10 @@ function renderScoreBreakdown() {
 
 function renderExampleSkills() {
   const container = document.getElementById("example-skill-list");
-  if (!container || typeof SKILLPROOF_DATA === "undefined") return;
+  const DATA = window.SKILLPROOF_DATA;
+  if (!container || !DATA) return;
 
-  container.innerHTML = SKILLPROOF_DATA.skills
+  container.innerHTML = DATA.skills
     .map(
       (skill) => `
       <li class="flex items-center gap-4 py-3 border-b border-white/5 last:border-b-0">
@@ -191,29 +193,30 @@ function renderExampleSkills() {
 
 // Dashboard specific rendering
 function renderDashboard() {
-  if (typeof SKILLPROOF_DATA === "undefined") return;
+  const DATA = window.SKILLPROOF_DATA;
+  if (!DATA) return;
 
   // Stats strip
   const statOverall = document.getElementById("stat-overall-score");
-  if (statOverall) animateCounter(statOverall, SKILLPROOF_DATA.student.overallScore);
+  if (statOverall) animateCounter(statOverall, DATA.student.overallScore);
 
   const statSkills = document.getElementById("stat-total-skills");
-  if (statSkills) statSkills.textContent = SKILLPROOF_DATA.skills.length;
+  if (statSkills) statSkills.textContent = DATA.skills.length;
 
   const statEvidence = document.getElementById("stat-total-evidence");
   if (statEvidence) {
-    const totalEv = SKILLPROOF_DATA.skills.reduce((sum, s) => sum + s.evidenceCount, 0);
+    const totalEv = DATA.skills.reduce((sum, s) => sum + s.evidenceCount, 0);
     animateCounter(statEvidence, totalEv);
   }
 
   // Evidence source totals
-  SKILLPROOF_DATA.evidenceTypes.forEach((type) => {
+  DATA.evidenceTypes.forEach((type) => {
     const el = document.querySelector(`[data-evidence-total="${type.id}"]`);
     if (el) animateCounter(el, type.count);
   });
 
   // Skill rings in evidence graph
-  SKILLPROOF_DATA.skills.forEach((skill) => {
+  DATA.skills.forEach((skill) => {
     const ringParent = document.querySelector(`[data-skill-ring="${skill.id}"]`);
     if (ringParent) {
       const ring = ringParent.querySelector(".score-ring");
@@ -228,16 +231,16 @@ function renderDashboard() {
 
   const overallRings = document.querySelectorAll("[data-overall-ring]");
   overallRings.forEach((r) => {
-    r.setAttribute("data-score-ring", SKILLPROOF_DATA.student.overallScore);
-    r.style.setProperty("--pct", SKILLPROOF_DATA.student.overallScore);
+    r.setAttribute("data-score-ring", DATA.student.overallScore);
+    r.style.setProperty("--pct", DATA.student.overallScore);
   });
   const overallScores = document.querySelectorAll("[data-overall-score]");
-  overallScores.forEach((s) => animateCounter(s, SKILLPROOF_DATA.student.overallScore));
+  overallScores.forEach((s) => animateCounter(s, DATA.student.overallScore));
 
   // Skill cards grid
   const cardsGrid = document.getElementById("skill-cards-grid");
   if (cardsGrid) {
-    cardsGrid.innerHTML = SKILLPROOF_DATA.skills
+    cardsGrid.innerHTML = DATA.skills
       .map(
         (s) => `
       <a href="skill.html" class="glass-card lift-on-hover rounded-2xl p-5 block transition-colors hover:border-brand/50 group">
@@ -287,7 +290,7 @@ function renderDashboard() {
   // Achievements
   const achievementsList = document.getElementById("recent-achievements-list");
   if (achievementsList) {
-    achievementsList.innerHTML = SKILLPROOF_DATA.recentAchievements
+    achievementsList.innerHTML = DATA.recentAchievements
       .map(
         (ach) => `
       <li class="flex items-start gap-3 text-sm">
@@ -304,7 +307,7 @@ function renderDashboard() {
   // Weak area content
   const weakArea = document.getElementById("weak-area-content");
   if (weakArea) {
-    const weakest = [...SKILLPROOF_DATA.skills].sort((a, b) => a.score - b.score)[0];
+    const weakest = [...DATA.skills].sort((a, b) => a.score - b.score)[0];
     if (weakest) {
       weakArea.innerHTML = `
         <div class="p-4 rounded-xl border border-amber-500/20 bg-amber-500/5 frosted-panel">
@@ -408,3 +411,5 @@ document.addEventListener("DOMContentLoaded", () => {
   renderScoreBreakdown();
   renderDashboard();
 });
+
+export {};

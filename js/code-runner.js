@@ -1,5 +1,5 @@
 /**
- * SkillProof Coding Arena — In-Browser Safe Code Runner & Judge
+ * Kredora Coding Arena — In-Browser Safe Code Runner & Judge
  * Executes code against test suites with deep comparison, console capture,
  * runtime measurement, and LeetCode-grade validation.
  */
@@ -160,3 +160,5 @@ const CodeRunner = {
 };
 
 window.CodeRunner = CodeRunner;
+
+export {};

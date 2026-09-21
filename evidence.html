@@ -59,10 +59,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/supabase.js"></script>
-  <script src="js/auth.js"></script>
-  <script>
+  <script type="module" src="js/supabase-client.js"></script>
+  <script type="module" src="js/auth.js"></script>
+  <script type="module">
+    import "./js/supabase-client.js";
+    import "./js/auth.js";
     if (!window.Auth.requireAuth("evidence.html")) {
       // Redirects to login.html
     }
@@ -403,6 +404,7 @@
         }
       });
     }
+    window.filterEvidence = filterEvidence;
 
     // Add Evidence submit handler
     document.getElementById("addEvidenceForm").addEventListener("submit", function(e) {

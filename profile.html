@@ -61,7 +61,8 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="css/style.css" />
-    <script src="js/auth.js"></script>
+    <script type="module" src="js/supabase-client.js"></script>
+    <script type="module" src="js/auth.js"></script>
   </head>
 
   <body class="min-h-screen bg-base text-white relative overflow-x-hidden">
@@ -392,6 +393,7 @@
           button.innerText = original;
         }, 2000);
       }
+      window.copyProfileLink = copyProfileLink;
     </script>
   </body>
 </html>

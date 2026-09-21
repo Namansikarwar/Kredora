@@ -62,10 +62,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/supabase.js"></script>
-  <script src="js/auth.js"></script>
-  <script src="js/problems-data.js"></script>
+  <script type="module" src="js/supabase-client.js"></script>
+  <script type="module" src="js/auth.js"></script>
+  <script type="module" src="js/problems-data.js"></script>
 </head>
 
 <body class="min-h-screen bg-base text-white flex flex-col relative overflow-x-hidden">
@@ -310,9 +309,8 @@
     Kredora Verified Coding Arena · All submissions evaluated against unit tests in browser
   </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/supabase.js"></script>
-  <script>
+  <script type="module" src="js/supabase-client.js"></script>
+  <script type="module">
     document.addEventListener("DOMContentLoaded", () => {
       let activeDiff = "all";
       let activeStatus = "all";
