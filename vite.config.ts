@@ -1,13 +1,28 @@
 import tailwindcss from '@tailwindcss/vite';
-import react from '@vitejs/plugin-react';
 import path from 'path';
+import fs from 'fs';
 import {defineConfig} from 'vite';
+
+// Copy the classic (non-module) scripts referenced by the pages into dist,
+// since Vite does not bundle or emit plain <script src> files on its own.
+const copyJsDir = () => ({
+  name: 'copy-js-dir',
+  apply: 'build' as const,
+  closeBundle() {
+    const src = path.resolve(__dirname, 'js');
+    const out = path.resolve(__dirname, 'dist', 'js');
+    fs.mkdirSync(out, {recursive: true});
+    for (const f of fs.readdirSync(src)) {
+      if (f.endsWith('.js')) fs.copyFileSync(path.join(src, f), path.join(out, f));
+    }
+  },
+});
 
 export default defineConfig(() => {
   return {
     plugins: [
-      react(),
       tailwindcss(),
+      copyJsDir(),
       {
         name: 'supabase-env-inject',
         transformIndexHtml(html) {
