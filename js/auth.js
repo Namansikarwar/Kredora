@@ -254,7 +254,7 @@
                   <a href="profile.html" class="block px-4 py-2 text-inkdim hover:text-white hover:bg-white/5 transition-colors">Your Profile</a>
                   <a href="evidence.html" class="block px-4 py-2 text-inkdim hover:text-white hover:bg-white/5 transition-colors">Evidence Log</a>
                   <div class="h-px bg-white/5 my-1"></div>
-                  <button type="button" onclick="Auth.logout()" class="w-full text-left px-4 py-2 text-danger hover:text-danger-bright hover:bg-danger/10 transition-colors flex items-center gap-2">
+                  <button type="button" onclick="Auth.logout()" class="w-full text-left px-4 py-2 text-inkdim hover:text-white hover:bg-white/5 transition-colors flex items-center gap-2">
                     <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
                     Log out
                   </button>
@@ -281,7 +281,7 @@
           slot.innerHTML = `
             <div class="px-2 py-2 border-t border-white/5 flex items-center justify-between">
               <span class="text-xs text-inkdim font-mono">Logged in as ${user.name || user.username}</span>
-              <button onclick="Auth.logout()" class="text-xs font-semibold text-danger hover:text-danger-bright">Log out</button>
+              <button onclick="Auth.logout()" class="text-xs font-semibold text-inkdim hover:text-white transition-colors">Log out</button>
             </div>
           `;
         } else {
