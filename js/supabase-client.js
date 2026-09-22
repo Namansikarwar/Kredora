@@ -11,6 +11,9 @@
  */
 
 import { createClient } from "@supabase/supabase-js";
+// Canonical database schema — bundled as a raw string at build time so the
+// dashboard's "Copy Tables SQL" button always matches supabase/schema.sql.
+import schemaSql from "../supabase/schema.sql?raw";
 
 const BUILD_URL = String(import.meta.env.VITE_SUPABASE_URL || "").trim();
 const BUILD_KEY = String(import.meta.env.VITE_SUPABASE_ANON_KEY || "").trim();
@@ -56,25 +59,51 @@ const SupabaseDB = {
     }
   },
 
-  // Record submission into Supabase table 'problem_submissions'
+  /**
+   * Resolve the Supabase Auth user id (auth.uid()) for the current session.
+   * Returns null when nobody is signed in to Supabase Auth. All table
+   * writes MUST be scoped to this id — the RLS policies in
+   * supabase/schema.sql check `auth.uid() = user_id`.
+   */
+  async getAuthUserId() {
+    const client = await this.init();
+    if (!client) return null;
+    try {
+      const { data } = await client.auth.getSession();
+      const session = data && data.session;
+      return session && session.user ? session.user.id : null;
+    } catch (e) {
+      return null;
+    }
+  },
+
+  // Record submission into Supabase table 'problem_submissions'.
+  // Append-only by policy: owner can INSERT, never UPDATE/DELETE.
+  // Requires a Supabase Auth session; otherwise the caller should fall
+  // back to local storage (problems-data.js already does).
   async recordSubmission(submission) {
     const client = await this.init();
     if (!client) return null;
+
+    const authUserId = await this.getAuthUserId();
+    if (!authUserId) {
+      console.info("[Kredora] recordSubmission skipped: no Supabase Auth session (RLS requires auth.uid() = user_id).");
+      return null;
+    }
 
     try {
       const { data, error } = await client
         .from("problem_submissions")
         .insert([{
-          problem_id: submission.problemId,
-          user_id: submission.userId || "anonymous",
-          language: submission.language,
-          code: submission.code,
-          status: submission.status,
-          runtime: submission.runtime,
-          memory: submission.memory,
-          passed_tests: submission.passedTests,
-          total_tests: submission.totalTests,
-          submitted_at: new Date().toISOString()
+          user_id: authUserId,
+          problem_id: String(submission.problemId || "unknown"),
+          language: String(submission.language || "javascript"),
+          code: typeof submission.code === "string" ? submission.code : null,
+          status: String(submission.status || "submitted"),
+          runtime: submission.runtime != null ? String(submission.runtime) : null,
+          memory: submission.memory != null ? String(submission.memory) : null,
+          passed_tests: Number.isFinite(Number(submission.passedTests)) ? Number(submission.passedTests) : 0,
+          total_tests: Number.isFinite(Number(submission.totalTests)) ? Number(submission.totalTests) : 0
         }]);
 
       if (error) {
@@ -88,17 +117,25 @@ const SupabaseDB = {
     }
   },
 
-  // Sync solved progress map to Supabase table 'user_progress'
+  // Sync solved progress map to Supabase table 'user_progress'.
+  // The `userId` argument is the app-local identity (display purposes
+  // only); the ROW identity is always auth.uid() — enforced by RLS.
   async syncProgress(userId, solvedMap) {
     const client = await this.init();
     if (!client || !userId) return null;
+
+    const authUserId = await this.getAuthUserId();
+    if (!authUserId) {
+      console.info("[Kredora] syncProgress skipped: no Supabase Auth session (RLS requires auth.uid() = user_id).");
+      return null;
+    }
 
     try {
       const { data, error } = await client
         .from("user_progress")
         .upsert([{
-          user_id: userId,
-          solved_data: solvedMap,
+          user_id: authUserId,
+          solved_data: solvedMap || {},
           updated_at: new Date().toISOString()
         }], { onConflict: "user_id" });
 
@@ -113,17 +150,22 @@ const SupabaseDB = {
     }
   },
 
-  // Load progress from Supabase
+  // Load progress from Supabase for the CURRENT auth user. The userId
+  // parameter is kept for API compatibility; RLS restricts results to
+  // auth.uid() regardless of what is passed.
   async loadProgress(userId) {
     const client = await this.init();
-    if (!client || !userId) return null;
+    if (!client) return null;
+
+    const authUserId = await this.getAuthUserId();
+    if (!authUserId) return null;
 
     try {
       const { data, error } = await client
         .from("user_progress")
         .select("solved_data")
-        .eq("user_id", userId)
-        .single();
+        .eq("user_id", authUserId)
+        .maybeSingle();
 
       if (error || !data) return null;
       return data.solved_data;
@@ -132,61 +174,30 @@ const SupabaseDB = {
     }
   },
 
-  // Get SQL script to set up tables and RLS in Supabase
+  // The full RLS schema (tables, policies, public view, indexes).
+  // Served from supabase/schema.sql verbatim — see that file for docs.
   getSchemaSQL() {
-    return `-- ==================================================================
--- Kredora Supabase Database Tables & Security Policies
--- Paste into Supabase Dashboard -> SQL Editor -> Run
--- ==================================================================
+    return schemaSql;
+  },
 
--- 1. Table for problem submissions
-create table if not exists public.problem_submissions (
-  id uuid default gen_random_uuid() primary key,
-  problem_id text not null,
-  user_id text not null,
-  language text,
-  code text,
-  status text,
-  runtime text,
-  memory text,
-  passed_tests int,
-  total_tests int,
-  submitted_at timestamptz default now()
-);
-
--- Enable RLS and add public access policies for submissions
-alter table public.problem_submissions enable row level security;
-
-drop policy if exists "Allow insert for submissions" on public.problem_submissions;
-create policy "Allow insert for submissions"
-  on public.problem_submissions for insert
-  with check (true);
-
-drop policy if exists "Allow select for submissions" on public.problem_submissions;
-create policy "Allow select for submissions"
-  on public.problem_submissions for select
-  using (true);
-
--- 2. Table for user solved progress
-create table if not exists public.user_progress (
-  user_id text primary key,
-  solved_data jsonb default '{}'::jsonb,
-  updated_at timestamptz default now()
-);
-
--- Enable RLS and add policies for user progress
-alter table public.user_progress enable row level security;
-
-drop policy if exists "Allow read user progress" on public.user_progress;
-create policy "Allow read user progress"
-  on public.user_progress for select
-  using (true);
-
-drop policy if exists "Allow upsert user progress" on public.user_progress;
-create policy "Allow upsert user progress"
-  on public.user_progress for all
-  using (true)
-  with check (true);`;
+  /**
+   * Read the public portfolio view for one developer.
+   * profile_summaries is the ONLY anon-readable surface (see schema.sql):
+   * display name, headline, solved counts, score — never emails or code.
+   * Returns { data, error } from a single select.
+   */
+  async getPublicProfile(profileId) {
+    const client = await this.init();
+    if (!client || !profileId) return { data: null, error: null };
+    try {
+      return await client
+        .from("profile_summaries")
+        .select("profile_id, display_name, headline, problems_solved, total_submissions, skill_score, last_active_at")
+        .eq("profile_id", profileId)
+        .maybeSingle();
+    } catch (e) {
+      return { data: null, error: e };
+    }
   },
 
   // Lightweight, fully client-side connectivity check:
@@ -208,29 +219,42 @@ create policy "Allow upsert user progress"
       }
 
       const start = Date.now();
-      const { error: authErr } = await client.auth.getSession();
+      const { data: sessionData, error: authErr } = await client.auth.getSession();
       const latencyMs = Math.max(1, Date.now() - start);
+      const authedUser = sessionData && sessionData.session ? sessionData.session.user : null;
 
       const subRes = await client.from("problem_submissions").select("id").limit(1);
       const progRes = await client.from("user_progress").select("user_id").limit(1);
 
+      // PGRST205 = relation missing -> schema not applied yet.
       const subMissing = subRes.error && subRes.error.code === "PGRST205";
       const progMissing = progRes.error && progRes.error.code === "PGRST205";
 
       let projectUrl = "";
       try { projectUrl = new URL(url).hostname; } catch (e) { /* keep empty */ }
 
+      // RLS in supabase/schema.sql makes base tables invisible to anon and
+      // owner-only for authenticated users. An empty (0-row) result is the
+      // EXPECTED healthy state, not a failure — distinguish it from errors.
+      const hasSession = Boolean(authedUser);
+      const subOk = !subRes.error;
+      const progOk = !progRes.error;
+
       return {
         ok: true,
         configured: true,
         latencyMs,
         authOk: !authErr,
+        authed: hasSession,
         projectUrl,
+        rlsActive: true,
         tables: {
-          problem_submissions: !subRes.error,
+          problem_submissions: subOk,
           problem_submissions_error: subRes.error ? subRes.error.message : null,
-          user_progress: !progRes.error,
-          user_progress_error: progRes.error ? progRes.error.message : null
+          problem_submissions_rows_visible: subRes.data ? subRes.data.length : 0,
+          user_progress: progOk,
+          user_progress_error: progRes.error ? progRes.error.message : null,
+          user_progress_rows_visible: progRes.data ? progRes.data.length : 0
         },
         schemaNeeded: subMissing || progMissing
       };

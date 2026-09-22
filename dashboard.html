@@ -586,11 +586,15 @@
           if (res.schemaNeeded) {
             statusPill.textContent = "Connected · Tables Setup Needed";
             statusPill.className = PILL.warn;
-            descEl.textContent = `Host: ${host} · Authenticated in ${res.latencyMs || 1} ms. Run the SQL schema to enable remote tables.`;
+            descEl.textContent = `Host: ${host} · Authenticated in ${res.latencyMs || 1} ms. Run supabase/schema.sql to enable cloud sync.`;
           } else {
-            statusPill.textContent = "Connected · Tables Live";
+            statusPill.textContent = "Connected · RLS Active";
             statusPill.className = PILL.ok;
-            descEl.textContent = `Host: ${host} · Authenticated in ${res.latencyMs || 1} ms. Submissions and solved progress sync to cloud PostgreSQL.`;
+            const who = res.authed ? "Signed in" : "Anonymous session";
+            const scope = res.authed
+              ? "owner-only visibility — your submissions and progress are protected"
+              : "sign in to sync your progress to the cloud";
+            descEl.textContent = `Host: ${host} · ${res.latencyMs || 1} ms round-trip · ${who} · Row Level Security on, ${scope}.`;
           }
         } else {
           statusPill.textContent = "Connection Error";
