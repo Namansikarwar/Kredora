@@ -21,9 +21,12 @@
 -- ----------------------------------------------------------------------------
 -- 1. problem_submissions — append-only evidence of coding work
 -- ----------------------------------------------------------------------------
+-- user_id is NULLABLE: unauthenticated users can submit from the live site
+-- and the Edge Function stamps rows with a null user. RLS then treats
+-- "null user_id rows" as visible to nobody except the service role.
 create table if not exists public.problem_submissions (
   id            uuid primary key default gen_random_uuid(),
-  user_id       uuid not null references auth.users (id) on delete cascade,
+  user_id       uuid references auth.users (id) on delete cascade,
   problem_id    text not null,
   language      text not null default 'javascript',
   code          text,
@@ -37,7 +40,50 @@ create table if not exists public.problem_submissions (
 );
 
 comment on table public.problem_submissions is
-  'Append-only record of every code submission. No UPDATE/DELETE policies: submissions are immutable evidence.';
+  'Append-only record of every code submission. Written ONLY by the run-submission Edge Function (service role). No client INSERT/UPDATE/DELETE policies: submissions are tamper-proof evidence.';
+
+-- ----------------------------------------------------------------------------
+-- 1b. problem_tests — HIDDEN test cases, server-side only
+-- ----------------------------------------------------------------------------
+-- Never readable by anon/authenticated. Only the service role (Edge Function)
+-- selects from here. Test payloads are jsonb: {"input": [...], "expected": ...}
+create table if not exists public.problem_tests (
+  id          uuid primary key default gen_random_uuid(),
+  problem_id  text not null,
+  kind        text not null default 'hidden' check (kind in ('hidden', 'sample')),
+  input       jsonb not null,
+  expected    jsonb not null,
+  weight      integer not null default 1,
+  created_at  timestamptz not null default now()
+);
+
+-- Lock down: no policies for anon/authenticated on problem_tests at all.
+alter table public.problem_tests enable row level security;
+alter table public.problem_tests force row level security;
+
+comment on table public.problem_tests is
+  'Hidden test cases. NO policies: only the service_role key (Edge Function) can read. Sample tests are bundled in the client; never expose this table via PostgREST.';
+
+create index if not exists idx_problem_tests_problem on public.problem_tests (problem_id);
+
+-- ----------------------------------------------------------------------------
+-- 1c. submission_rate_limits — server-side sliding-window rate limiting
+-- ----------------------------------------------------------------------------
+-- Written/read ONLY by the run-submission Edge Function (service role).
+-- identity is 'user:<auth.uid>' for authenticated callers or 'ip:<addr>'
+-- for anonymous ones. hit_count counts submissions inside the window that
+-- starts at window_start (UTC). One row per identity (PK upsert).
+create table if not exists public.submission_rate_limits (
+  identity      text primary key,
+  window_start  timestamptz not null default now(),
+  hit_count     integer not null default 0 check (hit_count >= 0)
+);
+
+alter table public.submission_rate_limits enable row level security;
+alter table public.submission_rate_limits force row level security;
+-- No policies: anon/authenticated have no business reading or writing this.
+
+create index if not exists idx_rate_limits_window on public.submission_rate_limits (window_start);
 
 -- ----------------------------------------------------------------------------
 -- 2. user_progress — per-user solved-problem state
@@ -63,17 +109,14 @@ alter table public.problem_submissions force row level security;
 alter table public.user_progress        force row level security;
 
 -- Re-create policies idempotently
-drop policy if exists "submissions: owner inserts own rows"
-  on public.problem_submissions;
-create policy "submissions: owner inserts own rows"
-  on public.problem_submissions
-  for insert to authenticated
-  with check (auth.uid() = user_id);
-
--- NOTE: deliberately NO policy for select/update/delete on
--- problem_submissions -> those operations are denied to everyone at the
--- Postgres level except the service_role key (server-side only).
--- The submission history surface reads from profile_summaries instead.
+-- NO INSERT policy for clients: the run-submission Edge Function writes
+-- rows using the service_role key, which bypasses RLS entirely. Clients
+-- cannot forge submissions, runtime numbers, or pass counts.
+-- NOTE: deliberately NO policy AT ALL for problem_submissions ->
+-- select/insert/update/delete are all denied to anon+authenticated at the
+-- Postgres level. Only the service_role key (Edge Function server-side)
+-- reads and writes. The submission history surface reads from
+-- profile_summaries instead.
 
 drop policy if exists "progress: owner reads own row"
   on public.user_progress;
@@ -97,7 +140,7 @@ create policy "progress: owner writes own row"
 -- counts, verification state. No emails, no code, no auth user ids.
 -- ----------------------------------------------------------------------------
 create or replace view public.profile_summaries
-with (security_invoker = off) as
+with (security_invoker = false) as
 select
   p.user_id                                   AS profile_id,
   coalesce(pu.raw_user_meta_data ->> 'name',
@@ -110,7 +153,7 @@ select
   (select count(*) from public.problem_submissions s
      where s.user_id = p.user_id) AS total_submissions,
   -- Simple heuristic: 5 points per accepted problem, capped at 100.
-  -- The app ships 20 problems, so solving all of them scores 100.
+  -- The app ships 21 problems, so solving all of them scores 100.
   least(100, (select count(*) from public.problem_submissions s
               where s.user_id = p.user_id and s.status = 'accepted') * 5) AS skill_score,
   p.updated_at AS last_active_at
@@ -118,7 +161,7 @@ from public.user_progress p
 left join auth.users pu on pu.id = p.user_id;
 
 -- SECURITY MODEL (read this before changing):
--- security_invoker = off means the view executes with the VIEW OWNER's
+-- security_invoker = false means the view executes with the VIEW OWNER's
 -- rights, intentionally bypassing RLS on the base tables — that is what
 -- makes a public portfolio possible while the tables themselves stay
 -- locked to anon. The view is the ONLY public surface and it projects
@@ -130,12 +173,13 @@ left join auth.users pu on pu.id = p.user_id;
 revoke all on public.profile_summaries from public;
 grant select on public.profile_summaries to anon, authenticated;
 
--- Defense in depth: strip privileges the anon role never needs on the
--- base tables (RLS already denies these, this removes the grant too).
-revoke insert, update, delete, truncate, references, trigger
-  on public.problem_submissions from anon;
-revoke insert, update, delete, truncate, references, trigger
-  on public.user_progress from anon;
+-- Defense in depth: strip ALL privileges the anon/authenticated roles
+-- never need on the base tables. RLS already denies these; this removes
+-- the underlying grants too, so even a future policy mistake cannot leak
+-- rows or permit writes from the browser.
+revoke all on public.problem_submissions from anon, authenticated;
+revoke all on public.user_progress from anon, authenticated;
+revoke all on public.problem_tests from anon, authenticated;
 
 -- ----------------------------------------------------------------------------
 -- 5. Indexes

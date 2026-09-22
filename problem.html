@@ -1005,6 +1005,19 @@ create policy "Allow upsert user progress" on public.user_progress for all using
         const detailContainer = document.getElementById("resultCaseDetail");
 
         if (currCase) {
+          if (currCase.hidden) {
+            // Server-graded hidden case: show verdict only — never the input
+            // or expected values (they live server-side by design).
+            detailContainer.innerHTML = `
+            <div class="space-y-2">
+              <span class="text-[11px] text-white/40 uppercase tracking-wider block">Hidden Test Case</span>
+              <div class="rounded-xl border ${currCase.passed ? 'border-emerald-500/30 bg-emerald-500/5 text-emerald-300' : 'border-danger/30 bg-danger/5 text-danger'} p-2.5 font-mono text-xs">
+                ${currCase.passed ? "✓ Passed — graded on the server" : currCase.error ? `<span class="text-danger font-bold">${currCase.status}: ${currCase.error}</span>` : "✗ Failed — graded on the server"}
+              </div>
+              ${currCase.runtimeMs ? `<div class="text-[11px] text-white/40 font-mono">runtime: ${currCase.runtimeMs} ms · memory: ${currCase.memoryMb} MB</div>` : ""}
+            </div>
+            `;
+          } else {
           detailContainer.innerHTML = `
             <div class="space-y-2">
               <span class="text-[11px] text-white/40 uppercase tracking-wider block">Input</span>
@@ -1023,14 +1036,16 @@ create policy "Allow upsert user progress" on public.user_progress for all using
               <div class="rounded-xl border border-white/10 bg-black/40 p-2.5 font-mono text-xs text-gold overflow-x-auto">${currCase.expectedDisplay}</div>
             </div>
           `;
+          }
         }
 
-        // Stdout logs
+        // Stdout logs — top-level for local runs, per-case for server runs
         const logBox = document.getElementById("resultLogsContainer");
         const logText = document.getElementById("resultLogsText");
-        if (res.logs && res.logs.length > 0) {
+        const logs = (res.logs && res.logs.length ? res.logs : (currCase && currCase.logs)) || [];
+        if (logs.length > 0) {
           logBox.classList.remove("hidden");
-          logText.textContent = res.logs.join("\n");
+          logText.textContent = logs.join("\n");
         } else {
           logBox.classList.add("hidden");
         }
@@ -1047,9 +1062,35 @@ create policy "Allow upsert user progress" on public.user_progress for all using
 
         try {
           const userCode = editor.value;
-          const allTests = [...currentProblem.sampleTestCases, ...(currentProblem.hiddenTestCases || [])];
 
-          const result = await runner.execute(userCode, currentProblem.functionName, allTests);
+          // ------------------------------------------------------------------
+          // ANTI-CHEAT: submit via the run-submission Edge Function. Hidden
+          // tests live server-side only; the browser executes samples locally
+          // (Run Code) but never grades the real submission.
+          // ------------------------------------------------------------------
+          let result;
+          if (window.SupabaseDB && window.SupabaseDB.isConfigured() && typeof window.SupabaseDB.runSubmission === "function") {
+            const remote = await window.SupabaseDB.runSubmission({
+              problemId: currentProblem.id,
+              language: currentLang,
+              code: userCode,
+              fnName: currentProblem.functionName
+            });
+            if (!remote.ok) {
+              renderRunResults({
+                allPassed: false, status: remote.rateLimited ? "Rate Limited" : "Submission Failed",
+                runtime: "--", passedCount: 0, totalCount: 0, testResults: [], logs: [remote.error]
+              });
+              return; // finally re-enables the button
+            }
+            result = remote; // { status, allPassed, passedCount, totalCount, runtime, memory, testResults }
+          } else {
+            // Offline fallback: grade samples locally (no hidden tests are
+            // available client-side, so a full pass marks the problem solved
+            // on samples only and is flagged in the submission record).
+            result = await runner.execute(userCode, currentProblem.functionName, currentProblem.sampleTestCases);
+            result.gradedLocally = true;
+          }
           lastRunResult = result;
           activeResultCaseIndex = 0;
           renderRunResults(result);
@@ -1069,7 +1110,8 @@ create policy "Allow upsert user progress" on public.user_progress for all using
               runtime: result.runtime,
               memory: result.memory,
               language: currentLang,
-              code: userCode
+              code: userCode,
+              verifiedServerSide: !result.gradedLocally
             });
 
             // Update badge on header
@@ -1082,16 +1124,18 @@ create policy "Allow upsert user progress" on public.user_progress for all using
             // Show Success Modal
             document.getElementById("modalProblemTitle").textContent = `You solved ${currentProblem.title}`;
             document.getElementById("modalRuntime").textContent = result.runtime;
-            document.getElementById("modalMemory").textContent = result.memory;
+            document.getElementById("modalMemory").textContent = result.memory || "--";
             document.getElementById("successModal").classList.remove("hidden");
           } else {
             // Record failed attempt
             tracker.recordSubmission(currentProblem.id, {
-              status: result.status,
+              status: result.status || "Wrong Answer",
               runtime: result.runtime,
               memory: result.memory,
               language: currentLang,
               code: userCode,
+              passedTests: result.passedCount,
+              totalTests: result.totalCount,
               timestamp: new Date().toISOString()
             });
             renderSubmissionsTab();

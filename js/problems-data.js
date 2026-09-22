@@ -1541,8 +1541,21 @@ const ProgressTracker = {
   }
 };
 
-// Expose globally
-window.CODING_PROBLEMS = CODING_PROBLEMS;
+// ----------------------------------------------------------------------------
+// SECURITY: hidden test cases are NOT shipped to the browser anymore. They
+// live server-side in public.problem_tests (see supabase/schema.sql) and are
+// applied by the run-submission Edge Function. The client keeps samples only.
+// To regenerate the server seed after editing problems here:
+//   node scripts/generate-seed-tests.mjs
+// ----------------------------------------------------------------------------
+const CODING_PROBLEMS_CLIENT = CODING_PROBLEMS.map((p) => ({
+  ...p,
+  hiddenTestCases: [] // stripped at build/module-load time
+}));
+
+// Expose the sanitized set globally. The full set (with hidden tests) exists
+// ONLY inside this module scope and is never published to window.
+window.CODING_PROBLEMS = CODING_PROBLEMS_CLIENT;
 window.ProgressTracker = ProgressTracker;
 
 export {};

@@ -180,6 +180,48 @@ const SupabaseDB = {
     return schemaSql;
   },
 
+  // ------------------------------------------------------------------------
+  // Server-side submission runner (anti-cheat)
+  // ------------------------------------------------------------------------
+  // Submit code to the run-submission Edge Function, which executes it in a
+  // Judge0 sandbox against the server-side hidden tests and writes the
+  // immutable problem_submissions row itself. The browser NEVER sees hidden
+  // test inputs/expected values and can no longer insert submissions.
+  async runSubmission({ problemId, language, code, fnName }) {
+    const client = await this.init();
+    if (!client) {
+      return { ok: false, error: "Not connected. Add VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY (or connect a project from the Problem page)." };
+    }
+    const { url, anonKey } = this.getConfig();
+    try {
+      const headers = {
+        "Content-Type": "application/json",
+        "apikey": anonKey,
+      };
+      // Attach the Supabase Auth bearer token when a session exists so the
+      // function can attribute the submission (rate-limit key + user_id).
+      try {
+        const { data } = await client.auth.getSession();
+        if (data && data.session && data.session.access_token) {
+          headers["Authorization"] = `Bearer ${data.session.access_token}`;
+        }
+      } catch (e) { /* anon is fine */ }
+
+      const res = await fetch(`${url.replace(/\/$/, "")}/functions/v1/run-submission`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ problemId, language, code, fnName }),
+      });
+      const payload = await res.json().catch(() => ({}));
+      if (!res.ok || payload.ok === false) {
+        return { ok: false, error: payload.error || `Function error (HTTP ${res.status})`, rateLimited: res.status === 429 };
+      }
+      return payload; // { ok, status, allPassed, passedCount, totalCount, runtime, memory, testResults }
+    } catch (e) {
+      return { ok: false, error: String((e && e.message) || e) };
+    }
+  },
+
   /**
    * Read the public portfolio view for one developer.
    * profile_summaries is the ONLY anon-readable surface (see schema.sql):
