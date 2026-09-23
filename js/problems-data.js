@@ -1476,6 +1476,35 @@ const ProgressTracker = {
     }
   },
 
+  // Every local submission across all problems, flattened. Each record gets
+  // its problemId (the storage key) plus the difficulty from the catalog so
+  // shared stat functions can weight points without extra lookups.
+  getAllLocalSubmissions() {
+    try {
+      const raw = localStorage.getItem(this.SUBMISSIONS_KEY);
+      const subs = raw ? JSON.parse(raw) : {};
+      const flat = [];
+      for (const [problemId, records] of Object.entries(subs)) {
+        if (!Array.isArray(records)) continue;
+        const problem = CODING_PROBLEMS.find((p) => p.id === problemId);
+        for (const r of records) {
+          flat.push({
+            problemId,
+            problemTitle: r.problemTitle || problem?.title || problemId,
+            difficulty: r.difficulty || problem?.difficulty || null,
+            language: r.language || null,
+            status: r.status || null,
+            runtime: r.runtime || null,
+            submittedAt: r.timestamp || r.submittedAt || null,
+          });
+        }
+      }
+      return flat;
+    } catch (e) {
+      return [];
+    }
+  },
+
   logVerifiedSkillProofEvidence(problem, submission, wasAlreadySolved) {
     try {
       const raw = localStorage.getItem(this.EVIDENCE_KEY);
@@ -1507,7 +1536,7 @@ const ProgressTracker = {
     }
   },
 
-  getStats() {
+  async getStats() {
     const solvedMap = this.getSolvedMap();
     const solvedList = Object.values(solvedMap);
 
@@ -1533,6 +1562,14 @@ const ProgressTracker = {
 
     const completionRate = total > 0 ? Math.round((solvedTotal / total) * 100) : 0;
 
+    // Real streak and verified points come from the shared stats module so
+    // every page agrees. Imported lazily to avoid a circular module
+    // dependency (user-stats.js dynamically loads this file for its catalog).
+    const { computeStreak, computePoints } = await import("./user-stats.js");
+    const localSubs = this.getAllLocalSubmissions();
+    const streakDays = computeStreak(localSubs);
+    const points = computePoints(localSubs);
+
     return {
       total,
       solvedTotal,
@@ -1540,7 +1577,8 @@ const ProgressTracker = {
       easy: { solved: easySolved, total: easyTotal },
       medium: { solved: mediumSolved, total: mediumTotal },
       hard: { solved: hardSolved, total: hardTotal },
-      streakDays: solvedTotal > 0 ? Math.min(solvedTotal + 1, 14) : 0
+      streakDays,
+      points
     };
   }
 };

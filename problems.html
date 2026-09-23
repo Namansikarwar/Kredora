@@ -205,11 +205,11 @@
           <div class="grid grid-cols-2 gap-2 text-center">
             <div class="rounded-xl border border-white/5 bg-white/[0.02] frosted-panel p-3">
               <span class="block text-[11px] font-mono text-white/40 uppercase">Streak</span>
-              <span id="streakDisplay" class="font-display text-xl font-bold text-brand-bright">4 Days</span>
+              <span id="streakDisplay" class="font-display text-xl font-bold text-brand-bright">—</span>
             </div>
             <div class="rounded-xl border border-white/5 bg-white/[0.02] frosted-panel p-3">
               <span class="block text-[11px] font-mono text-white/40 uppercase">Verified Pts</span>
-              <span id="pointsDisplay" class="font-display text-xl font-bold text-cyan">24 pts</span>
+              <span id="pointsDisplay" class="font-display text-xl font-bold text-cyan">—</span>
             </div>
           </div>
 
@@ -321,8 +321,14 @@
       const tracker = window.ProgressTracker;
 
       function renderStats() {
-        const stats = tracker.getStats();
+        // getStats is async (computes real streak/points via the shared
+        // stats module); render when the promise resolves.
+        tracker.getStats().then((stats) => {
+          renderStatsValues(stats);
+        }).catch(() => {});
+      }
 
+      function renderStatsValues(stats) {
         document.getElementById("solvedTotalDisplay").textContent = stats.solvedTotal;
         document.getElementById("totalProblemDisplay").textContent = `/ ${stats.total} Solved`;
 
@@ -342,7 +348,7 @@
         document.getElementById("hardBar").style.width = stats.hard.total > 0 ? `${(stats.hard.solved / stats.hard.total) * 100}%` : "0%";
 
         document.getElementById("streakDisplay").textContent = `${stats.streakDays} Days`;
-        document.getElementById("pointsDisplay").textContent = `${stats.solvedTotal * 6} pts`;
+        document.getElementById("pointsDisplay").textContent = `${stats.points} pts`;
       }
 
       function filterProblems() {

@@ -110,7 +110,6 @@ function renderScoreBreakdown() {
   const list = document.getElementById("score-factor-list");
   const DATA = window.SKILLPROOF_DATA;
   if (!list || !DATA) return;
-
   const { factors } = DATA.scoreBreakdown;
 
   list.innerHTML = factors
@@ -196,25 +195,46 @@ function renderDashboard() {
   const DATA = window.SKILLPROOF_DATA;
   if (!DATA) return;
 
-  // Stats strip
-  const statOverall = document.getElementById("stat-overall-score");
-  if (statOverall) animateCounter(statOverall, DATA.student.overallScore);
-
-  const statSkills = document.getElementById("stat-total-skills");
-  if (statSkills) statSkills.textContent = DATA.skills.length;
-
-  const statEvidence = document.getElementById("stat-total-evidence");
-  if (statEvidence) {
-    const totalEv = DATA.skills.reduce((sum, s) => sum + s.evidenceCount, 0);
-    animateCounter(statEvidence, totalEv);
+  // Evidence-graph totals: real counts from the user's own records
+  // (accepted submissions + saved evidence). No connected-account source
+  // exists, so activity stays 0 — shown as an honest zero, not a sample.
+  const renderEvidenceTotals = (stats) => {
+    if (!stats) return;
+    const totals = window.UserStats.getEvidenceTotals(stats);
+    const map = {
+      "coding-problems": totals.problems,
+      "projects": totals.projects,
+      "assessments": totals.assessments,
+      "activity": totals.activity,
+    };
+    for (const [key, value] of Object.entries(map)) {
+      const el = document.querySelector(`[data-evidence-total="${key}"]`);
+      if (el) animateCounter(el, value);
+    }
+  };
+  const renderUserStats = (stats) => {
+    if (!stats) return;
+    const statPoints = document.getElementById("stat-points");
+    if (statPoints) animateCounter(statPoints, stats.points);
+    const statStreak = document.getElementById("stat-streak");
+    if (statStreak) statStreak.textContent = stats.streakDays;
+    const statSolved = document.getElementById("stat-solved");
+    if (statSolved) animateCounter(statSolved, stats.solvedTotal);
+    const statSolvedTotal = document.getElementById("stat-solved-total");
+    if (statSolvedTotal) statSolvedTotal.textContent = ` / ${stats.total}`;
+  };
+  if (window.UserStats) {
+    window.UserStats.getUserStats().then((stats) => {
+      renderEvidenceTotals(stats);
+      renderUserStats(stats);
+    });
   }
 
-  // Evidence source totals
-  DATA.evidenceTypes.forEach((type) => {
-    const el = document.querySelector(`[data-evidence-total="${type.id}"]`);
-    if (el) animateCounter(el, type.count);
-  });
-
+  // NOTE: the score breakdown card, the example skills list, skill rings,
+  // and the weak-area card are sample-profile visuals (SKILLPROOF_DATA).
+  // They are labeled "Sample data" in the markup and are NOT user numbers.
+  // Real per-user values render in the stat strip and Coding Arena card,
+  // computed from the user's actual submissions (above).
   // Skill rings in evidence graph
   DATA.skills.forEach((skill) => {
     const ringParent = document.querySelector(`[data-skill-ring="${skill.id}"]`);
@@ -264,18 +284,21 @@ function renderDashboard() {
       .join("");
   }
 
-  // Recent Activity
+  // Recent Activity — real submissions (falls back to an honest empty state)
   const activityList = document.getElementById("recent-activity-list");
   if (activityList) {
-    const sampleActivities = [
-      { text: "Solved 'Merge K Sorted Lists'", time: "2h ago", badge: "Java" },
-      { text: "Pushed 3 commits to library-mgmt", time: "1d ago", badge: "SQL" },
-      { text: "Completed OOP Assessment (88%)", time: "3d ago", badge: "Java" },
-      { text: "Added unit tests for auth middleware", time: "5d ago", badge: "JS" },
-    ];
-    activityList.innerHTML = sampleActivities
-      .map(
-        (a) => `
+    const renderActivity = (stats) => {
+      const items = window.UserStats
+        ? window.UserStats.getRecentActivity(stats.submissions, 4)
+        : [];
+      if (items.length === 0) {
+        activityList.innerHTML = `
+          <p class="text-xs text-inkdim font-mono">No submissions yet — solve a problem and it shows up here.</p>`;
+        return;
+      }
+      activityList.innerHTML = items
+        .map(
+          (a) => `
       <div class="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.02] border border-white/5 frosted-panel text-sm">
         <div class="truncate mr-2">
           <p class="text-ink text-xs font-medium truncate">${a.text}</p>
@@ -283,16 +306,27 @@ function renderDashboard() {
         </div>
         <span class="text-[10px] font-mono px-2 py-0.5 rounded-md bg-brand/10 text-brand-bright border border-brand/20 shrink-0">${a.badge}</span>
       </div>`
-      )
-      .join("");
+        )
+        .join("");
+    };
+
+    if (window.UserStats) {
+      window.UserStats.getUserStats().then(renderActivity);
+    } else {
+      activityList.innerHTML = `<p class="text-xs text-inkdim font-mono">No submissions yet — solve a problem and it shows up here.</p>`;
+    }
   }
 
-  // Achievements
+  // Achievements — real milestones from the user's own record
   const achievementsList = document.getElementById("recent-achievements-list");
   if (achievementsList) {
-    achievementsList.innerHTML = DATA.recentAchievements
-      .map(
-        (ach) => `
+    const renderAchievements = (stats) => {
+      const achievements = window.UserStats
+        ? window.UserStats.getAchievements(stats)
+        : [];
+      achievementsList.innerHTML = achievements
+        .map(
+          (ach) => `
       <li class="flex items-start gap-3 text-sm">
         <span class="w-5 h-5 rounded-full bg-emerald-400/10 border border-emerald-400/30 text-emerald-400 grid place-items-center text-xs shrink-0 mt-0.5">✓</span>
         <div>
@@ -300,8 +334,15 @@ function renderDashboard() {
           <p class="text-[11px] text-inkdim font-mono mt-0.5">${ach.date}</p>
         </div>
       </li>`
-      )
-      .join("");
+        )
+        .join("");
+    };
+
+    if (window.UserStats) {
+      window.UserStats.getUserStats().then(renderAchievements);
+    } else {
+      achievementsList.innerHTML = `<li class="text-xs text-inkdim font-mono">Solve a problem to start earning achievements.</li>`;
+    }
   }
 
   // Weak area content
@@ -335,29 +376,32 @@ function renderArenaProgress() {
   if (!solvedCountEl || !window.ProgressTracker) return;
 
   const tracker = window.ProgressTracker;
-  const stats = tracker.getStats();
-  const solvedMap = tracker.getSolvedMap();
-  const solvedItems = Object.values(solvedMap);
-  const allProblems = window.CODING_PROBLEMS || [];
+  tracker.getStats().then((stats) => {
+    const solvedMap = tracker.getSolvedMap();
+    const solvedItems = Object.values(solvedMap);
+    const allProblems = window.CODING_PROBLEMS || [];
 
-  solvedCountEl.textContent = stats.solvedTotal;
-  const totalEl = document.getElementById("dashTotalCount");
-  if (totalEl) totalEl.textContent = `/ ${stats.total} Problems`;
+    const solvedCountEl = document.getElementById("dashSolvedCount");
+    if (!solvedCountEl) return;
 
-  const easyEl = document.getElementById("dashEasyStats");
-  if (easyEl) easyEl.textContent = `${stats.easy.solved} / ${stats.easy.total} Easy`;
+    solvedCountEl.textContent = stats.solvedTotal;
+    const totalEl = document.getElementById("dashTotalCount");
+    if (totalEl) totalEl.textContent = `/ ${stats.total} Problems`;
 
-  const medEl = document.getElementById("dashMediumStats");
-  if (medEl) medEl.textContent = `${stats.medium.solved} / ${stats.medium.total} Med`;
+    const easyEl = document.getElementById("dashEasyStats");
+    if (easyEl) easyEl.textContent = `${stats.easy.solved} / ${stats.easy.total} Easy`;
 
-  const hardEl = document.getElementById("dashHardStats");
-  if (hardEl) hardEl.textContent = `${stats.hard.solved} / ${stats.hard.total} Hard`;
+    const medEl = document.getElementById("dashMediumStats");
+    if (medEl) medEl.textContent = `${stats.medium.solved} / ${stats.medium.total} Med`;
 
-  const streakEl = document.getElementById("dashStreak");
-  if (streakEl) streakEl.textContent = `${stats.streakDays} Days`;
+    const hardEl = document.getElementById("dashHardStats");
+    if (hardEl) hardEl.textContent = `${stats.hard.solved} / ${stats.hard.total} Hard`;
 
-  const pointsEl = document.getElementById("dashPoints");
-  if (pointsEl) pointsEl.textContent = `${stats.solvedTotal * 6} pts`;
+    const streakEl = document.getElementById("dashStreak");
+    if (streakEl) streakEl.textContent = `${stats.streakDays} Days`;
+
+    const pointsEl = document.getElementById("dashPoints");
+    if (pointsEl) pointsEl.textContent = `${stats.points} pts`;
 
   // Render recent questions solved
   const recentList = document.getElementById("dashRecentSolvedList");
@@ -367,6 +411,7 @@ function renderArenaProgress() {
         let diffColor = "text-emerald-400 border-emerald-500/30 bg-emerald-500/10";
         if (item.difficulty === "Medium") diffColor = "text-medium border-medium/30 bg-medium/10";
         if (item.difficulty === "Hard") diffColor = "text-hard border-hard/30 bg-hard/10";
+        const acceptedBadge = item.runtime ? `✓ ${item.runtime}` : "✓ Solved";
 
         return `
           <div class="rounded-xl border border-white/5 bg-white/[0.02] frosted-panel p-3 flex flex-col justify-between hover:border-brand/30 transition">
@@ -375,7 +420,7 @@ function renderArenaProgress() {
               <span class="px-2 py-0.5 rounded text-[10px] font-mono border ${diffColor}">${item.difficulty}</span>
             </div>
             <div class="flex items-center justify-between mt-3 text-xs">
-              <span class="text-white/40 font-mono text-[11px]">✓ Verified</span>
+              <span class="text-white/40 font-mono text-[11px]">${acceptedBadge}</span>
               <a href="problem.html?id=${item.id}" class="text-brand-bright hover:underline font-mono text-xs">Review Code →</a>
             </div>
           </div>
@@ -398,6 +443,7 @@ function renderArenaProgress() {
       `).join("");
     }
   }
+});
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -409,6 +455,12 @@ document.addEventListener("DOMContentLoaded", () => {
   initScoreRings();
   initSmoothAnchors();
   renderScoreBreakdown();
+  renderDashboard();
+});
+
+// Module execution order can vary in dev; re-render real stats once the
+// window has fully loaded so numbers never stick at their placeholder.
+window.addEventListener("load", () => {
   renderDashboard();
 });
 

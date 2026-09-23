@@ -382,6 +382,9 @@ const SupabaseDB = {
   }
 };
 
-window.SupabaseDB = SupabaseDB;
+export function getSupabase() {
+  return SupabaseDB;
+}
 
-export default SupabaseDB;
+// The inline page scripts reach the client through this global.
+window.SupabaseDB = SupabaseDB;

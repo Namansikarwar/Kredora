@@ -59,6 +59,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <script type="module" src="js/supabase-client.js"></script>
+  <script type="module" src="js/user-stats.js"></script>
   <script type="module" src="js/auth.js"></script>
 </head>  <body class="min-h-screen bg-base text-white relative overflow-x-hidden">
 
@@ -145,15 +146,15 @@
 
         <div class="mt-8 flex flex-wrap gap-3">
           <span class="rounded-full border border-brand/20 bg-brand/10 px-3 py-1.5 text-xs text-brand-bright font-mono">
-            High confidence
+            Sample confidence
           </span>
 
-          <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/55 font-mono">
-            47 evidence items
+          <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/55 font-mono" id="chip-evidence">
+            0 accepted submissions
           </span>
 
-          <span class="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-xs text-emerald-400 font-mono">
-            Active streak
+          <span class="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-xs text-emerald-400 font-mono" id="chip-streak">
+            0-day streak
           </span>
         </div>
       </div>
@@ -166,13 +167,13 @@
 
         <div class="mx-auto mt-5 flex h-36 w-36 items-center justify-center rounded-full border-[8px] border-brand/30 bg-white/[0.02] frosted-panel">
           <div>
-            <div class="text-4xl font-bold text-brand-bright font-display">82</div>
+            <div class="text-4xl font-bold text-brand-bright font-display" id="skill-score-value">—</div>
             <div class="font-mono text-xs text-white/40">/ 100</div>
           </div>
         </div>
 
         <p class="mt-4 text-xs font-mono text-white/50">
-          Calculated from 5 verified factors
+          Sample data — per-user factors are not computed yet.
         </p>
       </div>
 
@@ -186,7 +187,7 @@
         </p>
 
         <h2 class="mt-2 text-2xl font-bold font-display">
-          Why your score is 82
+          Sample breakdown — not yet computed per user
         </h2>
       </div>
 
@@ -201,7 +202,7 @@
             <div class="h-full w-[90%] rounded-full bg-brand"></div>
           </div>
           <p class="mt-3 text-xs text-white/40 font-mono">
-            47 problems solved
+            47 problems solved (sample)
           </p>
         </div>
 
@@ -362,6 +363,24 @@
     </section>
 
   </main>
+
+  <script type="module">
+    // Real chips + score from the shared stats module (problem-solving is
+    // the one skill with a real backend source today).
+    (async () => {
+      try {
+        const stats = await window.UserStats.getUserStats();
+        const chipEv = document.getElementById("chip-evidence");
+        if (chipEv) chipEv.textContent = `${stats.submissions.length} accepted submissions`;
+        const chipStreak = document.getElementById("chip-streak");
+        if (chipStreak) chipStreak.textContent = `${stats.streakDays}-day streak`;
+        const score = document.getElementById("skill-score-value");
+        if (score) score.textContent = Math.min(100, stats.solvedTotal * 5);
+      } catch {
+        /* placeholders stay honest */
+      }
+    })();
+  </script>
 
 </body>
 </html>

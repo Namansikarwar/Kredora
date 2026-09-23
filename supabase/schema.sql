@@ -125,14 +125,20 @@ alter table public.problem_submissions force row level security;
 alter table public.user_progress        force row level security;
 
 -- Re-create policies idempotently
--- NO INSERT policy for clients: the run-submission Edge Function writes
--- rows using the service_role key, which bypasses RLS entirely. Clients
--- cannot forge submissions, runtime numbers, or pass counts.
--- NOTE: deliberately NO policy AT ALL for problem_submissions ->
--- select/insert/update/delete are all denied to anon+authenticated at the
--- Postgres level. Only the service_role key (Edge Function server-side)
--- reads and writes. The submission history surface reads from
--- profile_summaries instead.
+-- NO INSERT/UPDATE/DELETE policy for clients: the run-submission Edge
+-- Function writes rows using the service_role key, which bypasses RLS
+-- entirely. Clients cannot forge submissions, runtime numbers, or counts.
+-- SELECT: an authenticated user may read their OWN rows (user_id =
+-- auth.uid()). This backs the shared user-stats module (streak, verified
+-- points, solved counts) and the evidence page's submission records.
+-- Anon gets nothing; nobody can read another user's rows.
+
+drop policy if exists "submissions: owner reads own rows"
+  on public.problem_submissions;
+create policy "submissions: owner reads own rows"
+  on public.problem_submissions
+  for select to authenticated
+  using (auth.uid() = user_id);
 
 drop policy if exists "progress: owner reads own row"
   on public.user_progress;
@@ -164,13 +170,16 @@ select
            'Kredora Developer')               AS display_name,
   coalesce(pu.raw_user_meta_data ->> 'headline',
            'Developer proving skills on Kredora') AS headline,
-  (select count(*) from public.problem_submissions s
+  -- Distinct problems accepted (re-solving the same problem does not
+  -- inflate the score). Matches js/user-stats.js solvedTotal so the
+  -- profile page and client-side computation always agree.
+  (select count(distinct s.problem_id) from public.problem_submissions s
      where s.user_id = p.user_id and s.status = 'accepted') AS problems_solved,
   (select count(*) from public.problem_submissions s
      where s.user_id = p.user_id) AS total_submissions,
   -- Simple heuristic: 5 points per accepted problem, capped at 100.
   -- The app ships 21 problems, so solving all of them scores 100.
-  least(100, (select count(*) from public.problem_submissions s
+  least(100, (select count(distinct s.problem_id) from public.problem_submissions s
               where s.user_id = p.user_id and s.status = 'accepted') * 5) AS skill_score,
   p.updated_at AS last_active_at
 from public.user_progress p

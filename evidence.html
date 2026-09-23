@@ -60,6 +60,8 @@
   <link rel="stylesheet" href="css/style.css">
 
   <script type="module" src="js/supabase-client.js"></script>
+  <script type="module" src="js/user-stats.js"></script>
+  <script type="module" src="js/problems-data.js"></script>
   <script type="module" src="js/auth.js"></script>
   <script type="module">
     import "./js/supabase-client.js";
@@ -158,22 +160,22 @@
     <section class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       <div class="rounded-2xl border border-white/10 bg-surface2/80 frosted-panel p-6">
         <p class="text-xs font-mono uppercase tracking-wider text-white/40">Total evidence</p>
-        <p class="mt-2 text-3xl font-bold font-display" id="total-evidence-count">72</p>
+        <p class="mt-2 text-3xl font-bold font-display" id="total-evidence-count">0</p>
       </div>
 
       <div class="rounded-2xl border border-white/10 bg-surface2/80 frosted-panel p-6">
         <p class="text-xs font-mono uppercase tracking-wider text-white/40">Projects</p>
-        <p class="mt-2 text-3xl font-bold font-display text-cyan" id="total-projects-count">7</p>
+        <p class="mt-2 text-3xl font-bold font-display text-cyan" id="total-projects-count">0</p>
       </div>
 
       <div class="rounded-2xl border border-white/10 bg-surface2/80 frosted-panel p-6">
         <p class="text-xs font-mono uppercase tracking-wider text-white/40">Problems</p>
-        <p class="mt-2 text-3xl font-bold font-display text-brand-bright" id="total-problems-count">47</p>
+        <p class="mt-2 text-3xl font-bold font-display text-brand-bright" id="total-problems-count">0</p>
       </div>
 
       <div class="rounded-2xl border border-white/10 bg-surface2/80 frosted-panel p-6">
         <p class="text-xs font-mono uppercase tracking-wider text-white/40">Assessments</p>
-        <p class="mt-2 text-3xl font-bold font-display" id="total-assessments-count">6</p>
+        <p class="mt-2 text-3xl font-bold font-display" id="total-assessments-count">0</p>
       </div>
     </section>
 
@@ -194,6 +196,9 @@
     </section>
 
     <!-- EVIDENCE LIST -->
+    <!-- The four items below are STATIC EXAMPLE RECORDS so the page
+         demonstrates the layout without a backend. They are labeled
+         "Sample record" and excluded from the real counts above. -->
     <section id="evidenceList" class="space-y-4">
 
       <div data-type="problem" class="evidence-item flex flex-col justify-between gap-5 rounded-2xl border border-white/10 bg-surface2/80 frosted-panel p-6 transition hover:border-brand/30 md:flex-row md:items-center">
@@ -204,6 +209,9 @@
           <div>
             <div class="flex flex-wrap items-center gap-3">
               <h3 class="font-semibold text-white">Two Sum</h3>
+              <span class="rounded-full bg-white/5 border border-white/10 px-2.5 py-0.5 text-xs text-white/40 font-mono">
+                Sample record
+              </span>
               <span class="rounded-full bg-brand/10 border border-brand/20 px-2.5 py-0.5 text-xs text-brand-bright font-mono">
                 Coding Problem
               </span>
@@ -241,6 +249,9 @@
           <div>
             <div class="flex flex-wrap items-center gap-3">
               <h3 class="font-semibold text-white">Library Management System</h3>
+              <span class="rounded-full bg-white/5 border border-white/10 px-2.5 py-0.5 text-xs text-white/40 font-mono">
+                Sample record
+              </span>
               <span class="rounded-full bg-cyan/10 border border-cyan/20 px-2.5 py-0.5 text-xs text-cyan font-mono">
                 Project
               </span>
@@ -266,6 +277,9 @@
           <div>
             <div class="flex flex-wrap items-center gap-3">
               <h3 class="font-semibold text-white">Java OOP Assessment</h3>
+              <span class="rounded-full bg-white/5 border border-white/10 px-2.5 py-0.5 text-xs text-white/40 font-mono">
+                Sample record
+              </span>
               <span class="rounded-full bg-brand/10 border border-brand/20 px-2.5 py-0.5 text-xs text-brand-bright font-mono">
                 Assessment
               </span>
@@ -291,6 +305,9 @@
           <div>
             <div class="flex flex-wrap items-center gap-3">
               <h3 class="font-semibold text-white">Reverse Linked List</h3>
+              <span class="rounded-full bg-white/5 border border-white/10 px-2.5 py-0.5 text-xs text-white/40 font-mono">
+                Sample record
+              </span>
               <span class="rounded-full bg-brand/10 border border-brand/20 px-2.5 py-0.5 text-xs text-brand-bright font-mono">
                 Coding Problem
               </span>
@@ -406,6 +423,86 @@
   </div>
 
   <script>
+    // ------------------------------------------------------------------------
+    // Real evidence counts + user records (shared stats module) + persistence
+    // for user-added evidence in localStorage (skillproof_user_evidence).
+    // The static example cards carry a "Sample record" chip and are NOT
+    // counted in the stat cards below.
+    // ------------------------------------------------------------------------
+    async function loadEvidenceData() {
+      let stats = null;
+      try {
+        stats = await window.UserStats.getUserStats();
+      } catch {
+        stats = null;
+      }
+
+      let projects = 0;
+      let assessments = 0;
+      let userItems = [];
+      try {
+        userItems = JSON.parse(localStorage.getItem("skillproof_user_evidence") || "[]");
+      } catch {
+        userItems = [];
+      }
+      projects = userItems.filter((e) => e.type === "project").length;
+      assessments = userItems.filter((e) => e.type === "assessment").length;
+      const problems = stats ? stats.solvedTotal : 0;
+      const total = problems + projects + assessments;
+
+      const totalEl = document.getElementById("total-evidence-count");
+      if (totalEl) totalEl.textContent = total;
+      const projEl = document.getElementById("total-projects-count");
+      if (projEl) projEl.textContent = projects;
+      const probEl = document.getElementById("total-problems-count");
+      if (probEl) probEl.textContent = problems;
+      const asstEl = document.getElementById("total-assessments-count");
+      if (asstEl) asstEl.textContent = assessments;
+
+      // Render the user's accepted problem submissions as real records
+      if (stats && stats.submissions.length > 0) {
+        const list = document.getElementById("evidenceList");
+        const accepted = [...stats.submissions]
+          .filter((s) => s.status === "accepted" || s.status === "Accepted")
+          .sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt))
+          .slice(0, 5);
+        for (const s of accepted) {
+          const item = document.createElement("div");
+          item.setAttribute("data-type", "problem");
+          item.className = "evidence-item flex flex-col justify-between gap-5 rounded-2xl border border-brand/30 bg-surface2/80 frosted-panel p-6 transition hover:border-brand/50 md:flex-row md:items-center";
+          const when = s.submittedAt ? new Date(s.submittedAt).toLocaleDateString() : "recently";
+          item.innerHTML = `
+            <div class="flex gap-4">
+              <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand-bright font-mono font-bold">#</div>
+              <div>
+                <div class="flex flex-wrap items-center gap-3">
+                  <h3 class="font-semibold text-white">${s.problemTitle || s.problemId}</h3>
+                  <span class="rounded-full bg-brand/10 border border-brand/20 px-2.5 py-0.5 text-xs text-brand-bright font-mono">Coding Problem</span>
+                </div>
+                <p class="mt-1.5 text-sm text-white/50">Accepted on the server · ${s.language || "code"}${s.difficulty ? ` · ${s.difficulty}` : ""}${s.runtime ? ` · ${s.runtime}` : ""}</p>
+                <p class="mt-2 font-mono text-xs text-white/30">Submitted ${when}</p>
+              </div>
+            </div>
+            <div class="flex flex-col items-start md:items-end gap-2 self-start md:self-auto">
+              <span class="font-mono text-sm text-brand-bright bg-brand/10 px-3 py-1 rounded-full border border-brand/20">+${s.points || 2} evidence points</span>
+              ${s.recordId ? `
+              <button data-record-id="${s.recordId}" onclick="verifyEvidence(this)" title="Re-check that this record's stored history is unchanged." class="verify-btn inline-flex items-center gap-1.5 font-mono text-xs text-cyan hover:text-white transition disabled:opacity-50">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
+                <span class="verify-label">Verify chain</span>
+              </button>` : ""}
+            </div>`;
+          list.prepend(item);
+        }
+      }
+    }
+    // Kick off async load. getUserStats() self-heals: it force-loads the
+    // problem catalog on demand, so counts are correct even though this
+    // page doesn't include problems-data.js directly.
+    loadEvidenceData();
+    // Module execution order can vary in dev; re-render once the window
+    // has fully loaded so counts are always based on the complete catalog.
+    window.addEventListener("load", () => loadEvidenceData());
+
     function filterEvidence(type) {
       const items = document.querySelectorAll(".evidence-item");
       const buttons = document.querySelectorAll(".filter-btn");
@@ -538,9 +635,17 @@
       document.getElementById("evidenceModal").classList.add("hidden");
       document.getElementById("addEvidenceForm").reset();
 
-      // Bump count
-      const totalEl = document.getElementById("total-evidence-count");
-      if (totalEl) totalEl.textContent = Number(totalEl.textContent) + 1;
+      // Persist so the record survives reloads and shows on reload counts
+      try {
+        const stored = JSON.parse(localStorage.getItem("skillproof_user_evidence") || "[]");
+        stored.unshift({ id: "ev_" + Date.now(), type, name, skill, detail, timestamp: new Date().toISOString(), recordId: null });
+        localStorage.setItem("skillproof_user_evidence", JSON.stringify(stored));
+      } catch {
+        /* storage unavailable — the card still shows for this session */
+      }
+
+      // Recompute counts from the real sources instead of blind increment
+      loadEvidenceData();
     });
   </script>
 

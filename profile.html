@@ -62,6 +62,7 @@
     />
     <link rel="stylesheet" href="css/style.css" />
     <script type="module" src="js/supabase-client.js"></script>
+    <script type="module" src="js/user-stats.js"></script>
     <script type="module" src="js/auth.js"></script>
   </head>
 
@@ -169,9 +170,9 @@
               Overall skill score
             </p>
 
-            <div class="mt-2 text-5xl font-bold text-brand-bright font-display">79</div>
+            <div class="mt-2 text-5xl font-bold text-brand-bright font-display" id="profile-score">—</div>
 
-            <p class="font-mono text-xs text-white/30">/ 100</p>
+            <p class="font-mono text-xs text-white/30" id="profile-score-note">/ 100 · computed from accepted problems</p>
           </div>
         </div>
 
@@ -187,23 +188,23 @@
       <!-- STATS -->
       <section class="my-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div class="rounded-2xl border border-white/10 bg-[#111827]/80 frosted-panel p-6">
-          <p class="text-sm text-white/40 font-mono">Skills</p>
-          <p class="mt-2 text-3xl font-bold font-display">4</p>
+          <p class="text-sm text-white/40 font-mono">Solved</p>
+          <p class="mt-2 text-3xl font-bold font-display text-gold" id="stat-problems">0</p>
         </div>
 
         <div class="rounded-2xl border border-white/10 bg-[#111827]/80 frosted-panel p-6">
-          <p class="text-sm text-white/40 font-mono">Projects</p>
-          <p class="mt-2 text-3xl font-bold font-display text-cyan">7</p>
+          <p class="text-sm text-white/40 font-mono">Submissions</p>
+          <p class="mt-2 text-3xl font-bold font-display" id="stat-submissions">0</p>
         </div>
 
         <div class="rounded-2xl border border-white/10 bg-[#111827]/80 frosted-panel p-6">
-          <p class="text-sm text-white/40 font-mono">Problems</p>
-          <p class="mt-2 text-3xl font-bold font-display text-gold">47</p>
+          <p class="text-sm text-white/40 font-mono">Streak</p>
+          <p class="mt-2 text-3xl font-bold font-display" id="stat-streak">0</p>
         </div>
 
         <div class="rounded-2xl border border-white/10 bg-[#111827]/80 frosted-panel p-6">
-          <p class="text-sm text-white/40 font-mono">Evidence</p>
-          <p class="mt-2 text-3xl font-bold font-display">72</p>
+          <p class="text-sm text-white/40 font-mono">Verified pts</p>
+          <p class="mt-2 text-3xl font-bold font-display" id="stat-points">0</p>
         </div>
       </section>
 
@@ -217,6 +218,7 @@
           </p>
 
           <h2 class="mt-2 text-2xl font-bold font-display">What I can prove</h2>
+          <p class="mt-1 text-xs text-inkdim font-mono">Sample data — per-user skill scores are not computed yet.</p>
         </div>
 
         <div class="space-y-5">
@@ -382,6 +384,29 @@
         </div>
       </section>
     </main>
+
+    <script type="module">
+      // Real per-user numbers from the shared stats module.
+      (async () => {
+        try {
+          const stats = await window.UserStats.getUserStats();
+          const set = (id, value) => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = value;
+          };
+          set("stat-problems", stats.solvedTotal);
+          set("stat-submissions", stats.submissions.length);
+          set("stat-streak", stats.streakDays);
+          set("stat-points", stats.points);
+          // Same 5-points-per-accepted-problem heuristic as profile_summaries.
+          set("profile-score", Math.min(100, stats.solvedTotal * 5));
+          const note = document.getElementById("profile-score-note");
+          if (note) note.textContent = `/ 100 · ${stats.solvedTotal} accepted problems × 5`;
+        } catch {
+          /* stats unavailable — placeholders stay honest (— / 0) */
+        }
+      })();
+    </script>
 
     <script>
       document.addEventListener("DOMContentLoaded", () => {

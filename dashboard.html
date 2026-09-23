@@ -175,18 +175,18 @@
       <!-- ============ STATS STRIP ============ -->
       <div class="reveal grid grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         <div class="glass-card stat-card rounded-2xl p-6">
-          <p class="stat-card-label text-xs text-inkdim font-mono mb-2">Overall skill score</p>
+          <p class="stat-card-label text-xs text-inkdim font-mono mb-2">Verified points</p>
           <p class="font-display font-semibold text-3xl sm:text-4xl text-gold">
-            <span id="stat-overall-score" data-count-to="0">0</span><span class="text-base text-inkdim">/100</span>
+            <span id="stat-points" data-count-to="0">0</span><span class="text-base text-inkdim"> pts</span>
           </p>
         </div>
         <div class="glass-card stat-card rounded-2xl p-6">
-          <p class="stat-card-label text-xs text-inkdim font-mono mb-2">Skills tracked</p>
-          <p class="font-display font-semibold text-3xl sm:text-4xl text-white" id="stat-total-skills">0</p>
+          <p class="stat-card-label text-xs text-inkdim font-mono mb-2">Current streak</p>
+          <p class="font-display font-semibold text-3xl sm:text-4xl text-white"><span id="stat-streak">0</span><span class="text-base text-inkdim"> days</span></p>
         </div>
         <div class="glass-card stat-card rounded-2xl p-6 col-span-2 lg:col-span-1">
-          <p class="stat-card-label text-xs text-inkdim font-mono mb-2">Evidence records</p>
-          <p class="font-display font-semibold text-3xl sm:text-4xl text-white" id="stat-total-evidence" data-count-to="0">0</p>
+          <p class="stat-card-label text-xs text-inkdim font-mono mb-2">Problems solved</p>
+          <p class="font-display font-semibold text-3xl sm:text-4xl text-white"><span id="stat-solved">0</span><span class="text-base text-inkdim" id="stat-solved-total"> / 21</span></p>
         </div>
       </div>
 
@@ -225,12 +225,11 @@
       <section class="reveal glass-card rounded-2xl p-6 sm:p-10 mb-6">
         <div class="flex items-start justify-between flex-wrap gap-3 mb-8">
           <div>
-            <p class="text-xs text-inkdim font-mono mb-1">Skill Evidence Graph</p>
+            <p class="text-xs text-inkdim font-mono mb-1">Evidence by source</p>
             <h2 class="font-display font-semibold text-xl sm:text-2xl text-white">Every score traces back to real evidence</h2>
-          </div>
-          <span class="text-xs font-mono text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 px-2.5 py-1 rounded-full whitespace-nowrap">
-            Live from evidence log
-          </span>
+          </div>            <span class="text-xs font-mono text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 px-2.5 py-1 rounded-full whitespace-nowrap">
+              Your submissions
+            </span>
         </div>
 
         <!-- Evidence source totals -->
@@ -437,7 +436,8 @@
 
       <!-- ============ SKILL CARDS ============ -->
       <section class="reveal mb-6">
-        <h2 class="font-display font-semibold text-xl text-white mb-4">Your skills</h2>
+        <h2 class="font-display font-semibold text-xl text-white mb-1">Your skills</h2>
+        <p class="text-xs text-inkdim font-mono mb-4">Sample data — skill scores need a skills table to be computed per user.</p>
         <div id="skill-cards-grid" class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <!-- Populated by js/main.js from SKILLPROOF_DATA.skills -->
         </div>
@@ -449,20 +449,20 @@
         <section class="reveal glass-card rounded-2xl p-6">
           <h2 class="font-display font-semibold text-white mb-5">Recent Activity</h2>
           <div id="recent-activity-list" class="space-y-2.5">
-            <!-- Populated by js/main.js from SKILLPROOF_DATA.recentActivity -->
+            <p class="text-xs text-inkdim font-mono">Loading…</p>
           </div>
         </section>
 
         <section class="reveal glass-card rounded-2xl p-6">
           <h2 class="font-display font-semibold text-white mb-5">Recent Achievements</h2>
           <ul id="recent-achievements-list" class="space-y-4">
-            <!-- Populated by js/main.js from SKILLPROOF_DATA.recentAchievements -->
+            <li class="text-xs text-inkdim font-mono">Loading…</li>
           </ul>
         </section>
 
         <section class="reveal glass-card rounded-2xl p-6">
           <h2 class="font-display font-semibold text-white mb-1">Needs More Evidence</h2>
-          <p class="text-xs text-inkdim mb-5">The skill with the thinnest evidence trail right now.</p>
+          <p class="text-xs text-inkdim mb-5">Example based on the sample profile — per-user skill scores are not computed yet.</p>
           <div id="weak-area-content">
             <!-- Populated by js/main.js from SKILLPROOF_DATA.skills -->
           </div>
@@ -529,6 +529,7 @@
   </footer>
 
   <script type="module" src="js/data.js"></script>
+  <script type="module" src="js/user-stats.js"></script>
   <script type="module" src="js/main.js"></script>
   <script type="module">
     import "./js/supabase-client.js";
