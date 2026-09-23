@@ -216,9 +216,21 @@
             </p>
           </div>
         </div>
-        <span class="font-mono text-sm text-cyan bg-cyan/10 px-3 py-1 rounded-full border border-cyan/20 self-start md:self-auto">
-          +2 evidence points
-        </span>
+        <div class="flex flex-col items-start md:items-end gap-2 self-start md:self-auto">
+          <span class="font-mono text-sm text-cyan bg-cyan/10 px-3 py-1 rounded-full border border-cyan/20">
+            +2 evidence points
+          </span>
+          <!-- Hash-chain integrity check — detects edits/deletions in the
+               recorded history; not a correctness certificate. -->
+          <button
+            data-record-id="REPLACE_WITH_RECORD_ID"
+            onclick="verifyEvidence(this)"
+            title="Re-check that this record's stored history is unchanged."
+            class="verify-btn inline-flex items-center gap-1.5 font-mono text-xs text-cyan hover:text-white transition disabled:opacity-50">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
+            <span class="verify-label">Verify chain</span>
+          </button>
+        </div>
       </div>
 
       <div data-type="project" class="evidence-item flex flex-col justify-between gap-5 rounded-2xl border border-white/10 bg-surface2/80 frosted-panel p-6 transition hover:border-cyan/30 md:flex-row md:items-center">
@@ -291,9 +303,20 @@
             </p>
           </div>
         </div>
-        <span class="font-mono text-sm text-brand-bright bg-brand/10 px-3 py-1 rounded-full border border-brand/20 self-start md:self-auto">
-          +2 evidence points
-        </span>
+        <div class="flex flex-col items-start md:items-end gap-2 self-start md:self-auto">
+          <span class="font-mono text-sm text-brand-bright bg-brand/10 px-3 py-1 rounded-full border border-brand/20">
+            +2 evidence points
+          </span>
+          <!-- Problem-type items are backed by hash-chained submissions -->
+          <button
+            data-record-id="REPLACE_WITH_RECORD_ID"
+            onclick="verifyEvidence(this)"
+            title="Re-check that this record's stored history is unchanged."
+            class="verify-btn inline-flex items-center gap-1.5 font-mono text-xs text-cyan hover:text-white transition disabled:opacity-50">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
+            <span class="verify-label">Verify chain</span>
+          </button>
+        </div>
       </div>
 
     </section>
@@ -406,6 +429,56 @@
     }
     window.filterEvidence = filterEvidence;
 
+    // ------------------------------------------------------------------------
+    // Evidence integrity check. Calls the verify-record Edge Function, which
+    // recomputes the user's hash chain and reports whether the recorded
+    // history for a submission is unchanged. Honest framing: this DETECTS
+    // edits/deletions — it is not "cryptographic proof" and not immutability.
+    // ------------------------------------------------------------------------
+    async function verifyEvidence(button) {
+      const recordId = button.dataset.recordId;
+      const label = button.querySelector(".verify-label");
+      if (!recordId) {
+        button.title = "No server-graded submission record is linked yet. Solve a problem to create one.";
+        return;
+      }
+      button.disabled = true;
+      const original = label.textContent;
+      label.textContent = "Checking…";
+      try {
+        const res = await window.SupabaseDB.verifyRecord(recordId);
+        if (!res.ok) {
+          label.textContent = "Check failed";
+          button.title = res.error || "Verification request failed";
+        } else if (res.valid === true) {
+          label.textContent = "✓ Chain intact";
+          button.classList.remove("text-cyan");
+          button.classList.add("text-emerald-400");
+          button.title = "Recorded history unchanged since submission.";
+        } else if (res.valid === false) {
+          label.textContent = "⚠ Chain broken";
+          button.classList.remove("text-cyan");
+          button.classList.add("text-danger");
+          button.title = res.reason || "Record history could not be verified.";
+        } else {
+          label.textContent = "— Inconclusive";
+          button.title = res.reason || "Verification could not complete.";
+        }
+      } catch (e) {
+        label.textContent = "Check failed";
+        button.title = String((e && e.message) || e);
+      } finally {
+        button.disabled = false;
+        setTimeout(() => {
+          label.textContent = original;
+          button.classList.add("text-cyan");
+          button.classList.remove("text-emerald-400", "text-danger");
+          button.title = "Re-check that this record's stored history is unchanged.";
+        }, 6000);
+      }
+    }
+    window.verifyEvidence = verifyEvidence;
+
     // Add Evidence submit handler
     document.getElementById("addEvidenceForm").addEventListener("submit", function(e) {
       e.preventDefault();
@@ -443,9 +516,22 @@
             </p>
           </div>
         </div>
-        <span class="font-mono text-sm text-cyan bg-cyan/10 px-3 py-1 rounded-full border border-cyan/20 self-start md:self-auto">
-          ${pts}
-        </span>
+        <div class="flex flex-col items-start md:items-end gap-2 self-start md:self-auto">
+          <span class="font-mono text-sm text-cyan bg-cyan/10 px-3 py-1 rounded-full border border-cyan/20">
+            ${pts}
+          </span>
+          ${type === "problem" ? `
+          <!-- No server record id yet: the button appears once a verified
+               submission exists for this item -->
+          <button
+            data-record-id=""
+            onclick="verifyEvidence(this)"
+            title="No server-graded submission record is linked yet. Solve a problem to create one."
+            class="verify-btn inline-flex items-center gap-1.5 font-mono text-xs text-cyan hover:text-white transition disabled:opacity-50">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
+            <span class="verify-label">Verify chain</span>
+          </button>` : ""}
+        </div>
       `;
 
       list.prepend(newItem);

@@ -3,8 +3,8 @@
 // ============================================================================
 // Receives { problemId, language, code, fnName }, runs the code against the
 // test cases stored in public.problem_tests (service-role read, invisible to
-// clients), and writes an immutable row into public.problem_submissions
-// (service-role insert — clients can no longer INSERT by policy).
+// clients), and writes an append-only row into public.problem_submissions
+// (service-role insert — clients have no INSERT policy).
 //
 // Sandbox: Judge0 CE (self-hosted OR RapidAPI-hosted — configure via env).
 //   JUDGE0_URL   e.g. https://judge0-ce.p.rapidapi.com  or http://your-host:2358
@@ -22,6 +22,42 @@
 // ============================================================================
 
 import { createClient, type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+// ============================================================================
+// WHAT THE HASH CHAIN DOES AND DOES NOT PROTECT AGAINST
+// ============================================================================
+// On every ACCEPTED submission this function computes
+//   record_hash = sha256(canonical-json({user_id, problem_id, language,
+//                                        code, timestamp, previous_record_hash}))
+// where previous_record_hash is the record_hash of that user's previous
+// accepted submission ("" for the first). Rows also store the
+// previous_record_hash they were chained onto.
+//
+// DETECTS (tamper-EVIDENT):
+//  - editing any chained field of an accepted row (code, user, problem,
+//    timestamp...) -> recomputed hash no longer matches record_hash
+//  - deleting an accepted row inside a chain -> the next row's stored
+//    previous_record_hash points at a hash that no longer terminates any
+//    verifiable chain, and every later link fails recomputation
+//  - inserting a fake accepted row after the fact -> its previous_record_hash
+//    does not continue a real chain (or its hash was never computed under
+//    this scheme and the chain walk fails)
+//
+// DOES NOT PROTECT AGAINST:
+//  - the service role key holder / DBA rewriting the entire chain
+//    consistently (they can recompute all hashes and delete history) —
+//    mitigated only by keeping hashes mirrored OFF the database (an
+//    auditor/export could store every record_hash externally)
+//  - a legitimate user submitting wrong-but-passing code: the chain pins
+//    what was RECORDED, not whether the solution is good
+//  - the grading sandbox itself being compromised
+//  - denial-of-service or history truncation (deleting everything)
+//
+// Therefore: never describe this in the UI as "cryptographic proof" or
+// "immutable". Honest framing: "each record is hash-chained to the previous
+// one, so silent edits or deletions can be detected" — an integrity CHECK,
+// not a guarantee.
+// ============================================================================
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -489,8 +525,42 @@ Deno.serve(async (req) => {
     : "Wrong Answer";
   const dbStatus = allPassed ? "accepted" : compileErr || rte ? "error" : "failed";
 
-  // Immutable evidence row — service-role insert (clients have NO insert policy).
-  const { error: insertErr } = await sb.from("problem_submissions").insert({
+  // ---- Hash chain (accepted submissions only) ------------------------------
+  // record_hash = sha256(canonical({user_id, problem_id, language, code,
+  // timestamp, previous_record_hash})). See the security note at the top of
+  // this file for exactly what this does and does not protect against.
+  let recordHash: string | null = null;
+  let previousRecordHash: string | null = null;
+  if (allPassed && userId) {
+    // The user's previous ACCEPTED row, oldest -> newest; its record_hash is
+    // what we chain onto. Read-modify-write races could in theory link two
+    // rows to the same predecessor; verify-record treats the chain as a
+    // sequence by time, so any anomaly surfaces as an invalid link there.
+    const { data: prevRows } = await sb
+      .from("problem_submissions")
+      .select("record_hash")
+      .eq("user_id", userId)
+      .eq("status", "accepted")
+      .not("record_hash", "is", null)
+      .order("submitted_at", { ascending: false })
+      .limit(1);
+    previousRecordHash = (prevRows && prevRows[0]?.record_hash) || "";
+
+    // Canonical string — keys sorted, stable across JS/Deno runtimes.
+    const payload = JSON.stringify({
+      code,
+      language,
+      previous_record_hash: previousRecordHash,
+      problem_id: problemId,
+      timestamp: new Date().toISOString(),
+      user_id: userId,
+    });
+    const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(payload));
+    recordHash = Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
+  }
+
+  // Evidence row — service-role insert (clients have NO insert policy).
+  const { data: inserted, error: insertErr } = await sb.from("problem_submissions").insert({
     user_id: userId,
     problem_id: problemId,
     language,
@@ -500,7 +570,9 @@ Deno.serve(async (req) => {
     memory: `${maxMemoryMb} MB`,
     passed_tests: passedCount,
     total_tests: totalCount,
-  });
+    record_hash: recordHash,
+    previous_record_hash: previousRecordHash,
+  }).select("id").single();
   if (insertErr) console.warn("submission insert failed:", insertErr.message);
 
   return json({
@@ -511,6 +583,11 @@ Deno.serve(async (req) => {
     totalCount,
     runtime: `${totalRuntimeMs} ms`,
     memory: `${maxMemoryMb} MB`,
+    // Id of the stored evidence row (present when the insert succeeded).
+    // Clients may display it and hand it to verify-record; they can neither
+    // forge nor alter the row it refers to.
+    recordId: inserted?.id ?? null,
+    recordHash,
     testResults: outcomes,
   });
 });

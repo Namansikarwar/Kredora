@@ -1111,7 +1111,8 @@ create policy "Allow upsert user progress" on public.user_progress for all using
               memory: result.memory,
               language: currentLang,
               code: userCode,
-              verifiedServerSide: !result.gradedLocally
+              verifiedServerSide: !result.gradedLocally,
+              recordId: result.recordId || null
             });
 
             // Update badge on header

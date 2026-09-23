@@ -222,6 +222,78 @@ const SupabaseDB = {
     }
   },
 
+  // ------------------------------------------------------------------------
+  // Evidence integrity check (tamper-EVIDENT, not tamper-proof)
+  // ------------------------------------------------------------------------
+  // Ask the verify-record Edge Function to recompute the hash chain for one
+  // stored submission. "valid" means nothing in that record's history has
+  // been silently edited or deleted since it was written. It is an
+  // integrity CHECK — it does not certify the solution's correctness and
+  // cannot protect against a full database rewrite. Keep UI copy factual.
+  async verifyRecord(recordId) {
+    const client = await this.init();
+    if (!client) {
+      return { ok: false, error: "Not connected. Add VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY (or connect a project from the Problem page)." };
+    }
+    if (!recordId) return { ok: false, error: "No submission record id to verify." };
+    const { url, anonKey } = this.getConfig();
+    try {
+      const headers = { "Content-Type": "application/json", "apikey": anonKey };
+      try {
+        const { data } = await client.auth.getSession();
+        if (data && data.session && data.session.access_token) {
+          headers["Authorization"] = `Bearer ${data.session.access_token}`;
+        }
+      } catch (e) { /* anon is fine */ }
+
+      const res = await fetch(`${url.replace(/\/$/, "")}/functions/v1/verify-record`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ recordId }),
+      });
+      const payload = await res.json().catch(() => ({}));
+      if (!res.ok || payload.ok === false) {
+        return { ok: false, error: payload.error || `Function error (HTTP ${res.status})` };
+      }
+      return payload; // { ok, valid, checkable, reason?, note? }
+    } catch (e) {
+      return { ok: false, error: String((e && e.message) || e) };
+    }
+  },
+
+  // Profile-level convenience: verify the user's MOST RECENT hash-chained
+  // submission. The Edge Function resolves the newest accepted record and
+  // walks the chain — the client never needs read access to the base table.
+  async verifyLatestRecord() {
+    const client = await this.init();
+    if (!client) {
+      return { ok: false, error: "Not connected. Add VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY (or connect a project from the Problem page)." };
+    }
+    const { url, anonKey } = this.getConfig();
+    try {
+      const headers = { "Content-Type": "application/json", "apikey": anonKey };
+      try {
+        const { data } = await client.auth.getSession();
+        if (data && data.session && data.session.access_token) {
+          headers["Authorization"] = `Bearer ${data.session.access_token}`;
+        }
+      } catch (e) { /* anon is fine */ }
+
+      const res = await fetch(`${url.replace(/\/$/, "")}/functions/v1/verify-record`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ latestForUser: true }),
+      });
+      const payload = await res.json().catch(() => ({}));
+      if (!res.ok || payload.ok === false) {
+        return { ok: false, error: payload.error || `Function error (HTTP ${res.status})` };
+      }
+      return payload;
+    } catch (e) {
+      return { ok: false, error: String((e && e.message) || e) };
+    }
+  },
+
   /**
    * Read the public portfolio view for one developer.
    * profile_summaries is the ONLY anon-readable surface (see schema.sql):

@@ -360,12 +360,25 @@
             </p>
           </div>
 
-          <a
-            href="evidence.html"
-            class="shrink-0 rounded-lg bg-brand text-white px-5 py-2.5 text-sm font-semibold hover:bg-brand-bright transition-colors"
-          >
-            View evidence
-          </a>
+          <div class="flex flex-col items-start md:items-end gap-3 shrink-0">
+            <a
+              href="evidence.html"
+              class="rounded-lg bg-brand text-white px-5 py-2.5 text-sm font-semibold hover:bg-brand-bright transition-colors"
+            >
+              View evidence
+            </a>
+            <!-- Integrity check on this developer's recorded submission
+                 history. Detects post-hoc edits/deletions; it is not a
+                 correctness certificate or an immutability guarantee. -->
+            <button
+              id="verifyProfileChainBtn"
+              title="Re-check that the recorded submission history behind this profile is unchanged."
+              class="inline-flex items-center gap-1.5 font-mono text-xs text-cyan hover:text-white transition disabled:opacity-50"
+            >
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
+              <span id="verifyProfileChainLabel">Verify evidence chain</span>
+            </button>
+          </div>
         </div>
       </section>
     </main>
@@ -394,6 +407,75 @@
         }, 2000);
       }
       window.copyProfileLink = copyProfileLink;
+
+      // ----------------------------------------------------------------------
+      // Profile-level evidence integrity check. Asks the verify-record Edge
+      // Function to walk this developer's hash chain and report whether the
+      // recorded submission history is unchanged. Honest framing: this
+      // DETECTS edits or deletions — it is not "cryptographic proof" and not
+      // immutability, and it says nothing about solution quality.
+      // ----------------------------------------------------------------------
+      async function verifyProfileChain() {
+        const btn = document.getElementById("verifyProfileChainBtn");
+        const label = document.getElementById("verifyProfileChainLabel");
+        if (!btn || !label) return;
+
+        btn.disabled = true;
+        label.textContent = "Checking…";
+        try {
+          // Pull the most recent accepted, hash-chained submission record id
+          // for the signed-in Supabase Auth user and verify its chain.
+          const db = window.SupabaseDB;
+          const userId = await db.getAuthUserId();
+          if (!userId) {
+            label.textContent = "— Sign in to verify";
+            btn.title = "Evidence chains exist for records graded on the server while signed in.";
+            return;
+          }
+          const client = await db.init();
+          const { data, error } = await client
+            .from("profile_summaries")
+            .select("profile_id")
+            .eq("profile_id", userId)
+            .maybeSingle();
+          if (error || !data) {
+            label.textContent = "— No records yet";
+            btn.title = "No server-graded submissions exist for this profile yet.";
+            return;
+          }
+          // profile_summaries exposes counts only — fetch the newest record id
+          // through the Edge Function instead of the locked base table.
+          const res = await db.verifyLatestRecord();
+          if (!res.ok) {
+            label.textContent = "Check failed";
+            btn.title = res.error || "Verification request failed.";
+            return;
+          }
+          if (res.valid === true) {
+            label.textContent = "✓ Chain intact";
+            btn.classList.remove("text-cyan");
+            btn.classList.add("text-emerald-400");
+            btn.title = "Recorded submission history unchanged since grading.";
+          } else if (res.valid === false) {
+            label.textContent = "⚠ Chain broken";
+            btn.classList.remove("text-cyan");
+            btn.classList.add("text-danger");
+            btn.title = res.reason || "Record history could not be verified.";
+          } else {
+            label.textContent = "— Inconclusive";
+            btn.title = res.reason || "Verification could not complete.";
+          }
+        } catch (e) {
+          label.textContent = "Check failed";
+          btn.title = String((e && e.message) || e);
+        } finally {
+          btn.disabled = false;
+        }
+      }
+      window.verifyProfileChain = verifyProfileChain;
+
+      const verifyBtn = document.getElementById("verifyProfileChainBtn");
+      if (verifyBtn) verifyBtn.addEventListener("click", verifyProfileChain);
     </script>
   </body>
 </html>

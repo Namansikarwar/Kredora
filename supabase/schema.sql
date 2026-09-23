@@ -7,9 +7,13 @@
 -- Design:
 --   * RLS enabled on every table. Without a Supabase Auth session the anon
 --     role sees ZERO rows from the base tables.
---   * problem_submissions is INSERT-ONLY from clients: no UPDATE or DELETE
---     policy exists, so even the row owner cannot alter or erase evidence
---     after the fact. This is the "proof, not claims" guarantee.
+--   * problem_submissions has NO client policies at all: no INSERT, UPDATE,
+--     or DELETE. Only the run-submission Edge Function (service role) writes
+--     rows, so the browser cannot forge submissions, verdicts, or counts.
+--     Accepted rows are hash-chained (see record_hash below) so that edits
+--     or deletions AFTER the fact can be detected by anyone holding a
+--     record id. This is tamper-EVIDENT, not tamper-PROOF: it does not
+--     protect against someone who can rewrite the whole database.
 --   * user_progress is readable and writable only by its owner.
 --   * profile_summaries is the only anon-readable surface: a curated view
 --     with display fields only (no emails, no code, no raw user ids).
@@ -36,11 +40,23 @@ create table if not exists public.problem_submissions (
   memory        text,
   passed_tests  integer not null default 0 check (passed_tests >= 0),
   total_tests   integer not null default 0 check (total_tests >= 0),
-  submitted_at  timestamptz not null default now()
+  submitted_at          timestamptz not null default now(),
+  -- Hash chain (accepted submissions only — see run-submission function):
+  --   record_hash = sha256(canonical json of {user_id, problem_id, language,
+  --     code, timestamp, previous_record_hash})
+  -- previous_record_hash links to the user's previous ACCEPTED row ("") for
+  -- the first one. Verifying recomputes the whole chain: any edit to a
+  -- chained field, or any deletion inside the chain, makes every later
+  -- hash mismatch. It does NOT protect against a full database rewrite by
+  -- someone with service-role/DBA access, and it is not a certificate of
+  -- correctness — only of what was recorded. NULL for failed submissions
+  -- and for anonymous (user_id IS NULL) submissions.
+  record_hash           text,
+  previous_record_hash  text
 );
 
 comment on table public.problem_submissions is
-  'Append-only record of every code submission. Written ONLY by the run-submission Edge Function (service role). No client INSERT/UPDATE/DELETE policies: submissions are tamper-proof evidence.';
+  'Append-only record of every code submission. Written ONLY by the run-submission Edge Function (service role). No client INSERT/UPDATE/DELETE policies. Accepted rows carry a sha256 hash chained to the user\'s previous accepted row (record_hash/previous_record_hash) so post-hoc edits or deletions are detectable via the verify-record function. Tamper-evident, NOT tamper-proof: does not protect against full rewrites by the service role or a DBA, and hashes pin recorded content, not correctness.';
 
 -- ----------------------------------------------------------------------------
 -- 1b. problem_tests — HIDDEN test cases, server-side only
@@ -190,6 +206,9 @@ create index if not exists idx_problem_submissions_user_status
   on public.problem_submissions (user_id, status);
 create index if not exists idx_problem_submissions_submitted_at
   on public.problem_submissions (submitted_at desc);
+-- Chain walk order for verify-record (per-user, oldest first):
+create index if not exists idx_problem_submissions_user_time
+  on public.problem_submissions (user_id, submitted_at);
 -- user_progress.user_id is the primary key already; nothing extra needed.
 
 -- ----------------------------------------------------------------------------
@@ -201,9 +220,10 @@ create index if not exists idx_problem_submissions_submitted_at
 -- ...but the public profile view still works:
 --   select display_name, skill_score from public.profile_summaries limit 5;
 
--- As an authenticated user (session from the app), INSERT should succeed:
---   insert into public.problem_submissions (user_id, problem_id)
---   values (auth.uid(), 'two-sum');            -- ok
+-- As an authenticated user (session from the app), ALL access should fail:
+--   select * from public.problem_submissions;  -- permission denied (no grants)
+--   insert into public.problem_submissions ... -- permission denied (no grants)
 --
--- ...but UPDATE / DELETE should fail with "new row violates row-level
+-- A service-role connection (Edge Functions only) reads/writes freely.
+-- UPDATE / DELETE attempts from clients fail with "new row violates row-level
 -- security" / "permission denied" because no policy covers those verbs.

@@ -1490,6 +1490,10 @@ const ProgressTracker = {
         detail: `Solved in ${submission.runtime} · ${problem.difficulty} · ${problem.category}`,
         timestamp: "Just now",
         verified: true,
+        // Id of the server-graded problem_submissions row (when the submit
+        // was graded by the run-submission Edge Function). Lets the Verify
+        // buttons on evidence.html re-check the record's hash chain.
+        recordId: submission.recordId || null,
         points: problem.points || 2
       };
 
