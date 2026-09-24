@@ -9,12 +9,18 @@
   const LEGACY_USER_KEY = "skillproof_demo_user";
   const LEGACY_LOGGED_IN_KEY = "skillproof_demo_logged_in";
 
+  // Demo seed emails use the domain from the site config (js/site-config.js)
+  // — never a hardcoded project domain. Defaults to the IETF-reserved
+  // example.com when the config module hasn't loaded yet.
+  const EMAIL_DOMAIN =
+    (window.KredoraSiteConfig && window.KredoraSiteConfig.emailDomain) || "example.com";
+
   // Pre-seeded demo account so testing login works instantly
   const DEFAULT_USERS = [
     {
       username: "naman",
       name: "Naman Rathi",
-      email: "naman@skillproof.me",
+      email: `naman@${EMAIL_DOMAIN}`,
       password: "password123",
       role: "student",
       createdAt: "2026-09-01",
@@ -22,7 +28,7 @@
     {
       username: "demo",
       name: "Demo Student",
-      email: "demo@skillproof.me",
+      email: `demo@${EMAIL_DOMAIN}`,
       password: "password123",
       role: "student",
       createdAt: "2026-09-10",

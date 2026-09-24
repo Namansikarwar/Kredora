@@ -413,7 +413,7 @@
             <h3 class="font-display font-semibold text-xl text-white mb-5">For students</h3>
             <ul class="space-y-4 text-sm text-inkdim">
               <li class="flex gap-3"><span class="text-gold mt-0.5">＋</span>Show a score that updates as you actually improve, instead of a static resume bullet.</li>
-              <li class="flex gap-3"><span class="text-gold mt-0.5">＋</span>One link — skillproof.me/you — replaces a pile of certificates no one opens.</li>
+              <li class="flex gap-3"><span class="text-gold mt-0.5">＋</span>One link — <span id="site-profile-url">your public profile link</span> — replaces a pile of certificates no one opens.</li>
               <li class="flex gap-3"><span class="text-gold mt-0.5">＋</span>See exactly where your evidence is thin, and what to work on next.</li>
             </ul>
           </div>
@@ -499,8 +499,20 @@
 
   <script type="module" src="js/supabase-client.js"></script>
   <script type="module" src="js/data.js"></script>
+  <script type="module" src="js/site-config.js"></script>
   <script type="module" src="js/auth.js"></script>
   <script type="module" src="js/main.js"></script>
+  <script>
+    // Marketing copy that names the public profile URL comes from the site
+    // config (js/site-config.js) — the one place the domain is defined.
+    document.addEventListener("DOMContentLoaded", () => {
+      const cfg = window.KredoraSiteConfig;
+      if (cfg) {
+        const el = document.getElementById("site-profile-url");
+        if (el) el.textContent = cfg.profileUrl.replace(/^https:\/\//, "");
+      }
+    });
+  </script>
   <script>
     // Update CTAs if already logged in
     document.addEventListener("DOMContentLoaded", () => {
