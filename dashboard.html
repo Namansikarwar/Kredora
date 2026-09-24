@@ -269,40 +269,40 @@
             <path class="graph-flow-line" vector-effect="non-scaling-stroke" stroke="#7C5CFC" stroke-opacity="0.55" stroke-width="1.5" fill="none" d="M86 20 Q 68 55 50 82" />
           </svg>
 
-          <div class="absolute flex flex-col items-center" style="left:14%; top:20%; transform:translate(-50%,-50%)" data-skill-ring="java">
+          <div class="absolute flex flex-col items-center" style="left:14%; top:20%; transform:translate(-50%,-50%)" data-ring-slot="0">
             <div class="score-ring w-16 h-16 rounded-full grid place-items-center" data-score-ring="0">
               <div class="score-ring-inner w-[52px] h-[52px] rounded-full grid place-items-center">
                 <span class="font-display font-semibold text-sm text-white" data-skill-score data-count-to="0">0</span>
               </div>
             </div>
-            <p class="text-xs text-inkdim mt-2">Java</p>
+            <p class="text-xs text-inkdim mt-2" data-ring-label>—</p>
           </div>
 
-          <div class="absolute flex flex-col items-center" style="left:38%; top:20%; transform:translate(-50%,-50%)" data-skill-ring="javascript">
+          <div class="absolute flex flex-col items-center" style="left:38%; top:20%; transform:translate(-50%,-50%)" data-ring-slot="1">
             <div class="score-ring w-16 h-16 rounded-full grid place-items-center" data-score-ring="0">
               <div class="score-ring-inner w-[52px] h-[52px] rounded-full grid place-items-center">
                 <span class="font-display font-semibold text-sm text-white" data-skill-score data-count-to="0">0</span>
               </div>
             </div>
-            <p class="text-xs text-inkdim mt-2">JavaScript</p>
+            <p class="text-xs text-inkdim mt-2" data-ring-label>—</p>
           </div>
 
-          <div class="absolute flex flex-col items-center" style="left:62%; top:20%; transform:translate(-50%,-50%)" data-skill-ring="sql">
+          <div class="absolute flex flex-col items-center" style="left:62%; top:20%; transform:translate(-50%,-50%)" data-ring-slot="2">
             <div class="score-ring w-16 h-16 rounded-full grid place-items-center" data-score-ring="0">
               <div class="score-ring-inner w-[52px] h-[52px] rounded-full grid place-items-center">
                 <span class="font-display font-semibold text-sm text-white" data-skill-score data-count-to="0">0</span>
               </div>
             </div>
-            <p class="text-xs text-inkdim mt-2">SQL</p>
+            <p class="text-xs text-inkdim mt-2" data-ring-label>—</p>
           </div>
 
-          <div class="absolute flex flex-col items-center" style="left:86%; top:20%; transform:translate(-50%,-50%)" data-skill-ring="mongodb">
+          <div class="absolute flex flex-col items-center" style="left:86%; top:20%; transform:translate(-50%,-50%)" data-ring-slot="3">
             <div class="score-ring w-16 h-16 rounded-full grid place-items-center" data-score-ring="0">
               <div class="score-ring-inner w-[52px] h-[52px] rounded-full grid place-items-center">
                 <span class="font-display font-semibold text-sm text-white" data-skill-score data-count-to="0">0</span>
               </div>
             </div>
-            <p class="text-xs text-inkdim mt-2">MongoDB</p>
+            <p class="text-xs text-inkdim mt-2" data-ring-label>—</p>
           </div>
 
           <div class="absolute flex flex-col items-center" style="left:50%; top:82%; transform:translate(-50%,-50%)">
@@ -317,39 +317,8 @@
 
         <!-- Mobile fallback -->
         <div class="sm:hidden space-y-6">
-          <div class="grid grid-cols-2 gap-4">
-            <div class="flex flex-col items-center" data-skill-ring="java">
-              <div class="score-ring w-16 h-16 rounded-full grid place-items-center" data-score-ring="0">
-                <div class="score-ring-inner w-[52px] h-[52px] rounded-full grid place-items-center">
-                  <span class="font-display font-semibold text-sm text-white" data-skill-score data-count-to="0">0</span>
-                </div>
-              </div>
-              <p class="text-xs text-inkdim mt-2">Java</p>
-            </div>
-            <div class="flex flex-col items-center" data-skill-ring="javascript">
-              <div class="score-ring w-16 h-16 rounded-full grid place-items-center" data-score-ring="0">
-                <div class="score-ring-inner w-[52px] h-[52px] rounded-full grid place-items-center">
-                  <span class="font-display font-semibold text-sm text-white" data-skill-score data-count-to="0">0</span>
-                </div>
-              </div>
-              <p class="text-xs text-inkdim mt-2">JavaScript</p>
-            </div>
-            <div class="flex flex-col items-center" data-skill-ring="sql">
-              <div class="score-ring w-16 h-16 rounded-full grid place-items-center" data-score-ring="0">
-                <div class="score-ring-inner w-[52px] h-[52px] rounded-full grid place-items-center">
-                  <span class="font-display font-semibold text-sm text-white" data-skill-score data-count-to="0">0</span>
-                </div>
-              </div>
-              <p class="text-xs text-inkdim mt-2">SQL</p>
-            </div>
-            <div class="flex flex-col items-center" data-skill-ring="mongodb">
-              <div class="score-ring w-16 h-16 rounded-full grid place-items-center" data-score-ring="0">
-                <div class="score-ring-inner w-[52px] h-[52px] rounded-full grid place-items-center">
-                  <span class="font-display font-semibold text-sm text-white" data-skill-score data-count-to="0">0</span>
-                </div>
-              </div>
-              <p class="text-xs text-inkdim mt-2">MongoDB</p>
-            </div>
+          <div class="grid grid-cols-2 gap-4" id="ring-slots-mobile">
+            <!-- Populated by js/main.js from the user's real categories -->
           </div>
           <div class="flex justify-center">
             <div class="score-ring w-28 h-28 rounded-full grid place-items-center" data-overall-ring data-score-ring="0">
@@ -437,7 +406,7 @@
       <!-- ============ SKILL CARDS ============ -->
       <section class="reveal mb-6">
         <h2 class="font-display font-semibold text-xl text-white mb-1">Your skills</h2>
-        <p class="text-xs text-inkdim font-mono mb-4">Sample data — skill scores need a skills table to be computed per user.</p>
+        <p class="text-xs text-inkdim font-mono mb-4">Computed from your accepted submissions by problem category — scores appear as you attempt problems.</p>
         <div id="skill-cards-grid" class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <!-- Populated by js/main.js from SKILLPROOF_DATA.skills -->
         </div>
@@ -462,7 +431,7 @@
 
         <section class="reveal glass-card rounded-2xl p-6">
           <h2 class="font-display font-semibold text-white mb-1">Needs More Evidence</h2>
-          <p class="text-xs text-inkdim mb-5">Example based on the sample profile — per-user skill scores are not computed yet.</p>
+          <p class="text-xs text-inkdim mb-5">Your weakest attempted category, from your own submission record.</p>
           <div id="weak-area-content">
             <!-- Populated by js/main.js from SKILLPROOF_DATA.skills -->
           </div>

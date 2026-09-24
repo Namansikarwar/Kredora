@@ -218,84 +218,11 @@
           </p>
 
           <h2 class="mt-2 text-2xl font-bold font-display">What I can prove</h2>
-          <p class="mt-1 text-xs text-inkdim font-mono">Sample data — per-user skill scores are not computed yet.</p>
+          <p class="mt-1 text-xs text-inkdim font-mono">Scores computed from accepted submissions by problem category — a skill appears here once you attempt a problem in it.</p>
         </div>
 
-        <div class="space-y-5">
-          <!-- JAVA -->
-          <a
-            href="skill.html"
-            class="block rounded-2xl border border-white/10 bg-white/[0.02] frosted-panel p-5 transition hover:border-brand/50 group"
-          >
-            <div class="flex items-center justify-between">
-              <div>
-                <h3 class="font-semibold group-hover:text-brand-bright transition-colors font-display text-lg">Java</h3>
-                <p class="mt-1 text-sm text-white/40 font-mono">
-                  47 problems · 3 projects · 4 assessments
-                </p>
-              </div>
-
-              <span class="font-mono text-2xl font-bold text-brand-bright"> 82 </span>
-            </div>
-
-            <div class="mt-4 h-2 rounded-full bg-white/5 overflow-hidden">
-              <div class="h-full w-[82%] rounded-full bg-gradient-to-r from-cyan to-brand"></div>
-            </div>
-          </a>
-
-          <!-- JAVASCRIPT -->
-          <div class="rounded-2xl border border-white/10 bg-white/[0.02] frosted-panel p-5">
-            <div class="flex items-center justify-between">
-              <div>
-                <h3 class="font-semibold font-display text-lg">JavaScript</h3>
-                <p class="mt-1 text-sm text-white/40 font-mono">
-                  39 problems · 4 projects · 2 assessments
-                </p>
-              </div>
-
-              <span class="font-mono text-2xl font-bold text-cyan"> 76 </span>
-            </div>
-
-            <div class="mt-4 h-2 rounded-full bg-white/5 overflow-hidden">
-              <div class="h-full w-[76%] rounded-full bg-gradient-to-r from-cyan to-brand"></div>
-            </div>
-          </div>
-
-          <!-- SQL -->
-          <div class="rounded-2xl border border-white/10 bg-white/[0.02] frosted-panel p-5">
-            <div class="flex items-center justify-between">
-              <div>
-                <h3 class="font-semibold font-display text-lg">SQL</h3>
-                <p class="mt-1 text-sm text-white/40 font-mono">
-                  28 problems · 2 projects · 3 assessments
-                </p>
-              </div>
-
-              <span class="font-mono text-2xl font-bold text-brand-bright"> 88 </span>
-            </div>
-
-            <div class="mt-4 h-2 rounded-full bg-white/5 overflow-hidden">
-              <div class="h-full w-[88%] rounded-full bg-gradient-to-r from-cyan to-brand"></div>
-            </div>
-          </div>
-
-          <!-- MONGODB -->
-          <div class="rounded-2xl border border-white/10 bg-white/[0.02] frosted-panel p-5">
-            <div class="flex items-center justify-between">
-              <div>
-                <h3 class="font-semibold font-display text-lg">MongoDB</h3>
-                <p class="mt-1 text-sm text-white/40 font-mono">
-                  17 activities · 2 projects
-                </p>
-              </div>
-
-              <span class="font-mono text-2xl font-bold text-cyan"> 71 </span>
-            </div>
-
-            <div class="mt-4 h-2 rounded-full bg-white/5 overflow-hidden">
-              <div class="h-full w-[71%] rounded-full bg-gradient-to-r from-cyan to-brand"></div>
-            </div>
-          </div>
+        <div id="profile-skills-list" class="space-y-5">
+          <p class="text-xs text-inkdim font-mono">Loading your skills…</p>
         </div>
       </section>
 
@@ -313,28 +240,8 @@
           </h2>
         </div>
 
-        <div class="grid gap-4 md:grid-cols-2">
-          <div class="rounded-2xl border border-white/10 p-5 bg-white/[0.01] frosted-panel">
-            <div class="flex items-center justify-between">
-              <h3 class="font-semibold font-display text-base">Portfolio Website</h3>
-              <span class="text-xs font-mono px-2 py-0.5 rounded bg-cyan/10 text-cyan border border-cyan/20">Web</span>
-            </div>
-
-            <p class="mt-3 text-sm leading-6 text-white/40">
-              Responsive personal portfolio demonstrating HTML, CSS and JavaScript development.
-            </p>
-          </div>
-
-          <div class="rounded-2xl border border-white/10 p-5 bg-white/[0.01] frosted-panel">
-            <div class="flex items-center justify-between">
-              <h3 class="font-semibold font-display text-base">Library Management System</h3>
-              <span class="text-xs font-mono px-2 py-0.5 rounded bg-gold/10 text-gold border border-gold/20">Java</span>
-            </div>
-
-            <p class="mt-3 text-sm leading-6 text-white/40">
-              A practical management application demonstrating programming and database concepts.
-            </p>
-          </div>
+        <div id="profile-projects-grid" class="grid gap-4 md:grid-cols-2">
+          <p class="text-xs text-inkdim font-mono md:col-span-2">Loading your evidence…</p>
         </div>
       </section>
 
@@ -401,7 +308,69 @@
           // Same 5-points-per-accepted-problem heuristic as profile_summaries.
           set("profile-score", Math.min(100, stats.solvedTotal * 5));
           const note = document.getElementById("profile-score-note");
-          if (note) note.textContent = `/ 100 · ${stats.solvedTotal} accepted problems × 5`;
+          if (note) note.textContent = `/ 100 · ${stats.solvedTotal} accepted problem${stats.solvedTotal === 1 ? "" : "s"} × 5`;
+
+          // Skills — real per-category scores from the user's submissions.
+          const skillsList = document.getElementById("profile-skills-list");
+          if (skillsList) {
+            const skills = stats.skillBreakdown || [];
+            if (skills.length === 0) {
+              skillsList.innerHTML = `
+                <p class="text-xs text-inkdim font-mono">No skills to show yet — attempt a problem in the Arena and its category appears here with a real score.</p>`;
+            } else {
+              skillsList.innerHTML = skills
+                .map(
+                  (s) => `
+              <a
+                href="skill.html#${s.id}"
+                class="block rounded-2xl border border-white/10 bg-white/[0.02] frosted-panel p-5 transition hover:border-brand/50 group"
+              >
+                <div class="flex items-center justify-between">
+                  <div>
+                    <h3 class="font-semibold group-hover:text-brand-bright transition-colors font-display text-lg">${s.name}</h3>
+                    <p class="mt-1 text-sm text-white/40 font-mono">
+                      ${s.solved} solved${s.attempted > s.solved ? ` · ${s.attempted} attempted` : ""}
+                    </p>
+                  </div>
+                  <span class="font-mono text-2xl font-bold ${s.score >= 60 ? "text-brand-bright" : "text-cyan"}> ${s.score} </span>
+                </div>
+                <div class="mt-4 h-2 rounded-full bg-white/5 overflow-hidden">
+                  <div class="h-full rounded-full bg-gradient-to-r from-cyan to-brand" style="width:${s.score}%"></div>
+                </div>
+              </a>`
+                )
+                .join("");
+            }
+          }
+
+          // Projects & assessments — the user's own evidence records.
+          const projectsGrid = document.getElementById("profile-projects-grid");
+          if (projectsGrid) {
+            const evidence = window.UserStats.getUserEvidence(stats)
+              .filter((e) => e.type === "project" || e.type === "assessment");
+            if (evidence.length === 0) {
+              projectsGrid.innerHTML = `
+                <p class="text-xs text-inkdim font-mono md:col-span-2">No projects or assessments logged yet — add them from the Evidence page and they appear here.</p>`;
+            } else {
+              const badgeClass = (type) =>
+                type === "project"
+                  ? "bg-cyan/10 text-cyan border-cyan/20"
+                  : "bg-gold/10 text-gold border-gold/20";
+              projectsGrid.innerHTML = evidence
+                .map(
+                  (e) => `
+              <div class="rounded-2xl border border-white/10 p-5 bg-white/[0.01] frosted-panel">
+                <div class="flex items-center justify-between">
+                  <h3 class="font-semibold font-display text-base">${e.name}</h3>
+                  <span class="text-xs font-mono px-2 py-0.5 rounded border ${badgeClass(e.type)}">${e.skill || e.type}</span>
+                </div>
+                <p class="mt-3 text-sm leading-6 text-white/40">${e.detail || ""}</p>
+                <p class="mt-2 font-mono text-[11px] text-white/25">${e.timestamp || ""}</p>
+              </div>`
+                )
+                .join("");
+            }
+          }
         } catch {
           /* stats unavailable — placeholders stay honest (— / 0) */
         }

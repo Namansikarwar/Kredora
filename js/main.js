@@ -230,44 +230,86 @@ function renderDashboard() {
     });
   }
 
-  // NOTE: the score breakdown card, the example skills list, skill rings,
-  // and the weak-area card are sample-profile visuals (SKILLPROOF_DATA).
-  // They are labeled "Sample data" in the markup and are NOT user numbers.
-  // Real per-user values render in the stat strip and Coding Arena card,
-  // computed from the user's actual submissions (above).
-  // Skill rings in evidence graph
-  DATA.skills.forEach((skill) => {
-    const ringParent = document.querySelector(`[data-skill-ring="${skill.id}"]`);
-    if (ringParent) {
-      const ring = ringParent.querySelector(".score-ring");
-      const score = ringParent.querySelector("[data-skill-score]");
+  // NOTE: the score breakdown card and the example skills list on the
+  // landing page are sample-profile visuals (SKILLPROOF_DATA) — labeled
+  // as an example in the markup. Everything below renders REAL per-user
+  // values from the user's actual submissions (skillBreakdown is computed
+  // in js/user-stats.js from submissions × problem categories).
+
+  // Skill rings in evidence graph — the fixed ring slots are filled from
+  // the user's real categories (strongest first). Slots without a skill are
+  // hidden, never faked to a number.
+  const renderSkillRings = (stats) => {
+    const skills = (stats.skillBreakdown || []).slice(0, 4);
+
+    document.querySelectorAll("[data-ring-slot]").forEach((slot) => {
+      const i = Number(slot.getAttribute("data-ring-slot"));
+      const skill = skills[i];
+      if (!skill) {
+        slot.style.display = "none";
+        return;
+      }
+      slot.style.display = "";
+      const ring = slot.querySelector(".score-ring");
+      const scoreEl = slot.querySelector("[data-skill-score]");
+      const labelEl = slot.querySelector("[data-ring-label]");
       if (ring) {
         ring.setAttribute("data-score-ring", skill.score);
         ring.style.setProperty("--pct", skill.score);
       }
-      if (score) animateCounter(score, skill.score);
+      if (scoreEl) animateCounter(scoreEl, skill.score);
+      if (labelEl) labelEl.textContent = skill.name;
+    });
+
+    // Mobile fallback grid — generated from the same real skills.
+    const mobile = document.getElementById("ring-slots-mobile");
+    if (mobile) {
+      mobile.innerHTML =
+        skills.length === 0
+          ? `<p class="text-xs text-inkdim font-mono col-span-2">No skills yet — your categories appear here as you attempt problems.</p>`
+          : skills
+              .map(
+                (s) => `
+            <div class="flex flex-col items-center">
+              <div class="score-ring w-16 h-16 rounded-full grid place-items-center" data-score-ring="${s.score}" style="--pct:${s.score}">
+                <div class="score-ring-inner w-[52px] h-[52px] rounded-full grid place-items-center">
+                  <span class="font-display font-semibold text-sm text-white" data-skill-score>${s.score}</span>
+                </div>
+              </div>
+              <p class="text-xs text-inkdim mt-2">${s.name}</p>
+            </div>`
+              )
+              .join("");
     }
-  });
 
-  const overallRings = document.querySelectorAll("[data-overall-ring]");
-  overallRings.forEach((r) => {
-    r.setAttribute("data-score-ring", DATA.student.overallScore);
-    r.style.setProperty("--pct", DATA.student.overallScore);
-  });
-  const overallScores = document.querySelectorAll("[data-overall-score]");
-  overallScores.forEach((s) => animateCounter(s, DATA.student.overallScore));
+    const overall = Math.min(100, stats.solvedTotal * 5);
+    document.querySelectorAll("[data-overall-ring]").forEach((r) => {
+      r.setAttribute("data-score-ring", overall);
+      r.style.setProperty("--pct", overall);
+    });
+    document.querySelectorAll("[data-overall-score]").forEach((s) => animateCounter(s, overall));
+  };
 
-  // Skill cards grid
-  const cardsGrid = document.getElementById("skill-cards-grid");
-  if (cardsGrid) {
-    cardsGrid.innerHTML = DATA.skills
+  // Skill cards grid — real categories the user has actually attempted
+  const renderSkillCards = (stats) => {
+    const cardsGrid = document.getElementById("skill-cards-grid");
+    if (!cardsGrid) return;
+    const skills = stats.skillBreakdown || [];
+    if (skills.length === 0) {
+      cardsGrid.innerHTML = `
+        <div class="glass-card rounded-2xl p-5 text-xs text-inkdim font-mono sm:col-span-2 lg:col-span-4">
+          No skills yet — attempt a problem and its category shows up here with a real score.
+        </div>`;
+      return;
+    }
+    cardsGrid.innerHTML = skills
       .map(
         (s) => `
-      <a href="skill.html" class="glass-card lift-on-hover rounded-2xl p-5 block transition-colors hover:border-brand/50 group">
+      <a href="skill.html#${s.id}" class="glass-card lift-on-hover rounded-2xl p-5 block transition-colors hover:border-brand/50 group">
         <div class="flex items-center justify-between mb-4">
           <div>
             <h3 class="font-display font-semibold text-white group-hover:text-brand-bright transition-colors">${s.name}</h3>
-            <p class="text-xs text-inkdim font-mono">${s.confidence} confidence</p>
+            <p class="text-xs text-inkdim font-mono">${s.solved} solved${s.attempted > s.solved ? ` · ${s.attempted} attempted` : ""}</p>
           </div>
           <span class="font-display font-semibold text-2xl text-brand-bright">${s.score}</span>
         </div>
@@ -275,13 +317,22 @@ function renderDashboard() {
           <div class="h-full rounded-full bg-gradient-to-r from-cyan to-brand" style="width:${s.score}%"></div>
         </div>
         <div class="flex items-center justify-between text-xs text-inkdim font-mono">
-          <span>${s.problems} problems</span>
-          <span>${s.projects} projects</span>
-          <span>${s.assessments} tests</span>
+          <span>${s.score >= 60 ? "Strong" : s.score > 0 ? "Building" : "Attempted"}</span>
+          <span>${s.score}/100</span>
         </div>
       </a>`
       )
       .join("");
+  };
+
+  if (window.UserStats) {
+    window.UserStats.getUserStats().then((stats) => {
+      renderEvidenceTotals(stats);
+      renderUserStats(stats);
+      renderSkillRings(stats);
+      renderSkillCards(stats);
+      renderWeakArea(stats);
+    });
   }
 
   // Recent Activity — real submissions (falls back to an honest empty state)
@@ -345,30 +396,36 @@ function renderDashboard() {
     }
   }
 
-  // Weak area content
-  const weakArea = document.getElementById("weak-area-content");
-  if (weakArea) {
-    const weakest = [...DATA.skills].sort((a, b) => a.score - b.score)[0];
-    if (weakest) {
-      weakArea.innerHTML = `
-        <div class="p-4 rounded-xl border border-amber-500/20 bg-amber-500/5 frosted-panel">
-          <div class="flex items-center justify-between mb-2">
-            <span class="font-display font-semibold text-white">${weakest.name}</span>
-            <span class="font-mono text-sm text-brand-bright">${weakest.score}/100</span>
-          </div>
-          <p class="text-xs text-inkdim leading-relaxed mb-4">
-            Only ${weakest.evidenceCount} verified evidence records logged so far. Recommended to add project demonstrations or index queries to boost confidence.
-          </p>
-          <a href="evidence.html" class="inline-flex items-center gap-1.5 text-xs font-medium text-gold hover:text-amber-300 font-mono">
-            + Log ${weakest.name} evidence →
-          </a>
-        </div>
-      `;
-    }
-  }
-
   // Coding Arena Progress (LeetCode / HackerRank style)
   renderArenaProgress();
+}
+
+// "Needs More Evidence" — the user's genuinely weakest attempted category.
+function renderWeakArea(stats) {
+  const weakArea = document.getElementById("weak-area-content");
+  if (!weakArea) return;
+  const skills = stats.skillBreakdown || [];
+  if (skills.length === 0) {
+    weakArea.innerHTML = `
+      <div class="p-4 rounded-xl border border-white/10 bg-white/[0.02] frosted-panel text-xs text-inkdim font-mono">
+        Nothing to flag yet — solve your first problem and your weakest category appears here.
+      </div>`;
+    return;
+  }
+  const weakest = [...skills].sort((a, b) => a.score - b.score || a.solved - b.solved)[0];
+  weakArea.innerHTML = `
+    <div class="p-4 rounded-xl border border-amber-500/20 bg-amber-500/5 frosted-panel">
+      <div class="flex items-center justify-between mb-2">
+        <span class="font-display font-semibold text-white">${weakest.name}</span>
+        <span class="font-mono text-sm text-brand-bright">${weakest.score}/100</span>
+      </div>
+      <p class="text-xs text-inkdim leading-relaxed mb-4">
+        ${weakest.solved} of ${weakest.attempted} attempted problems solved in this category. More accepted submissions here raise this score the fastest.
+      </p>
+      <a href="problems.html" class="inline-flex items-center gap-1.5 text-xs font-medium text-gold hover:text-amber-300 font-mono">
+        + Practice ${weakest.name} →
+      </a>
+    </div>`;
 }
 
 function renderArenaProgress() {

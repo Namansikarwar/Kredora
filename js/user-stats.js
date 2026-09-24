@@ -268,6 +268,7 @@ export async function getUserStats(catalog) {
     streakDays: computeStreak(subs),
     points: computePoints(subs),
     lastActiveAt: lastAccepted || null,
+    skillBreakdown: getSkillBreakdown(subs, catalog),
     submissions: subs,
   };
 }
@@ -341,6 +342,60 @@ export function getEvidenceTotals(stats) {
   return { problems, projects, assessments, activity };
 }
 
+/**
+ * Per-skill breakdown computed from the user's actual submissions mapped
+ * against problem categories in the catalog. A skill here is a problem
+ * category (Arrays & Hashing, Two Pointers, ...), not a self-reported rating.
+ *
+ *   score    — accepted problems × 5 per skill, capped at 100 (same heuristic
+ *              as profile_summaries / profile score, so pages agree)
+ *   solved   — distinct accepted problems in this category
+ *   attempts — distinct problems in this category with any submission
+ *
+ * The submitted-language sample ("Your Java skill...") on skill.html keeps
+ * working: a synthetic "Java" entry is only added when at least one accepted
+ * submission exists, so an empty account stays empty.
+ */
+export function getSkillBreakdown(subs, catalog) {
+  const accepted = acceptedProblemIds(subs);
+  const attempted = new Set(subs.map((s) => s.problemId));
+  const byCategory = new Map();
+  for (const p of catalog) {
+    const key = p.category || "General";
+    if (!byCategory.has(key)) {
+      byCategory.set(key, { id: slugify(key), name: key, score: 0, solved: 0, attempted: 0, lastAcceptedAt: null });
+    }
+    const skill = byCategory.get(key);
+    if (accepted.has(p.id)) {
+      skill.solved += 1;
+      skill.score = Math.min(100, skill.score + 5);
+    }
+    if (attempted.has(p.id)) skill.attempted += 1;
+  }
+
+  // Last accepted timestamp per category, from the user's submissions.
+  for (const s of subs) {
+    if (!(s.status === "accepted" || s.status === "Accepted")) continue;
+    const p = catalog.find((c) => c.id === s.problemId);
+    if (!p) continue;
+    const skill = byCategory.get(p.category || "General");
+    if (!skill) continue;
+    const t = new Date(s.submittedAt).getTime();
+    if (Number.isFinite(t) && (!skill.lastAcceptedAt || t > new Date(skill.lastAcceptedAt).getTime())) {
+      skill.lastAcceptedAt = new Date(t).toISOString();
+    }
+  }
+
+  // Only surface skills the user has actually touched.
+  return [...byCategory.values()]
+    .filter((s) => s.attempted > 0)
+    .sort((a, b) => b.score - a.score || b.solved - a.solved);
+}
+
+function slugify(text) {
+  return text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
 /** All evidence records (server-derived problems + user-added items). */
 // (see bottom of file for the window registration)
 export function getUserEvidence(stats) {
@@ -370,6 +425,7 @@ export function getUserEvidence(stats) {
 const UserStats = {
   getSubmissions,
   getUserStats,
+  getSkillBreakdown,
   computeStreak,
   computePoints,
   computeSolvedByDifficulty,
