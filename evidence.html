@@ -61,6 +61,7 @@
 
   <script type="module" src="js/supabase-client.js"></script>
   <script type="module" src="js/user-stats.js"></script>
+  <script type="module" src="js/skills.js"></script>
   <script type="module" src="js/problems-data.js"></script>
   <script type="module" src="js/auth.js"></script>
   <script type="module">
@@ -385,10 +386,8 @@
               Skill
             </label>
             <select id="evSkill" class="w-full rounded-xl border border-white/10 bg-base px-4 py-2.5 text-white text-sm outline-none">
-              <option value="Java">Java</option>
-              <option value="JavaScript">JavaScript</option>
-              <option value="SQL">SQL</option>
-              <option value="MongoDB">MongoDB</option>
+              <!-- Options rendered by the script below from js/skills.js
+                   (single source of truth for tracked skills) -->
             </select>
           </div>
         </div>
@@ -647,6 +646,20 @@
       // Recompute counts from the real sources instead of blind increment
       loadEvidenceData();
     });
+
+    // Skill dropdown — rendered from the skills config (js/skills.js).
+    // Module scripts load after this classic script, so poll briefly for
+    // window.KredoraSkills rather than assuming it exists yet.
+    (function renderSkillOptions(attempt) {
+      attempt = attempt || 0;
+      const select = document.getElementById("evSkill");
+      if (!select) return;
+      if (window.KredoraSkills) {
+        select.innerHTML = window.KredoraSkills.skillOptions("Java");
+      } else if (attempt < 50) {
+        setTimeout(() => renderSkillOptions(attempt + 1), 60);
+      }
+    })();
   </script>
 
 </body>

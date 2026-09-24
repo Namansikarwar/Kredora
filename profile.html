@@ -218,7 +218,7 @@
           </p>
 
           <h2 class="mt-2 text-2xl font-bold font-display">What I can prove</h2>
-          <p class="mt-1 text-xs text-inkdim font-mono">Scores computed from accepted submissions by problem category — a skill appears here once you attempt a problem in it.</p>
+          <p class="mt-1 text-xs text-inkdim font-mono">The four tracked skills from the skills config — scores computed from accepted submissions and evidence I've added.</p>
         </div>
 
         <div id="profile-skills-list" class="space-y-5">
@@ -310,29 +310,35 @@
           const note = document.getElementById("profile-score-note");
           if (note) note.textContent = `/ 100 · ${stats.solvedTotal} accepted problem${stats.solvedTotal === 1 ? "" : "s"} × 5`;
 
-          // Skills — real per-category scores from the user's submissions.
+          // Skills — the tracked skills from js/skills.js at real scores.
           const skillsList = document.getElementById("profile-skills-list");
           if (skillsList) {
-            const skills = stats.skillBreakdown || [];
+            const skills = stats.skillsProgress || [];
             if (skills.length === 0) {
               skillsList.innerHTML = `
-                <p class="text-xs text-inkdim font-mono">No skills to show yet — attempt a problem in the Arena and its category appears here with a real score.</p>`;
+                <p class="text-xs text-inkdim font-mono">Skills config is empty — add entries in js/skills.js.</p>`;
             } else {
               skillsList.innerHTML = skills
                 .map(
                   (s) => `
               <a
                 href="skill.html#${s.id}"
-                class="block rounded-2xl border border-white/10 bg-white/[0.02] frosted-panel p-5 transition hover:border-brand/50 group"
+                class="block rounded-2xl border ${s.hasEvidence ? "border-white/10" : "border-white/5"} bg-white/[0.02] frosted-panel p-5 transition hover:border-brand/50 group"
               >
                 <div class="flex items-center justify-between">
                   <div>
                     <h3 class="font-semibold group-hover:text-brand-bright transition-colors font-display text-lg">${s.name}</h3>
                     <p class="mt-1 text-sm text-white/40 font-mono">
-                      ${s.solved} solved${s.attempted > s.solved ? ` · ${s.attempted} attempted` : ""}
+                      ${s.solved > 0
+                        ? `${s.solved} solved${s.attempts > s.solved ? ` · ${s.attempts} attempted` : ""}`
+                        : s.projects + s.assessments > 0
+                          ? `${s.projects} project${s.projects === 1 ? "" : "s"} · ${s.assessments} assessment${s.assessments === 1 ? "" : "s"}`
+                          : s.evidenceTypes.includes("problems")
+                            ? "No evidence yet"
+                            : "Proven via projects & assessments"}
                     </p>
                   </div>
-                  <span class="font-mono text-2xl font-bold ${s.score >= 60 ? "text-brand-bright" : "text-cyan"}> ${s.score} </span>
+                  <span class="font-mono text-2xl font-bold ${s.score >= 60 ? "text-brand-bright" : s.score > 0 ? "text-cyan" : "text-white/30"}> ${s.score} </span>
                 </div>
                 <div class="mt-4 h-2 rounded-full bg-white/5 overflow-hidden">
                   <div class="h-full rounded-full bg-gradient-to-r from-cyan to-brand" style="width:${s.score}%"></div>

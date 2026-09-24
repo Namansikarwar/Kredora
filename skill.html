@@ -129,11 +129,9 @@
           <div>
             <p class="font-mono text-xs uppercase tracking-[0.2em] text-white/40">
               Verified Skill Breakdown
-            </p>
-
-            <h1 class="mt-1 text-3xl sm:text-4xl font-bold font-display" id="skill-hero-name">
-              Your skills
-            </h1>
+            </p>              <h1 class="mt-1 text-3xl sm:text-4xl font-bold font-display" id="skill-hero-name">
+                Tracked skills
+              </h1>
           </div>
         </div>
 
@@ -181,10 +179,10 @@
         </p>
 
         <h2 class="mt-2 text-2xl font-bold font-display">
-          Skills you have evidence for
+          Tracked skills
         </h2>
         <p class="mt-1 text-xs text-inkdim font-mono">
-          One entry per problem category you attempted — score grows by 5 per accepted problem.
+          The skills Kredora tracks (js/skills.js) — score grows by 5 per accepted problem in that skill.
         </p>
       </div>
 
@@ -253,8 +251,11 @@
     function renderSkills() {
       if (!window.UserStats) return;
       window.UserStats.getUserStats().then((stats) => {
-        const skills = stats.skillBreakdown || [];
+        // Skills: the four tracked skills from js/skills.js, at real scores.
+        // Also handles #hash deep-links to focus a single skill.
+        const skills = stats.skillsProgress || [];
         const subs = stats.submissions || [];
+        const focusId = (location.hash || "").replace("#", "");
 
         // Header chips
         const chipEv = document.getElementById("chip-evidence");
@@ -269,29 +270,45 @@
         const note = document.getElementById("skill-score-note");
         if (note) note.textContent = `${stats.solvedTotal} accepted problem${stats.solvedTotal === 1 ? "" : "s"} × 5, capped at 100`;
 
-        // Hero: strongest skill (or an honest empty state).
+        const focus = focusId ? skills.find((s) => s.id === focusId) : null;
+        const shown = focus ? [focus] : skills;
+
+        // Hero: focused skill, else the strongest one (or an honest empty state).
         const heroName = document.getElementById("skill-hero-name");
         const heroInitial = document.getElementById("skill-hero-initial");
-        if (skills.length > 0 && heroName) {
-          heroName.textContent = skills[0].name;
-          if (heroInitial) heroInitial.textContent = skills[0].name.charAt(0).toUpperCase();
+        const heroCopy = document.getElementById("skill-hero-copy");
+        const heroSkill = focus || shown[0];
+        if (heroSkill && heroName) {
+          heroName.textContent = heroSkill.name;
+          if (heroInitial) heroInitial.textContent = heroSkill.name.charAt(0).toUpperCase();
+          if (heroCopy) {
+            heroCopy.textContent = focus
+              ? `${heroSkill.category} — evidence types: ${heroSkill.evidenceTypes.join(", ")}. Every number below is computed from your own records.`
+              : "Every score on this page is computed from your own records — accepted submissions and evidence you add. No self-reported ratings. The tracked skills come from the skills config.";
+          }
         } else if (heroName) {
-          heroName.textContent = "No skills yet";
+          heroName.textContent = "No skills configured";
         }
 
-        // Breakdown cards — one per attempted category.
+        // Breakdown cards — one per tracked skill (config-driven).
         const grid = document.getElementById("skill-breakdown-grid");
         if (grid) {
-          if (skills.length === 0) {
+          if (shown.length === 0) {
             grid.innerHTML = `
               <div class="rounded-2xl border border-white/10 bg-[#111827]/80 frosted-panel p-6 text-xs text-inkdim font-mono md:col-span-2 lg:col-span-3">
-                No skills to show yet — attempt a problem in the Arena and its category appears here with a real score.
+                Skills config is empty — add entries in js/skills.js.
               </div>`;
           } else {
-            grid.innerHTML = skills
+            grid.innerHTML = shown
               .map(
-                (s) => `
-            <div class="rounded-2xl border border-white/10 bg-[#111827]/80 frosted-panel p-6" id="${s.id}">
+                (s) => {
+                  const detail = s.solved > 0
+                    ? `${s.solved} solved${s.attempts > s.solved ? ` · ${s.attempts} attempted` : ""}`
+                    : s.evidenceTypes.includes("problems")
+                      ? "No evidence yet"
+                      : "Proven via projects & assessments";
+                  return `
+            <div class="rounded-2xl border ${focus && focus.id !== s.id ? "border-white/10" : "border-brand/30"} bg-[#111827]/80 frosted-panel p-6" id="${s.id}">
               <div class="flex items-center justify-between">
                 <span class="font-semibold text-white">${s.name}</span>
                 <span class="font-mono ${s.score >= 60 ? "text-brand-bright" : "text-cyan"} font-bold">${s.score}%</span>
@@ -300,9 +317,10 @@
                 <div class="h-full rounded-full bg-brand" style="width:${s.score}%"></div>
               </div>
               <p class="mt-3 text-xs text-white/40 font-mono">
-                ${s.solved} solved${s.attempted > s.solved ? ` · ${s.attempted} attempted` : ""}
+                ${detail}
               </p>
-            </div>`
+            </div>`;
+                }
               )
               .join("");
           }
@@ -342,15 +360,18 @@
           }
         }
 
-        // Next step — the weakest attempted category.
+        // Next step — the weakest tracked skill, honoring its evidence types.
         const nextCopy = document.getElementById("skill-next-step-copy");
         const nextBtn = document.getElementById("skill-next-step-btn");
-        if (skills.length > 0) {
-          const weakest = [...skills].sort((a, b) => a.score - b.score || a.solved - b.solved)[0];
+        if (shown.length > 0) {
+          const weakest = [...shown].sort((a, b) => a.score - b.score || a.solved - b.solved)[0];
           if (nextCopy) {
-            nextCopy.textContent = `${weakest.solved} of ${weakest.attempted} attempted problems solved in ${weakest.name}. More accepted submissions here raise this score the fastest.`;
+            nextCopy.textContent = weakest.evidenceTypes.includes("problems")
+              ? `${weakest.solved} accepted problem${weakest.solved === 1 ? "" : "s"} in ${weakest.name} so far. More accepted submissions here raise this score the fastest.`
+              : `${weakest.name} is proven through projects and assessments — add evidence to raise its score.`;
           }
-          if (nextBtn) nextBtn.href = "problems.html";
+          if (nextBtn) nextBtn.href = weakest.evidenceTypes.includes("problems") ? "problems.html" : "evidence.html";
+          if (nextBtn) nextBtn.textContent = weakest.evidenceTypes.includes("problems") ? "Practice in the Arena" : "+ Add Evidence";
         }
       });
     }

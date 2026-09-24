@@ -236,11 +236,11 @@ function renderDashboard() {
   // values from the user's actual submissions (skillBreakdown is computed
   // in js/user-stats.js from submissions × problem categories).
 
-  // Skill rings in evidence graph — the fixed ring slots are filled from
-  // the user's real categories (strongest first). Slots without a skill are
-  // hidden, never faked to a number.
+  // Skill rings in evidence graph — the four tracked skills from
+  // js/skills.js, at their real scores. A zero ring means "no evidence
+  // yet", which is the honest number for a tracked skill.
   const renderSkillRings = (stats) => {
-    const skills = (stats.skillBreakdown || []).slice(0, 4);
+    const skills = stats.skillsProgress || [];
 
     document.querySelectorAll("[data-ring-slot]").forEach((slot) => {
       const i = Number(slot.getAttribute("data-ring-slot"));
@@ -261,15 +261,12 @@ function renderDashboard() {
       if (labelEl) labelEl.textContent = skill.name;
     });
 
-    // Mobile fallback grid — generated from the same real skills.
+    // Mobile fallback grid — generated from the same tracked skills.
     const mobile = document.getElementById("ring-slots-mobile");
     if (mobile) {
-      mobile.innerHTML =
-        skills.length === 0
-          ? `<p class="text-xs text-inkdim font-mono col-span-2">No skills yet — your categories appear here as you attempt problems.</p>`
-          : skills
-              .map(
-                (s) => `
+      mobile.innerHTML = skills
+        .map(
+          (s) => `
             <div class="flex flex-col items-center">
               <div class="score-ring w-16 h-16 rounded-full grid place-items-center" data-score-ring="${s.score}" style="--pct:${s.score}">
                 <div class="score-ring-inner w-[52px] h-[52px] rounded-full grid place-items-center">
@@ -278,8 +275,8 @@ function renderDashboard() {
               </div>
               <p class="text-xs text-inkdim mt-2">${s.name}</p>
             </div>`
-              )
-              .join("");
+        )
+        .join("");
     }
 
     const overall = Math.min(100, stats.solvedTotal * 5);
@@ -290,18 +287,27 @@ function renderDashboard() {
     document.querySelectorAll("[data-overall-score]").forEach((s) => animateCounter(s, overall));
   };
 
-  // Skill cards grid — real categories the user has actually attempted
+  // Skill cards grid — the four tracked skills from js/skills.js, each at
+  // its real score. Card copy adapts to the skill's evidence types.
   const renderSkillCards = (stats) => {
     const cardsGrid = document.getElementById("skill-cards-grid");
     if (!cardsGrid) return;
-    const skills = stats.skillBreakdown || [];
+    const skills = stats.skillsProgress || [];
     if (skills.length === 0) {
       cardsGrid.innerHTML = `
         <div class="glass-card rounded-2xl p-5 text-xs text-inkdim font-mono sm:col-span-2 lg:col-span-4">
-          No skills yet — attempt a problem and its category shows up here with a real score.
+          Skills config is empty — add entries in js/skills.js.
         </div>`;
       return;
     }
+    const meta = (s) => {
+      if (s.solved > 0) return `${s.solved} solved${s.attempts > s.solved ? ` · ${s.attempts} attempted` : ""}`;
+      const extras = [];
+      if (s.projects > 0) extras.push(`${s.projects} project${s.projects === 1 ? "" : "s"}`);
+      if (s.assessments > 0) extras.push(`${s.assessments} assessment${s.assessments === 1 ? "" : "s"}`);
+      return extras.length ? extras.join(" · ") : s.evidenceTypes.includes("problems") ? "No evidence yet" : "Projects & assessments only";
+    };
+    const status = (s) => (s.score >= 60 ? "Strong" : s.score > 0 ? "Building" : "No evidence yet");
     cardsGrid.innerHTML = skills
       .map(
         (s) => `
@@ -309,15 +315,15 @@ function renderDashboard() {
         <div class="flex items-center justify-between mb-4">
           <div>
             <h3 class="font-display font-semibold text-white group-hover:text-brand-bright transition-colors">${s.name}</h3>
-            <p class="text-xs text-inkdim font-mono">${s.solved} solved${s.attempted > s.solved ? ` · ${s.attempted} attempted` : ""}</p>
+            <p class="text-xs text-inkdim font-mono">${meta(s)}</p>
           </div>
-          <span class="font-display font-semibold text-2xl text-brand-bright">${s.score}</span>
+          <span class="font-display font-semibold text-2xl ${s.score > 0 ? "text-brand-bright" : "text-white/30"}">${s.score}</span>
         </div>
         <div class="h-1.5 rounded-full bg-white/5 overflow-hidden mb-4">
           <div class="h-full rounded-full bg-gradient-to-r from-cyan to-brand" style="width:${s.score}%"></div>
         </div>
         <div class="flex items-center justify-between text-xs text-inkdim font-mono">
-          <span>${s.score >= 60 ? "Strong" : s.score > 0 ? "Building" : "Attempted"}</span>
+          <span>${status(s)}</span>
           <span>${s.score}/100</span>
         </div>
       </a>`
@@ -400,19 +406,30 @@ function renderDashboard() {
   renderArenaProgress();
 }
 
-// "Needs More Evidence" — the user's genuinely weakest attempted category.
+// "Needs More Evidence" — the weakest tracked skill (js/skills.js) by real
+// score, so the call to action points at a skill the app actually tracks.
 function renderWeakArea(stats) {
   const weakArea = document.getElementById("weak-area-content");
   if (!weakArea) return;
-  const skills = stats.skillBreakdown || [];
-  if (skills.length === 0) {
+  const skills = stats.skillsProgress || [];
+  const candidates = skills.filter((s) => s.score < 100);
+  if (candidates.length === 0) {
     weakArea.innerHTML = `
-      <div class="p-4 rounded-xl border border-white/10 bg-white/[0.02] frosted-panel text-xs text-inkdim font-mono">
-        Nothing to flag yet — solve your first problem and your weakest category appears here.
+      <div class="p-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 frosted-panel">
+        <div class="flex items-center justify-between mb-2">
+          <span class="font-display font-semibold text-white">All caught up</span>
+          <span class="font-mono text-sm text-emerald-400">100/100</span>
+        </div>
+        <p class="text-xs text-inkdim leading-relaxed">
+          Every tracked skill is maxed out. Add new evidence to keep the streak going.
+        </p>
       </div>`;
     return;
   }
-  const weakest = [...skills].sort((a, b) => a.score - b.score || a.solved - b.solved)[0];
+  const weakest = [...candidates].sort((a, b) => a.score - b.score || a.solved - b.solved)[0];
+  const evidenceHint = weakest.evidenceTypes.includes("problems")
+    ? `${weakest.solved} accepted problem${weakest.solved === 1 ? "" : "s"} in ${weakest.name} so far. More accepted submissions here raise this score the fastest.`
+    : `SQL and MongoDB skills are proven through projects and assessments — add evidence from the Evidence page.`;
   weakArea.innerHTML = `
     <div class="p-4 rounded-xl border border-amber-500/20 bg-amber-500/5 frosted-panel">
       <div class="flex items-center justify-between mb-2">
@@ -420,10 +437,10 @@ function renderWeakArea(stats) {
         <span class="font-mono text-sm text-brand-bright">${weakest.score}/100</span>
       </div>
       <p class="text-xs text-inkdim leading-relaxed mb-4">
-        ${weakest.solved} of ${weakest.attempted} attempted problems solved in this category. More accepted submissions here raise this score the fastest.
+        ${evidenceHint}
       </p>
-      <a href="problems.html" class="inline-flex items-center gap-1.5 text-xs font-medium text-gold hover:text-amber-300 font-mono">
-        + Practice ${weakest.name} →
+      <a href="${weakest.evidenceTypes.includes("problems") ? "problems.html" : "evidence.html"}" class="inline-flex items-center gap-1.5 text-xs font-medium text-gold hover:text-amber-300 font-mono">
+        + ${weakest.evidenceTypes.includes("problems") ? `Practice ${weakest.name}` : `Log ${weakest.name} evidence`} →
       </a>
     </div>`;
 }

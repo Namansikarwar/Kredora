@@ -26,6 +26,7 @@ if (typeof window !== "undefined") {
 }
 
 import { getSupabase } from "./supabase-client.js";
+import { SKILLS, skillByName } from "./skills.js";
 
 // Points awarded per accepted submission, by difficulty. Mirrors the
 // `points` field on each problem in js/problems-data.js.
@@ -252,6 +253,14 @@ export async function getUserStats(catalog) {
   const byDifficulty = computeSolvedByDifficulty(subs, catalog);
   const acceptedSubs = subs.filter((s) => acceptedIds.has(s.problemId));
 
+  // User-added evidence (projects/assessments) for the tracked-skills view.
+  let userEvidence = [];
+  try {
+    userEvidence = JSON.parse(localStorage.getItem("skillproof_user_evidence") || "[]");
+  } catch {
+    userEvidence = [];
+  }
+
   const lastAccepted = acceptedSubs
     .map((s) => s.submittedAt)
     .filter(Boolean)
@@ -269,6 +278,7 @@ export async function getUserStats(catalog) {
     points: computePoints(subs),
     lastActiveAt: lastAccepted || null,
     skillBreakdown: getSkillBreakdown(subs, catalog),
+    skillsProgress: getSkillsProgress(subs, userEvidence),
     submissions: subs,
   };
 }
@@ -340,6 +350,77 @@ export function getEvidenceTotals(stats) {
   const activity = 0;
 
   return { problems, projects, assessments, activity };
+}
+
+/**
+ * Per-skill progress for the four TRACKED skills from js/skills.js (Java,
+ * JavaScript, SQL, MongoDB) — the config-driven view that dashboard,
+ * profile, skill.html and evidence.html render. For every skill:
+ *
+ *   score        — accepted problems × 5 per skill, capped at 100 (same
+ *                  heuristic as profile_summaries; skill-problem evidence
+ *                  counts via the skill's `language`, so pages agree)
+ *   solved       — distinct accepted problems submitted in that language
+ *   attempts     — distinct problems attempted in that language
+ *   evidence     — counts of the user's own projects/assessments tagged
+ *                  with this skill
+ *   hasEvidence  — true when any of the skill's evidence types has a count
+ *
+ * Skills with zero evidence are still returned (with 0s), so all four
+ * tracked skills always render — config, not user activity, decides the
+ * list. Per-CATEGORY scores (a different, dynamic view) remain available
+ * via getSkillBreakdown/getUserStats().skillBreakdown.
+ */
+export function getSkillsProgress(subs, userEvidence) {
+  const langToSkill = new Map(
+    SKILLS.filter((s) => s.language).map((s) => [s.language.toLowerCase(), s.id])
+  );
+
+  const out = new Map(SKILLS.map((s) => [s.id, {
+    id: s.id,
+    name: s.name,
+    category: s.category,
+    evidenceTypes: [...s.evidence],
+    score: 0,
+    solved: 0,
+    attempts: 0,
+    problems: 0,
+    projects: 0,
+    assessments: 0,
+    lastAcceptedAt: null,
+    hasEvidence: false,
+  }]));
+
+  const attemptedIds = new Set();
+  for (const s of subs) {
+    attemptedIds.add(s.problemId);
+    const skillId = langToSkill.get(String(s.language || "").toLowerCase());
+    if (!skillId) continue;
+    const skill = out.get(skillId);
+    skill.attempts += 1;
+    if (s.status === "accepted" || s.status === "Accepted") {
+      skill.solved += 1;
+      skill.score = Math.min(100, skill.score + 5);
+      const t = new Date(s.submittedAt).getTime();
+      if (Number.isFinite(t) && (!skill.lastAcceptedAt || t > new Date(skill.lastAcceptedAt).getTime())) {
+        skill.lastAcceptedAt = new Date(t).toISOString();
+      }
+    }
+  }
+
+  for (const e of userEvidence || []) {
+    const skill = skillByName(e.skill);
+    if (!skill) continue;
+    const row = out.get(skill.id);
+    if (e.type === "project") row.projects += 1;
+    else if (e.type === "assessment") row.assessments += 1;
+  }
+
+  for (const row of out.values()) {
+    row.hasEvidence = row.solved > 0 || row.projects > 0 || row.assessments > 0;
+  }
+
+  return SKILLS.map((s) => out.get(s.id));
 }
 
 /**
@@ -426,6 +507,7 @@ const UserStats = {
   getSubmissions,
   getUserStats,
   getSkillBreakdown,
+  getSkillsProgress,
   computeStreak,
   computePoints,
   computeSolvedByDifficulty,

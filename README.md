@@ -19,7 +19,7 @@ Kredora is a next-generation developer verification and skill-proving platform d
 * Tracks problem category, difficulty (Easy, Medium, Hard), execution time, language used, and code payload.
 
 ### 3. 📊 Skill Mastery & Confidence Score
-* Dynamic competency calculation across multiple pillars: Algorithms, Systems, Databases, and Frontend Engineering.
+* Dynamic competency calculation across the tracked skills defined in `js/skills.js` (the single source of truth): Java, JavaScript, SQL, and MongoDB.
 * Generates a holistic **Confidence Score** and readiness badge based on verified execution data rather than self-reported claims.
 
 ### 4. 🌐 Shareable Public Developer Profiles
