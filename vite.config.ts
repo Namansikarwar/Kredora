@@ -35,6 +35,8 @@ export default defineConfig(() => {
           skill: path.resolve(__dirname, 'skill.html'),
           problems: path.resolve(__dirname, 'problems.html'),
           problem: path.resolve(__dirname, 'problem.html'),
+          privacy: path.resolve(__dirname, 'privacy.html'),
+          terms: path.resolve(__dirname, 'terms.html'),
         },
       },
     },

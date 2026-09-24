@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terms of Service — Kredora</title>
+  <meta name="description" content="The terms that apply when you use Kredora: accounts, submissions, acceptable use, and disclaimers." />
+  <meta name="robots" content="noindex" />
+  <link rel="icon" type="image/svg+xml" href="kredora-logo.svg" />
+  <link rel="alternate icon" href="kredora-logo.png" type="image/png" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            base: "#080B12",
+            surface: "#0D111A",
+            surface2: "#111722",
+            elevated: "#151C29",
+            borderc: "#202938",
+            ink: "#F4F7FB",
+            inkdim: "#98A2B3",
+            muted: "#667085",
+            brand: {
+              DEFAULT: "#7C5CFC",
+              bright: "#9D85FF",
+              hover: "#6E4DEE",
+              dim: "#4C39A8",
+              glow: "rgba(124, 92, 252, 0.35)",
+            },
+            gold: {
+              DEFAULT: "#7C5CFC",
+              dim: "#4C39A8",
+              bright: "#9D85FF",
+            },
+            cyan: {
+              DEFAULT: "#4CC9F0",
+            },
+            success: "#32D583",
+            warning: "#FDB022",
+            danger: {
+              DEFAULT: "#F97066",
+              bright: "#FDA29B",
+            },
+          },
+          fontFamily: {
+            display: ['"Space Grotesk"', '"Inter"', "ui-sans-serif", "sans-serif"],
+            sans: ['"Inter"', "ui-sans-serif", "sans-serif"],
+            mono: ['"JetBrains Mono"', "ui-monospace", "monospace"],
+          },
+        },
+      },
+    };
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script type="module" src="js/supabase-client.js"></script>
+  <script type="module" src="js/auth.js"></script>
+</head>
+
+<body class="min-h-screen bg-base text-white relative overflow-x-hidden">
+
+  <!-- Ambient blurred glow orbs -->
+  <div class="fixed top-10 right-1/4 w-[520px] h-[320px] bg-brand/10 rounded-full blur-[130px] pointer-events-none -z-10"></div>
+  <div class="fixed bottom-16 left-10 w-[420px] h-[300px] bg-cyan/10 rounded-full blur-[120px] pointer-events-none -z-10"></div>
+
+  <!-- NAVBAR -->
+  <header class="glass-navbar fixed top-4 inset-x-4 sm:inset-x-6 lg:inset-x-8 max-w-7xl mx-auto z-50 px-6 py-4 flex items-center justify-between">
+    <div class="mx-auto w-full flex items-center justify-between">
+
+      <a href="index.html" class="flex items-center gap-2.5 group">
+        <svg class="h-7 w-auto transition-transform group-hover:scale-105 shrink-0" viewBox="0 0 240 150" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Kredora Logo">
+          <defs>
+            <linearGradient id="kredora-logo-grad-terms" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#9D85FF" />
+              <stop offset="100%" stop-color="#7C5CFC" />
+            </linearGradient>
+          </defs>
+          <g fill="url(#kredora-logo-grad-terms)">
+            <path d="M 4,0 L 108,0 C 90,32 52,65 0,68 L 0,4 C 0,1.8 1.8,0 4,0 Z" />
+            <path d="M 0,82 C 52,85 90,118 108,150 L 4,150 C 1.8,150 0,148.2 0,146 L 0,82 Z" />
+            <path d="M 138,0 L 236,0 C 238.2,0 240,1.8 240,4 L 240,146 C 240,148.2 238.2,150 236,150 L 138,150 C 122,125 102,96 86,75 C 102,54 122,25 138,0 Z" />
+          </g>
+        </svg>
+        <span class="text-xl font-bold tracking-tight font-display text-white">
+          Kredora
+        </span>
+      </a>
+
+      <nav class="hidden items-center gap-1 md:flex">
+        <a href="dashboard.html" class="nav-item">Dashboard</a>
+        <a href="problems.html" class="nav-item">Problems</a>
+        <a href="evidence.html" class="nav-item">Evidence</a>
+        <a href="skill.html" class="nav-item">Skills</a>
+        <a href="profile.html" class="nav-item">Profile</a>
+      </nav>
+
+      <div class="flex items-center gap-3">
+        <div data-auth-nav></div>
+        <button id="nav-toggle" aria-label="Toggle menu" aria-expanded="false" class="md:hidden p-2 -mr-2 text-ink">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-3xl px-6 py-10 pt-32 page-enter">
+
+    <!-- TEMPLATE NOTICE -->
+    <div class="mb-8 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5">
+      <div class="flex items-start gap-3">
+        <svg class="w-5 h-5 text-amber-400 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+        <div>
+          <p class="font-mono text-xs uppercase tracking-[0.2em] text-amber-400 font-semibold">Template — not legal advice</p>
+          <p class="mt-2 text-sm leading-6 text-white/70">
+            These terms are an unreviewed template written to describe how the software
+            actually behaves today. They <span class="text-white font-semibold">must be reviewed
+            by a qualified lawyer</span> before you publish this site or rely on them. They may be
+            incomplete or unenforceable in your jurisdiction.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- HEADER -->
+    <section class="mb-10">
+      <p class="font-mono text-xs uppercase tracking-[0.2em] text-white/40">Legal</p>
+      <h1 class="mt-1 text-3xl sm:text-4xl font-bold font-display">Terms of Service</h1>
+      <p class="mt-3 text-sm text-white/50 font-mono">
+        Status: template · Last updated: not yet in effect · Operator contact: add your email here
+      </p>
+    </section>
+
+    <div class="space-y-10 text-sm leading-7 text-white/70">
+
+      <section>
+        <h2 class="text-xl font-bold font-display text-white mb-3">1. The service</h2>
+        <p>
+          Kredora is a developer skill-verification platform: you solve coding problems in the
+          browser, submissions are graded server-side against test cases, and your accepted work
+          is recorded as evidence behind per-skill scores. Scores describe recorded performance on
+          the platform's problems only — they are not professional certifications.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-bold font-display text-white mb-3">2. Accounts</h2>
+        <p>
+          You need an account (email and password, handled by Supabase Auth) to save progress and
+          build an evidence profile. You are responsible for keeping your credentials secure and
+          for activity under your account. You must be old enough to form a binding contract in
+          your jurisdiction — the template default is 18+, adjust with counsel.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-bold font-display text-white mb-3">3. Your submissions</h2>
+        <ul class="space-y-2">
+          <li>— You keep ownership of the code you submit.</li>
+          <li>— You grant the operator the limited right to store, execute, and display that code solely to grade it and present your evidence.</li>
+          <li>— Submit only code you are allowed to submit. Don't submit malicious code, and don't attempt to attack the grading sandbox, other users, or the platform.</li>
+          <li>— Accepted submissions are stored with a hash chain so post-hoc edits or deletions are detectable. The chain pins what was recorded — it does not certify correctness beyond the recorded test results, and it does not restrict lawful access by the operator.</li>
+          <li>— Rate limits apply (currently 20 submissions per minute per user/IP, 64 KB code size, per-test CPU and memory caps).</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-bold font-display text-white mb-3">4. Acceptable use</h2>
+        <p>
+          Don't abuse the service: no scraping at scale, no attempting to extract hidden test
+          cases, no forging or tampering with evidence records, no automated load beyond the
+          published limits, and no use of the service where it's illegal. The operator may suspend
+          accounts that break these rules or degrade the service for others.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-bold font-display text-white mb-3">5. Availability & changes</h2>
+        <p>
+          The service is provided as-is and may change or be discontinued at any time. Grading
+          depends on a third-party execution sandbox; grading availability and accuracy are not
+          guaranteed. Features marked as examples or samples are illustrative, not commitments.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-bold font-display text-white mb-3">6. Disclaimers</h2>
+        <p>
+          To the maximum extent permitted by law, the service is provided without warranties of
+          any kind, and the operator is not liable for indirect or consequential damages. These
+          limitations may not be enforceable in your jurisdiction — that is exactly what the
+          lawyer review is for.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-bold font-display text-white mb-3">7. Changes to these terms</h2>
+        <p>
+          These terms are a template and are not yet in effect. When an reviewed version is
+          published, material changes will be announced on the site. Continued use after changes
+          take effect constitutes acceptance.
+        </p>
+      </section>
+
+      <section class="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-5">
+        <p class="text-sm leading-6 text-white/70">
+          <span class="text-amber-400 font-semibold font-mono text-xs uppercase tracking-wider">Reminder —</span>
+          This is a template for the site operator to review with a lawyer before use. It does not
+          cover jurisdiction-specific consumer-protection, arbitration, or export rules, and it
+          must be adapted before relying on it.
+        </p>
+      </section>
+
+    </div>
+
+    <div class="mt-12 flex items-center gap-4 text-xs font-mono text-white/40">
+      <a href="privacy.html" class="hover:text-brand-bright transition-colors">← Privacy Policy</a>
+      <span>·</span>
+      <a href="index.html" class="hover:text-brand-bright transition-colors">Back to home</a>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-white/5 px-6 py-8 mt-10">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-inkdim">
+      <p>© <span id="current-year"></span> Kredora. All rights reserved.</p>
+      <div class="flex items-center gap-4">
+        <a href="privacy.html" class="hover:text-ink transition-colors">Privacy</a>
+        <a href="terms.html" class="hover:text-ink transition-colors">Terms</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const yearEl = document.getElementById("current-year");
+      if (yearEl) yearEl.textContent = new Date().getFullYear();
+      const toggle = document.getElementById("nav-toggle");
+      if (toggle) {
+        toggle.addEventListener("click", () => {
+          const nav = document.querySelector("header nav");
+          if (nav) nav.classList.toggle("hidden");
+        });
+      }
+    });
+  </script>
+
+</body>
+</html>

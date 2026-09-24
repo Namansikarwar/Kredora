@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — Kredora</title>
+  <meta name="description" content="How Kredora handles your data: email, submitted code, and activity data stored in Supabase." />
+  <meta name="robots" content="noindex" />
+  <link rel="icon" type="image/svg+xml" href="kredora-logo.svg" />
+  <link rel="alternate icon" href="kredora-logo.png" type="image/png" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            base: "#080B12",
+            surface: "#0D111A",
+            surface2: "#111722",
+            elevated: "#151C29",
+            borderc: "#202938",
+            ink: "#F4F7FB",
+            inkdim: "#98A2B3",
+            muted: "#667085",
+            brand: {
+              DEFAULT: "#7C5CFC",
+              bright: "#9D85FF",
+              hover: "#6E4DEE",
+              dim: "#4C39A8",
+              glow: "rgba(124, 92, 252, 0.35)",
+            },
+            gold: {
+              DEFAULT: "#7C5CFC",
+              dim: "#4C39A8",
+              bright: "#9D85FF",
+            },
+            cyan: {
+              DEFAULT: "#4CC9F0",
+            },
+            success: "#32D583",
+            warning: "#FDB022",
+            danger: {
+              DEFAULT: "#F97066",
+              bright: "#FDA29B",
+            },
+          },
+          fontFamily: {
+            display: ['"Space Grotesk"', '"Inter"', "ui-sans-serif", "sans-serif"],
+            sans: ['"Inter"', "ui-sans-serif", "sans-serif"],
+            mono: ['"JetBrains Mono"', "ui-monospace", "monospace"],
+          },
+        },
+      },
+    };
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script type="module" src="js/supabase-client.js"></script>
+  <script type="module" src="js/auth.js"></script>
+</head>
+
+<body class="min-h-screen bg-base text-white relative overflow-x-hidden">
+
+  <!-- Ambient blurred glow orbs -->
+  <div class="fixed top-10 right-1/4 w-[520px] h-[320px] bg-brand/10 rounded-full blur-[130px] pointer-events-none -z-10"></div>
+  <div class="fixed bottom-16 left-10 w-[420px] h-[300px] bg-cyan/10 rounded-full blur-[120px] pointer-events-none -z-10"></div>
+
+  <!-- NAVBAR -->
+  <header class="glass-navbar fixed top-4 inset-x-4 sm:inset-x-6 lg:inset-x-8 max-w-7xl mx-auto z-50 px-6 py-4 flex items-center justify-between">
+    <div class="mx-auto w-full flex items-center justify-between">
+
+      <a href="index.html" class="flex items-center gap-2.5 group">
+        <svg class="h-7 w-auto transition-transform group-hover:scale-105 shrink-0" viewBox="0 0 240 150" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Kredora Logo">
+          <defs>
+            <linearGradient id="kredora-logo-grad-privacy" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#9D85FF" />
+              <stop offset="100%" stop-color="#7C5CFC" />
+            </linearGradient>
+          </defs>
+          <g fill="url(#kredora-logo-grad-privacy)">
+            <path d="M 4,0 L 108,0 C 90,32 52,65 0,68 L 0,4 C 0,1.8 1.8,0 4,0 Z" />
+            <path d="M 0,82 C 52,85 90,118 108,150 L 4,150 C 1.8,150 0,148.2 0,146 L 0,82 Z" />
+            <path d="M 138,0 L 236,0 C 238.2,0 240,1.8 240,4 L 240,146 C 240,148.2 238.2,150 236,150 L 138,150 C 122,125 102,96 86,75 C 102,54 122,25 138,0 Z" />
+          </g>
+        </svg>
+        <span class="text-xl font-bold tracking-tight font-display text-white">
+          Kredora
+        </span>
+      </a>
+
+      <nav class="hidden items-center gap-1 md:flex">
+        <a href="dashboard.html" class="nav-item">Dashboard</a>
+        <a href="problems.html" class="nav-item">Problems</a>
+        <a href="evidence.html" class="nav-item">Evidence</a>
+        <a href="skill.html" class="nav-item">Skills</a>
+        <a href="profile.html" class="nav-item">Profile</a>
+      </nav>
+
+      <div class="flex items-center gap-3">
+        <div data-auth-nav></div>
+        <button id="nav-toggle" aria-label="Toggle menu" aria-expanded="false" class="md:hidden p-2 -mr-2 text-ink">
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-3xl px-6 py-10 pt-32 page-enter">
+
+    <!-- TEMPLATE NOTICE -->
+    <div class="mb-8 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5">
+      <div class="flex items-start gap-3">
+        <svg class="w-5 h-5 text-amber-400 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+        <div>
+          <p class="font-mono text-xs uppercase tracking-[0.2em] text-amber-400 font-semibold">Template — not legal advice</p>
+          <p class="mt-2 text-sm leading-6 text-white/70">
+            This policy is an unreviewed template written to describe what the software
+            actually does today. It <span class="text-white font-semibold">must be reviewed
+            by a qualified lawyer</span> before you publish this site or rely on it. It may be
+            incomplete or wrong for your jurisdiction.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- HEADER -->
+    <section class="mb-10">
+      <p class="font-mono text-xs uppercase tracking-[0.2em] text-white/40">Legal</p>
+      <h1 class="mt-1 text-3xl sm:text-4xl font-bold font-display">Privacy Policy</h1>
+      <p class="mt-3 text-sm text-white/50 font-mono">
+        Status: template · Last updated: not yet in effect · Operator contact: add your email here
+      </p>
+    </section>
+
+    <div class="space-y-10 text-sm leading-7 text-white/70">
+
+      <section>
+        <h2 class="text-xl font-bold font-display text-white mb-3">What we collect</h2>
+        <ul class="space-y-3 list-none">
+          <li class="rounded-xl border border-white/10 bg-white/[0.02] p-4">
+            <span class="text-white font-semibold">Account data</span> — your email address,
+            username/display name, and password hash. Used to create your account and sign you in.
+          </li>
+          <li class="rounded-xl border border-white/10 bg-white/[0.02] p-4">
+            <span class="text-white font-semibold">Submitted code</span> — every code submission
+            you send to the Arena: the source code, the language, the problem, the test results
+            (passed/failed, runtime, memory), and timestamps. Submissions that pass all tests are
+            stored with a SHA-256 hash chain so later edits or deletions can be detected.
+          </li>
+          <li class="rounded-xl border border-white/10 bg-white/[0.02] p-4">
+            <span class="text-white font-semibold">Activity data</span> — derived from your
+            submissions: solved counts, per-skill scores, streaks, achievements, and the evidence
+            records you add yourself (projects, assessments). Rate limiting also stores an identity
+            bucket (your user id, or your IP address when not signed in) with a per-minute counter.
+          </li>
+          <li class="rounded-xl border border-white/10 bg-white/[0.02] p-4">
+            <span class="text-white font-semibold">Local browser storage</span> — for offline and
+            pre-configuration use, progress and self-added evidence may be cached in your browser's
+            localStorage under <code class="font-mono text-xs text-brand-bright">skillproof_*</code>
+            keys. This stays on your device until you clear it.
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-bold font-display text-white mb-3">Where it is stored</h2>
+        <p>
+          All account, submission, and activity data is stored in
+          <span class="text-white font-semibold">Supabase</span> (hosted PostgreSQL with
+          Supabase Auth). Your rows are protected by row-level security: only you can read your
+          submission rows, and client applications cannot insert submissions directly — only the
+          server-side grading function can. Hidden test cases are stored server-side and are never
+          sent to the browser.
+        </p>
+        <p class="mt-3">
+          To grade a submission, your code is forwarded to an execution sandbox
+          (<span class="text-white font-semibold">Judge0 CE</span>) configured by the site operator.
+          The sandbox runs your code and returns its results. Which sandbox instance is used (and
+          therefore which provider processes your code) depends on the operator's deployment.
+        </p>
+        <p class="mt-3">
+          We do not run advertising trackers or sell data. There are no connected third-party
+          accounts (e.g., GitHub) in the current version.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-bold font-display text-white mb-3">Who can see what</h2>
+        <ul class="space-y-2">
+          <li>— You: all of your own submissions, code, and evidence (enforced by database policies).</li>
+          <li>— Other users: only the public profile presentation of your aggregate scores, not your code.</li>
+          <li>— The operator: as the Supabase project owner, the operator (and Supabase as processor) can technically access stored data. Accepted submissions are hash-chained, which makes silent tampering detectable — it is not a guarantee against operator access.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="text-xl font-bold font-display text-white mb-3">Deleting your data</h2>
+        <p>
+          Account and submission deletion is not yet self-service. To request deletion, contact the
+          operator (add your contact email above before publishing). You can clear locally cached
+          data at any time by clearing site data in your browser.
+        </p>
+      </section>
+
+      <section class="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-5">
+        <p class="text-sm leading-6 text-white/70">
+          <span class="text-amber-400 font-semibold font-mono text-xs uppercase tracking-wider">Reminder —</span>
+          This is a template for the site operator to review with a lawyer before use. It does not
+          address GDPR, CCPA, or other jurisdiction-specific requirements, and it may not match
+          your actual deployment (for example, if you disable Supabase or change sandbox
+          providers).
+        </p>
+      </section>
+
+    </div>
+
+    <div class="mt-12 flex items-center gap-4 text-xs font-mono text-white/40">
+      <a href="terms.html" class="hover:text-brand-bright transition-colors">Terms of Service →</a>
+      <span>·</span>
+      <a href="index.html" class="hover:text-brand-bright transition-colors">Back to home</a>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-white/5 px-6 py-8 mt-10">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-inkdim">
+      <p>© <span id="current-year"></span> Kredora. All rights reserved.</p>
+      <div class="flex items-center gap-4">
+        <a href="privacy.html" class="hover:text-ink transition-colors">Privacy</a>
+        <a href="terms.html" class="hover:text-ink transition-colors">Terms</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const yearEl = document.getElementById("current-year");
+      if (yearEl) yearEl.textContent = new Date().getFullYear();
+      const toggle = document.getElementById("nav-toggle");
+      if (toggle) {
+        toggle.addEventListener("click", () => {
+          const nav = document.querySelector("header nav");
+          if (nav) nav.classList.toggle("hidden");
+        });
+      }
+    });
+  </script>
+
+</body>
+</html>
