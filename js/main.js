@@ -439,7 +439,7 @@ function renderWeakArea(stats) {
       <p class="text-xs text-inkdim leading-relaxed mb-4">
         ${evidenceHint}
       </p>
-      <a href="${weakest.evidenceTypes.includes("problems") ? "problems.html" : "evidence.html"}" class="inline-flex items-center gap-1.5 text-xs font-medium text-gold hover:text-amber-300 font-mono">
+      <a href="${weakest.evidenceTypes.includes("problems") ? "problem-list.html" : "evidence.html"}" class="inline-flex items-center gap-1.5 text-xs font-medium text-gold hover:text-amber-300 font-mono">
         + ${weakest.evidenceTypes.includes("problems") ? `Practice ${weakest.name}` : `Log ${weakest.name} evidence`} →
       </a>
     </div>`;

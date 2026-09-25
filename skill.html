@@ -93,7 +93,7 @@
 
       <nav class="hidden items-center gap-1 md:flex">
         <a href="dashboard.html" class="nav-item">Dashboard</a>
-        <a href="problems.html" class="nav-item">Problems</a>
+        <a href="problem-list.html" class="nav-item">Problems</a>
         <a href="evidence.html" class="nav-item">Evidence</a>
         <a href="skill.html" class="nav-item nav-item-active">Skills</a>
         <a href="profile.html" class="nav-item">Profile</a>
@@ -235,7 +235,7 @@
 
         <a
           id="skill-next-step-btn"
-          href="problems.html"
+          href="problem-list.html"
           class="mt-7 block w-full rounded-lg bg-brand px-5 py-3 text-center font-semibold text-white transition hover:bg-brand-bright">
           Practice in the Arena
         </a>
@@ -371,7 +371,7 @@
               ? `${weakest.solved} accepted problem${weakest.solved === 1 ? "" : "s"} in ${weakest.name} so far. More accepted submissions here raise this score the fastest.`
               : `${weakest.name} is proven through projects and assessments — add evidence to raise its score.`;
           }
-          if (nextBtn) nextBtn.href = weakest.evidenceTypes.includes("problems") ? "problems.html" : "evidence.html";
+          if (nextBtn) nextBtn.href = weakest.evidenceTypes.includes("problems") ? "problem-list.html" : "evidence.html";
           if (nextBtn) nextBtn.textContent = weakest.evidenceTypes.includes("problems") ? "Practice in the Arena" : "+ Add Evidence";
         }
       });

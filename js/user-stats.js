@@ -5,7 +5,7 @@
  * signed-in developer's real activity: streak, verified points, solved
  * counts, recent activity, achievements, and evidence totals.
  *
- * Used by: dashboard (js/main.js), problems.html, profile.html, skill.html,
+ * Used by: dashboard (js/main.js), problem-list.html, profile.html, skill.html,
  * and evidence.html — so every page shows the same numbers.
  *
  * Data sources, in priority order:

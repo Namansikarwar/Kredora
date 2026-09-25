@@ -1,70 +1,127 @@
 # Kredora — Developer Proof Platform
 
-> **Stop showing percentages. Show verified proof, executable test runs, and timestamped code evidence.**
+> **Don't just claim a skill. Prove it.** Solve coding problems with server-side grading, build a timestamped, tamper-evident evidence ledger, and share a profile backed by real execution data.
 
-Kredora is a next-generation developer verification and skill-proving platform designed to replace vague resumes and superficial scorecards with verifiable cryptographic and execution-backed proof.
-
----
-
-## 🌟 Key Specialities & Features
-
-### 1. ⚡ Real Code Arena & In-Browser IDE
-* **LeetCode-Style Practice**: Solve algorithmic and systems-level coding problems directly in the browser.
-* **Multi-Language Support**: Write and test solutions in **JavaScript**, **Python**, and **Java**.
-* **Verified Unit Testing**: Instant feedback via automated test runners checking sample and hidden test cases for time complexity and functional correctness.
-* **Starter Skeletons vs. Solutions**: Clean starter code skeletons ensuring authentic problem-solving without pre-solved code leaks.
-
-### 2. 🛡️ Timestamped Evidence Ledger
-* Every solved problem, passed test case, and verified commit is logged as an immutable, timestamped record.
-* Tracks problem category, difficulty (Easy, Medium, Hard), execution time, language used, and code payload.
-
-### 3. 📊 Skill Mastery & Confidence Score
-* Dynamic competency calculation across the tracked skills defined in `js/skills.js` (the single source of truth): Java, JavaScript, SQL, and MongoDB.
-* Generates a holistic **Confidence Score** and readiness badge based on verified execution data rather than self-reported claims.
-
-### 4. 🌐 Shareable Public Developer Profiles
-* Showcase your verified skill ledger with a dedicated public profile (`profile.html`).
-* Easily shareable links with cryptographic proof badges and solved problem breakdowns to impress engineering hiring managers.
-
-### 5. ✨ Classy, Premium Glassmorphic UI & Floating Pill Navigation
-* **High-Blur Oval Navigation**: A floating frosted-glass navigation bar featuring 44px backdrop blur, subtle crimson rim glows, and responsive positioning.
-* **Refined Micro-Interactions**: Smooth card elevations (`.lift-on-hover`), luminous button highlights, and a sophisticated warm-neutral dark palette (`#080c16`, `#0a0f1c`).
+Kredora is a multi-page static web app for practicing coding problems and accumulating verifiable evidence of skill: every accepted submission is graded in a sandbox, stored on Supabase, and chained into a tamper-evident ledger.
 
 ---
 
-## 🛠️ Tech Stack
+## Architecture
 
-* **Frontend**: HTML5, Tailwind CSS, Modern JavaScript (ES6+), Lucide Icons.
-* **Backend & Persistence**: Node.js, Express, Cloud PostgreSQL / Supabase integration for reliable data synchronization.
-* **Development & Build**: Vite, Esbuild, TypeScript.
+Kredora is a **multi-page static site** — no client-side router and no Node server in production. Vite bundles the JS, Tailwind (v4, via the Vite plugin) compiles the CSS, and the output is deployed as plain static files.
 
----
+**Pages** (each a separate Vite build input):
 
-## 🚀 Getting Started
+| Page | Purpose |
+|---|---|
+| `index.html` | Landing page (marketing demos are labeled as examples) |
+| `login.html` / `signup.html` | Supabase Auth (email + password) |
+| `dashboard.html` | Real stats, skill rings, recent activity, achievements |
+| `problem-list.html` | Coding problem catalog with filters |
+| `problem.html` | In-browser editor + submission flow |
+| `evidence.html` | Evidence ledger: verified submissions + user-added projects/assessments |
+| `profile.html` | Shareable profile computed from your own data |
+| `skill.html` | Per-skill breakdown |
+| `privacy.html` / `terms.html` | Template policy pages (marked for legal review) |
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/your-username/kredora.git
-   cd kredora
-   ```
+**Key JS modules** (`js/`):
 
-2. **Install dependencies**:
-   ```bash
-   npm install
-   ```
-
-3. **Start the development server**:
-   ```bash
-   npm run dev
-   ```
-
-4. **Build for production**:
-   ```bash
-   npm run build
-   ```
+- `user-stats.js` — the single source for all user numbers (solved counts, streak from consecutive submission days, verified points by difficulty, per-skill progress). Every page reads the same functions, so the numbers always agree.
+- `skills.js` — config declaring the tracked skills (Java, JavaScript, SQL, MongoDB) and which evidence types feed each.
+- `problems-data.js` — the problem catalog and local progress tracker. Hidden test cases are stripped from the client bundle at load; only sample tests ship to the browser.
+- `supabase-client.js` — Supabase singleton, submission calls, verify-record client.
+- `site-config.js` — the one place the site URL, tagline, and identity strings are defined.
+- `auth.js` — sign-up / sign-in / session handling, with a localStorage fallback when Supabase isn't configured.
 
 ---
 
-## 📄 License
+## Supabase setup
 
-Built for high-performance developer verification. All rights reserved.
+Kredora uses Supabase for auth, database, and Edge Functions. To wire up your own project:
+
+1. Create a project at [supabase.com](https://supabase.com).
+2. Run the full schema: [`supabase/schema.sql`](supabase/schema.sql) — tables (`problem_submissions`, `user_progress`, `problem_tests`, `submission_rate_limits`), the `profile_summaries` view, and Row Level Security policies. Clients get owner-SELECT only; **inserts into `problem_submissions` happen exclusively via the Edge Function using the service-role key** — there are no client INSERT/UPDATE/DELETE policies.
+3. Seed the server-side hidden tests: [`supabase/seed-tests.sql`](supabase/seed-tests.sql) (generated by `scripts/generate-seed-tests.mjs`). `problem_tests` has RLS enabled and forced with **zero policies**, so hidden tests are unreadable from the browser.
+4. Deploy the Edge Functions:
+
+   ```bash
+   supabase functions deploy run-submission
+   supabase functions deploy verify-record
+   ```
+
+**Edge Functions** (`supabase/functions/`):
+
+- **`run-submission`** — receives `{problemId, language, code}`, loads the hidden tests server-side, and grades them in the [Judge0 CE](https://judge0.com/) sandbox (self-hosted or via a provider — configured by env vars, not hardcoded). Supports JavaScript (Node 18), Python 3, and Java (OpenJDK), including Java's compile step. Returns per-test pass/fail with runtime and memory. Applies per-user rate limiting (20 submissions / 60 s), a 64 KB code limit, and per-test CPU/memory limits. On acceptance it inserts the row **with the service-role key** and appends to the tamper-evident hash chain.
+- **`verify-record`** — recomputes the SHA-256 chain over a user's accepted submissions and returns valid/invalid, so anyone can check their evidence ledger hasn't been edited or spliced.
+
+The hash chain is **tamper-evident, not tamper-proof**: it detects edited or deleted records, but it is not "cryptographic proof" and does not restrict operator-level database access.
+
+Without Supabase configured, the app runs in a localStorage-only fallback mode (sample tests graded in-browser, records flagged as locally graded).
+
+---
+
+## Deployment (GitHub Actions)
+
+Pushes to `main` trigger [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml), which installs dependencies, builds with Vite, and publishes `dist/` to **GitHub Pages** via `actions/deploy-pages`. The site lives at `https://<owner>.github.io/Kredora/` (Vite `base` is set accordingly in `vite.config.ts`).
+
+Required GitHub repo secrets:
+
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
+
+Optional (only if self-hosting Judge0 or using a direct endpoint; provider keys go through `supabase secrets set`):
+
+- `JUDGE0_URL`, `JUDGE0_KEY` — set via `supabase secrets set JUDGE0_URL=... JUDGE0_KEY=...` for the Edge Functions, not GitHub.
+
+> **Note:** the SPA fallback in the workflow (`404.html`) exists for robustness; the site is a multi-page app, not an SPA.
+
+---
+
+## Environment variables
+
+| Variable | Where | Required | Purpose |
+|---|---|---|---|
+| `VITE_SUPABASE_URL` | GitHub secrets / `.env` | for cloud sync | Supabase project URL |
+| `VITE_SUPABASE_ANON_KEY` | GitHub secrets / `.env` | for cloud sync | Supabase anon key |
+| `JUDGE0_URL` | `supabase secrets set` | for server-side grading | Judge0 CE endpoint |
+| `JUDGE0_KEY` | `supabase secrets set` | for server-side grading | Judge0 auth key |
+
+`.env.example` is a leftover template from the original scaffolding — only the two `VITE_SUPABASE_*` vars are used by this codebase.
+
+---
+
+## Getting started
+
+```bash
+# Clone
+git clone https://github.com/Namansikarwar/Kredora.git
+cd Kredora
+
+# Install
+npm install
+
+# Develop (Vite dev server)
+npm run dev
+
+# Production build
+npm run build
+
+# Preview the production build locally
+npm run preview
+```
+
+For full functionality (server-side grading, cross-device sync), complete the Supabase setup above and set the two `VITE_SUPABASE_*` variables before building.
+
+---
+
+## Grading honesty
+
+- Scores are computed from real data: accepted submissions, per-difficulty point values, and consecutive-day streaks — all in `js/user-stats.js`, shared by every page.
+- Landing-page marketing figures are explicitly labeled as examples.
+- The evidence hash chain is described everywhere as tamper-evident — never as immutable or cryptographic proof.
+
+---
+
+## License
+
+Released under the [MIT License](LICENSE).
