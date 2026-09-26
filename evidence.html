@@ -1,477 +1,711 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Evidence — Kredora</title>
-  <meta name="description" content="View and manage evidence records validating your skill scores on Kredora." />
-  <link rel="icon" type="image/svg+xml" href="kredora-logo.svg" />
-  <link rel="alternate icon" href="kredora-logo.png" type="image/png" />
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Evidence — Kredora</title>
+    <meta
+      name="description"
+      content="View and manage evidence records validating your skill scores on Kredora."
+    />
+    <link rel="icon" type="image/svg+xml" href="kredora-logo.svg" />
+    <link rel="alternate icon" href="kredora-logo.png" type="image/png" />
 
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            base: "#080B12",
-            surface: "#0D111A",
-            surface2: "#111722",
-            elevated: "#151C29",
-            borderc: "#202938",
-            ink: "#F4F7FB",
-            inkdim: "#98A2B3",
-            muted: "#667085",
-            brand: {
-              DEFAULT: "#7C5CFC",
-              bright: "#9D85FF",
-              hover: "#6E4DEE",
-              dim: "#4C39A8",
-              glow: "rgba(124, 92, 252, 0.35)",
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              base: "#080B12",
+              surface: "#0D111A",
+              surface2: "#111722",
+              elevated: "#151C29",
+              borderc: "#202938",
+              ink: "#F4F7FB",
+              inkdim: "#98A2B3",
+              muted: "#667085",
+              brand: {
+                DEFAULT: "#7C5CFC",
+                bright: "#9D85FF",
+                hover: "#6E4DEE",
+                dim: "#4C39A8",
+                glow: "rgba(124, 92, 252, 0.35)",
+              },
+              gold: {
+                DEFAULT: "#7C5CFC",
+                dim: "#4C39A8",
+                bright: "#9D85FF",
+              },
+              cyan: {
+                DEFAULT: "#4CC9F0",
+              },
+              success: "#32D583",
+              warning: "#FDB022",
+              danger: {
+                DEFAULT: "#F97066",
+                bright: "#FDA29B",
+              },
             },
-            gold: {
-              DEFAULT: "#7C5CFC",
-              dim: "#4C39A8",
-              bright: "#9D85FF",
+            fontFamily: {
+              display: [
+                '"Space Grotesk"',
+                '"Inter"',
+                "ui-sans-serif",
+                "sans-serif",
+              ],
+              sans: ['"Inter"', "ui-sans-serif", "sans-serif"],
+              mono: ['"JetBrains Mono"', "ui-monospace", "monospace"],
             },
-            cyan: {
-              DEFAULT: "#4CC9F0",
-            },
-            success: "#32D583",
-            warning: "#FDB022",
-            danger: {
-              DEFAULT: "#F97066",
-              bright: "#FDA29B",
-            },
-          },
-          fontFamily: {
-            display: ['"Space Grotesk"', '"Inter"', "ui-sans-serif", "sans-serif"],
-            sans: ['"Inter"', "ui-sans-serif", "sans-serif"],
-            mono: ['"JetBrains Mono"', "ui-monospace", "monospace"],
           },
         },
-      },
-    };
-  </script>
+      };
+    </script>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
 
-  <script type="module" src="js/supabase-client.js"></script>
-  <script type="module" src="js/site-config.js"></script>
-  <script type="module" src="js/user-stats.js"></script>
-  <script type="module" src="js/skills.js"></script>
-  <script type="module" src="js/problems-data.js"></script>
-  <script type="module" src="js/auth.js"></script>
-  <script type="module">
-    import "./js/supabase-client.js";
-    import "./js/auth.js";
-    if (!window.Auth.requireAuth("evidence.html")) {
-      // Redirects to login.html
-    }
-  </script>
-</head>
+    <script type="module" src="js/supabase-client.js"></script>
+    <script type="module" src="js/site-config.js"></script>
+    <script type="module" src="js/user-stats.js"></script>
+    <script type="module" src="js/skills.js"></script>
+    <script type="module" src="js/problems-data.js"></script>
+    <script type="module" src="js/auth.js"></script>
+    <script type="module">
+      import "./js/supabase-client.js";
+      import "./js/auth.js";
+      if (!window.Auth.requireAuth("evidence.html")) {
+        // Redirects to login.html
+      }
+    </script>
+  </head>
 
-<body class="min-h-screen bg-base text-white relative overflow-x-hidden">
+  <body class="min-h-screen bg-base text-white relative overflow-x-hidden">
+    <!-- Ambient blurred glow orbs -->
+    <div
+      class="fixed top-10 left-1/3 w-[520px] h-[320px] bg-brand/10 rounded-full blur-[130px] pointer-events-none -z-10"
+    ></div>
+    <div
+      class="fixed bottom-16 right-10 w-[420px] h-[300px] bg-cyan/10 rounded-full blur-[120px] pointer-events-none -z-10"
+    ></div>
 
-  <!-- Ambient blurred glow orbs -->
-  <div class="fixed top-10 left-1/3 w-[520px] h-[320px] bg-brand/10 rounded-full blur-[130px] pointer-events-none -z-10"></div>
-  <div class="fixed bottom-16 right-10 w-[420px] h-[300px] bg-cyan/10 rounded-full blur-[120px] pointer-events-none -z-10"></div>
+    <!-- NAV -->
+    <header
+      class="glass-navbar fixed top-4 inset-x-4 sm:inset-x-6 lg:inset-x-8 max-w-7xl mx-auto z-50 px-6 py-4 flex items-center justify-between"
+    >
+      <div class="mx-auto w-full flex items-center justify-between">
+        <a href="index.html" class="flex items-center gap-2.5 group">
+          <svg
+            class="h-7 w-auto transition-transform group-hover:scale-105 shrink-0"
+            viewBox="0 0 240 150"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-label="Kredora Logo"
+          >
+            <defs>
+              <linearGradient
+                id="kredora-logo-grad-evid"
+                x1="0%"
+                y1="0%"
+                x2="100%"
+                y2="100%"
+              >
+                <stop offset="0%" stop-color="#9D85FF" />
+                <stop offset="100%" stop-color="#7C5CFC" />
+              </linearGradient>
+            </defs>
+            <g fill="url(#kredora-logo-grad-evid)">
+              <path
+                d="M 4,0 L 108,0 C 90,32 52,65 0,68 L 0,4 C 0,1.8 1.8,0 4,0 Z"
+              />
+              <path
+                d="M 0,82 C 52,85 90,118 108,150 L 4,150 C 1.8,150 0,148.2 0,146 L 0,82 Z"
+              />
+              <path
+                d="M 138,0 L 236,0 C 238.2,0 240,1.8 240,4 L 240,146 C 240,148.2 238.2,150 236,150 L 138,150 C 122,125 102,96 86,75 C 102,54 122,25 138,0 Z"
+              />
+            </g>
+          </svg>
+          <span
+            class="font-display font-semibold text-lg tracking-tight text-white"
+            >Kredora</span
+          >
+        </a>
 
-  <!-- NAV -->
-  <header class="glass-navbar fixed top-4 inset-x-4 sm:inset-x-6 lg:inset-x-8 max-w-7xl mx-auto z-50 px-6 py-4 flex items-center justify-between">
-    <div class="mx-auto w-full flex items-center justify-between">
+        <nav class="hidden gap-1 md:flex items-center">
+          <a href="dashboard.html" class="nav-item">Dashboard</a>
+          <a href="problem-list.html" class="nav-item">Problems</a>
+          <a href="evidence.html" class="nav-item nav-item-active">Evidence</a>
+          <a href="skill.html" class="nav-item">Skills</a>
+          <a href="profile.html" class="nav-item">Profile</a>
+        </nav>
 
-      <a href="index.html" class="flex items-center gap-2.5 group">
-        <svg class="h-7 w-auto transition-transform group-hover:scale-105 shrink-0" viewBox="0 0 240 150" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Kredora Logo">
-          <defs>
-            <linearGradient id="kredora-logo-grad-evid" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#9D85FF" />
-              <stop offset="100%" stop-color="#7C5CFC" />
-            </linearGradient>
-          </defs>
-          <g fill="url(#kredora-logo-grad-evid)">
-            <path d="M 4,0 L 108,0 C 90,32 52,65 0,68 L 0,4 C 0,1.8 1.8,0 4,0 Z" />
-            <path d="M 0,82 C 52,85 90,118 108,150 L 4,150 C 1.8,150 0,148.2 0,146 L 0,82 Z" />
-            <path d="M 138,0 L 236,0 C 238.2,0 240,1.8 240,4 L 240,146 C 240,148.2 238.2,150 236,150 L 138,150 C 122,125 102,96 86,75 C 102,54 122,25 138,0 Z" />
-          </g>
-        </svg>
-        <span class="font-display font-semibold text-lg tracking-tight text-white">Kredora</span>
-      </a>
-
-      <nav class="hidden gap-1 md:flex items-center">
-        <a href="dashboard.html" class="nav-item">Dashboard</a>
-        <a href="problem-list.html" class="nav-item">Problems</a>
-        <a href="evidence.html" class="nav-item nav-item-active">Evidence</a>
-        <a href="skill.html" class="nav-item">Skills</a>
-        <a href="profile.html" class="nav-item">Profile</a>
-      </nav>
-
-      <div class="flex items-center gap-3">
-        <div class="hidden sm:block" data-auth-nav></div>
-        <button id="nav-toggle" aria-label="Toggle menu" aria-expanded="false" class="md:hidden p-2 -mr-2 text-ink">
-          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
-        </button>
+        <div class="flex items-center gap-3">
+          <div class="hidden sm:block" data-auth-nav></div>
+          <button
+            id="nav-toggle"
+            aria-label="Toggle menu"
+            aria-expanded="false"
+            class="md:hidden p-2 -mr-2 text-ink"
+          >
+            <svg
+              class="w-6 h-6"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+            >
+              <path d="M4 7h16M4 12h16M4 17h16" />
+            </svg>
+          </button>
+        </div>
       </div>
-    </div>
 
-    <!-- Mobile menu -->
-    <div id="mobile-menu" class="md:hidden border-t border-white/10 bg-base/95 backdrop-blur-2xl">
-      <div class="px-5 py-4 flex flex-col gap-1 text-sm">
-        <a href="dashboard.html" class="py-2.5 text-inkdim hover:text-ink">Dashboard</a>
-        <a href="problem-list.html" class="py-2.5 text-inkdim hover:text-ink">Problems</a>
-        <a href="evidence.html" class="py-2.5 text-white font-semibold">Evidence</a>
-        <a href="skill.html" class="py-2.5 text-inkdim hover:text-ink">Skills</a>
-        <a href="profile.html" class="py-2.5 text-inkdim hover:text-ink">Profile</a>
-        <div data-mobile-auth-nav></div>
+      <!-- Mobile menu -->
+      <div
+        id="mobile-menu"
+        class="md:hidden border-t border-white/10 bg-base/95 backdrop-blur-2xl"
+      >
+        <div class="px-5 py-4 flex flex-col gap-1 text-sm">
+          <a href="dashboard.html" class="py-2.5 text-inkdim hover:text-ink"
+            >Dashboard</a
+          >
+          <a href="problem-list.html" class="py-2.5 text-inkdim hover:text-ink"
+            >Problems</a
+          >
+          <a href="evidence.html" class="py-2.5 text-white font-semibold"
+            >Evidence</a
+          >
+          <a href="skill.html" class="py-2.5 text-inkdim hover:text-ink"
+            >Skills</a
+          >
+          <a href="profile.html" class="py-2.5 text-inkdim hover:text-ink"
+            >Profile</a
+          >
+          <div data-mobile-auth-nav></div>
+        </div>
       </div>
-    </div>
-  </header>
+    </header>
 
-  <main class="mx-auto max-w-7xl px-6 py-10 pt-28 page-enter">
+    <main class="mx-auto max-w-7xl px-6 py-10 pt-28 page-enter">
+      <!-- HEADER -->
+      <section class="mb-10">
+        <p class="font-mono text-xs uppercase tracking-[0.2em] text-cyan">
+          Evidence Log
+        </p>
 
-    <!-- HEADER -->
-    <section class="mb-10">
-      <p class="font-mono text-xs uppercase tracking-[0.2em] text-cyan">
-        Evidence Log
-      </p>
+        <div
+          class="mt-2 flex flex-col justify-between gap-5 md:flex-row md:items-end"
+        >
+          <div>
+            <h1 class="text-3xl sm:text-4xl font-bold font-display">
+              Your proof
+            </h1>
+            <p class="mt-3 max-w-2xl text-white/50 leading-relaxed">
+              Every skill score is backed by evidence. Manage the projects,
+              problems, assessments, and activities that prove what you can
+              actually do.
+            </p>
+          </div>
 
-      <div class="mt-2 flex flex-col justify-between gap-5 md:flex-row md:items-end">
-        <div>
-          <h1 class="text-3xl sm:text-4xl font-bold font-display">
-            Your proof
-          </h1>
-          <p class="mt-3 max-w-2xl text-white/50 leading-relaxed">
-            Every skill score is backed by evidence. Manage the projects, problems,
-            assessments, and activities that prove what you can actually do.
+          <button
+            onclick="
+              document
+                .getElementById('evidenceModal')
+                .classList.remove('hidden')
+            "
+            class="inline-flex items-center justify-center gap-2 rounded-lg bg-brand px-5 py-2.5 font-semibold text-white transition hover:bg-brand-bright shadow-lg shadow-brand/20"
+          >
+            <svg
+              class="w-4 h-4"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+            Add Evidence
+          </button>
+        </div>
+      </section>
+
+      <!-- STATS -->
+      <section class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div
+          class="rounded-2xl border border-white/10 bg-surface2/80 frosted-panel p-6"
+        >
+          <p class="text-xs font-mono uppercase tracking-wider text-white/40">
+            Total evidence
+          </p>
+          <p
+            class="mt-2 text-3xl font-bold font-display"
+            id="total-evidence-count"
+          >
+            0
           </p>
         </div>
 
+        <div
+          class="rounded-2xl border border-white/10 bg-surface2/80 frosted-panel p-6"
+        >
+          <p class="text-xs font-mono uppercase tracking-wider text-white/40">
+            Projects
+          </p>
+          <p
+            class="mt-2 text-3xl font-bold font-display text-cyan"
+            id="total-projects-count"
+          >
+            0
+          </p>
+        </div>
+
+        <div
+          class="rounded-2xl border border-white/10 bg-surface2/80 frosted-panel p-6"
+        >
+          <p class="text-xs font-mono uppercase tracking-wider text-white/40">
+            Problems
+          </p>
+          <p
+            class="mt-2 text-3xl font-bold font-display text-brand-bright"
+            id="total-problems-count"
+          >
+            0
+          </p>
+        </div>
+
+        <div
+          class="rounded-2xl border border-white/10 bg-surface2/80 frosted-panel p-6"
+        >
+          <p class="text-xs font-mono uppercase tracking-wider text-white/40">
+            Assessments
+          </p>
+          <p
+            class="mt-2 text-3xl font-bold font-display"
+            id="total-assessments-count"
+          >
+            0
+          </p>
+        </div>
+      </section>
+
+      <!-- FILTER -->
+      <section class="mb-6 flex flex-wrap gap-2.5">
         <button
-          onclick="document.getElementById('evidenceModal').classList.remove('hidden')"
-          class="inline-flex items-center justify-center gap-2 rounded-lg bg-brand px-5 py-2.5 font-semibold text-white transition hover:bg-brand-bright shadow-lg shadow-brand/20">
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
-          Add Evidence
+          onclick="filterEvidence('all')"
+          id="btn-filter-all"
+          class="filter-btn rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white transition"
+        >
+          All
         </button>
-      </div>
-    </section>
+        <button
+          onclick="filterEvidence('problem')"
+          id="btn-filter-problem"
+          class="filter-btn rounded-full border border-white/10 bg-white/5 backdrop-blur-sm px-4 py-2 text-sm text-white/60 hover:text-white transition"
+        >
+          Problems
+        </button>
+        <button
+          onclick="filterEvidence('project')"
+          id="btn-filter-project"
+          class="filter-btn rounded-full border border-white/10 bg-white/5 backdrop-blur-sm px-4 py-2 text-sm text-white/60 hover:text-white transition"
+        >
+          Projects
+        </button>
+        <button
+          onclick="filterEvidence('assessment')"
+          id="btn-filter-assessment"
+          class="filter-btn rounded-full border border-white/10 bg-white/5 backdrop-blur-sm px-4 py-2 text-sm text-white/60 hover:text-white transition"
+        >
+          Assessments
+        </button>
+      </section>
 
-    <!-- STATS -->
-    <section class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      <div class="rounded-2xl border border-white/10 bg-surface2/80 frosted-panel p-6">
-        <p class="text-xs font-mono uppercase tracking-wider text-white/40">Total evidence</p>
-        <p class="mt-2 text-3xl font-bold font-display" id="total-evidence-count">0</p>
-      </div>
-
-      <div class="rounded-2xl border border-white/10 bg-surface2/80 frosted-panel p-6">
-        <p class="text-xs font-mono uppercase tracking-wider text-white/40">Projects</p>
-        <p class="mt-2 text-3xl font-bold font-display text-cyan" id="total-projects-count">0</p>
-      </div>
-
-      <div class="rounded-2xl border border-white/10 bg-surface2/80 frosted-panel p-6">
-        <p class="text-xs font-mono uppercase tracking-wider text-white/40">Problems</p>
-        <p class="mt-2 text-3xl font-bold font-display text-brand-bright" id="total-problems-count">0</p>
-      </div>
-
-      <div class="rounded-2xl border border-white/10 bg-surface2/80 frosted-panel p-6">
-        <p class="text-xs font-mono uppercase tracking-wider text-white/40">Assessments</p>
-        <p class="mt-2 text-3xl font-bold font-display" id="total-assessments-count">0</p>
-      </div>
-    </section>
-
-    <!-- FILTER -->
-    <section class="mb-6 flex flex-wrap gap-2.5">
-      <button onclick="filterEvidence('all')" id="btn-filter-all" class="filter-btn rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white transition">
-        All
-      </button>
-      <button onclick="filterEvidence('problem')" id="btn-filter-problem" class="filter-btn rounded-full border border-white/10 bg-white/5 backdrop-blur-sm px-4 py-2 text-sm text-white/60 hover:text-white transition">
-        Problems
-      </button>
-      <button onclick="filterEvidence('project')" id="btn-filter-project" class="filter-btn rounded-full border border-white/10 bg-white/5 backdrop-blur-sm px-4 py-2 text-sm text-white/60 hover:text-white transition">
-        Projects
-      </button>
-      <button onclick="filterEvidence('assessment')" id="btn-filter-assessment" class="filter-btn rounded-full border border-white/10 bg-white/5 backdrop-blur-sm px-4 py-2 text-sm text-white/60 hover:text-white transition">
-        Assessments
-      </button>
-    </section>
-
-    <!-- EVIDENCE LIST -->
-    <!-- The four items below are STATIC EXAMPLE RECORDS so the page
+      <!-- EVIDENCE LIST -->
+      <!-- The four items below are STATIC EXAMPLE RECORDS so the page
          demonstrates the layout without a backend. They are labeled
          "Sample record" and excluded from the real counts above. -->
-    <section id="evidenceList" class="space-y-4">
-
-      <div data-type="problem" class="evidence-item flex flex-col justify-between gap-5 rounded-2xl border border-white/10 bg-surface2/80 frosted-panel p-6 transition hover:border-brand/30 md:flex-row md:items-center">
-        <div class="flex gap-4">
-          <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand-bright font-mono font-bold">
-            #
-          </div>
-          <div>
-            <div class="flex flex-wrap items-center gap-3">
-              <h3 class="font-semibold text-white">Two Sum</h3>
-              <span class="rounded-full bg-white/5 border border-white/10 px-2.5 py-0.5 text-xs text-white/40 font-mono">
-                Sample record
-              </span>
-              <span class="rounded-full bg-brand/10 border border-brand/20 px-2.5 py-0.5 text-xs text-brand-bright font-mono">
-                Coding Problem
-              </span>
+      <section id="evidenceList" class="space-y-4">
+        <div
+          data-type="problem"
+          class="evidence-item flex flex-col justify-between gap-5 rounded-2xl border border-white/10 bg-surface2/80 frosted-panel p-6 transition hover:border-brand/30 md:flex-row md:items-center"
+        >
+          <div class="flex gap-4">
+            <div
+              class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand-bright font-mono font-bold"
+            >
+              #
             </div>
-            <p class="mt-1.5 text-sm text-white/50">
-              Array fundamentals · Java · Solved in 8m 42s
-            </p>
-            <p class="mt-2 font-mono text-xs text-white/30">
-              Added 2 days ago
-            </p>
+            <div>
+              <div class="flex flex-wrap items-center gap-3">
+                <h3 class="font-semibold text-white">Two Sum</h3>
+                <span
+                  class="rounded-full bg-white/5 border border-white/10 px-2.5 py-0.5 text-xs text-white/40 font-mono"
+                >
+                  Sample record
+                </span>
+                <span
+                  class="rounded-full bg-brand/10 border border-brand/20 px-2.5 py-0.5 text-xs text-brand-bright font-mono"
+                >
+                  Coding Problem
+                </span>
+              </div>
+              <p class="mt-1.5 text-sm text-white/50">
+                Array fundamentals · Java · Solved in 8m 42s
+              </p>
+              <p class="mt-2 font-mono text-xs text-white/30">
+                Added 2 days ago
+              </p>
+            </div>
           </div>
-        </div>
-        <div class="flex flex-col items-start md:items-end gap-2 self-start md:self-auto">
-          <span class="font-mono text-sm text-cyan bg-cyan/10 px-3 py-1 rounded-full border border-cyan/20">
-            +2 evidence points
-          </span>
-          <!-- Hash-chain integrity check — detects edits/deletions in the
+          <div
+            class="flex flex-col items-start md:items-end gap-2 self-start md:self-auto"
+          >
+            <span
+              class="font-mono text-sm text-cyan bg-cyan/10 px-3 py-1 rounded-full border border-cyan/20"
+            >
+              +2 evidence points
+            </span>
+            <!-- Hash-chain integrity check — detects edits/deletions in the
                recorded history; not a correctness certificate. -->
-          <button
-            data-record-id="REPLACE_WITH_RECORD_ID"
-            onclick="verifyEvidence(this)"
-            title="Re-check that this record's stored history is unchanged."
-            class="verify-btn inline-flex items-center gap-1.5 font-mono text-xs text-cyan hover:text-white transition disabled:opacity-50">
-            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
-            <span class="verify-label">Verify chain</span>
-          </button>
+            <button
+              data-record-id="REPLACE_WITH_RECORD_ID"
+              onclick="verifyEvidence(this)"
+              title="Re-check that this record's stored history is unchanged."
+              class="verify-btn inline-flex items-center gap-1.5 font-mono text-xs text-cyan hover:text-white transition disabled:opacity-50"
+            >
+              <svg
+                class="w-3.5 h-3.5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                <path d="m9 11 3 3L22 4" />
+              </svg>
+              <span class="verify-label">Verify chain</span>
+            </button>
+          </div>
         </div>
-      </div>
 
-      <div data-type="project" class="evidence-item flex flex-col justify-between gap-5 rounded-2xl border border-white/10 bg-surface2/80 frosted-panel p-6 transition hover:border-cyan/30 md:flex-row md:items-center">
-        <div class="flex gap-4">
-          <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-cyan/10 text-cyan font-mono font-bold">
-            ◇
-          </div>
-          <div>
-            <div class="flex flex-wrap items-center gap-3">
-              <h3 class="font-semibold text-white">Library Management System</h3>
-              <span class="rounded-full bg-white/5 border border-white/10 px-2.5 py-0.5 text-xs text-white/40 font-mono">
-                Sample record
-              </span>
-              <span class="rounded-full bg-cyan/10 border border-cyan/20 px-2.5 py-0.5 text-xs text-cyan font-mono">
-                Project
-              </span>
+        <div
+          data-type="project"
+          class="evidence-item flex flex-col justify-between gap-5 rounded-2xl border border-white/10 bg-surface2/80 frosted-panel p-6 transition hover:border-cyan/30 md:flex-row md:items-center"
+        >
+          <div class="flex gap-4">
+            <div
+              class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-cyan/10 text-cyan font-mono font-bold"
+            >
+              ◇
             </div>
-            <p class="mt-1.5 text-sm text-white/50">
-              Java + SQL · CRUD application with JUnit test coverage
-            </p>
-            <p class="mt-2 font-mono text-xs text-white/30">
-              Added 6 days ago
-            </p>
-          </div>
-        </div>
-        <span class="font-mono text-sm text-cyan bg-cyan/10 px-3 py-1 rounded-full border border-cyan/20 self-start md:self-auto">
-          +8 evidence points
-        </span>
-      </div>
-
-      <div data-type="assessment" class="evidence-item flex flex-col justify-between gap-5 rounded-2xl border border-white/10 bg-surface2/80 frosted-panel p-6 transition hover:border-brand/30 md:flex-row md:items-center">
-        <div class="flex gap-4">
-          <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand-bright font-mono font-bold">
-            ✓
-          </div>
-          <div>
-            <div class="flex flex-wrap items-center gap-3">
-              <h3 class="font-semibold text-white">Java OOP Assessment</h3>
-              <span class="rounded-full bg-white/5 border border-white/10 px-2.5 py-0.5 text-xs text-white/40 font-mono">
-                Sample record
-              </span>
-              <span class="rounded-full bg-brand/10 border border-brand/20 px-2.5 py-0.5 text-xs text-brand-bright font-mono">
-                Assessment
-              </span>
+            <div>
+              <div class="flex flex-wrap items-center gap-3">
+                <h3 class="font-semibold text-white">
+                  Library Management System
+                </h3>
+                <span
+                  class="rounded-full bg-white/5 border border-white/10 px-2.5 py-0.5 text-xs text-white/40 font-mono"
+                >
+                  Sample record
+                </span>
+                <span
+                  class="rounded-full bg-cyan/10 border border-cyan/20 px-2.5 py-0.5 text-xs text-cyan font-mono"
+                >
+                  Project
+                </span>
+              </div>
+              <p class="mt-1.5 text-sm text-white/50">
+                Java + SQL · CRUD application with JUnit test coverage
+              </p>
+              <p class="mt-2 font-mono text-xs text-white/30">
+                Added 6 days ago
+              </p>
             </div>
-            <p class="mt-1.5 text-sm text-white/50">
-              Object-oriented programming principles · Score 88%
-            </p>
-            <p class="mt-2 font-mono text-xs text-white/30">
-              Added 12 days ago
-            </p>
           </div>
-        </div>
-        <span class="font-mono text-sm text-brand-bright bg-brand/10 px-3 py-1 rounded-full border border-brand/20 self-start md:self-auto">
-          +6 evidence points
-        </span>
-      </div>
-
-      <div data-type="problem" class="evidence-item flex flex-col justify-between gap-5 rounded-2xl border border-white/10 bg-surface2/80 frosted-panel p-6 transition hover:border-brand/30 md:flex-row md:items-center">
-        <div class="flex gap-4">
-          <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand-bright font-mono font-bold">
-            #
-          </div>
-          <div>
-            <div class="flex flex-wrap items-center gap-3">
-              <h3 class="font-semibold text-white">Reverse Linked List</h3>
-              <span class="rounded-full bg-white/5 border border-white/10 px-2.5 py-0.5 text-xs text-white/40 font-mono">
-                Sample record
-              </span>
-              <span class="rounded-full bg-brand/10 border border-brand/20 px-2.5 py-0.5 text-xs text-brand-bright font-mono">
-                Coding Problem
-              </span>
-            </div>
-            <p class="mt-1.5 text-sm text-white/50">
-              Linked lists · Java · In-place pointer manipulation
-            </p>
-            <p class="mt-2 font-mono text-xs text-white/30">
-              Added 15 days ago
-            </p>
-          </div>
-        </div>
-        <div class="flex flex-col items-start md:items-end gap-2 self-start md:self-auto">
-          <span class="font-mono text-sm text-brand-bright bg-brand/10 px-3 py-1 rounded-full border border-brand/20">
-            +2 evidence points
+          <span
+            class="font-mono text-sm text-cyan bg-cyan/10 px-3 py-1 rounded-full border border-cyan/20 self-start md:self-auto"
+          >
+            +8 evidence points
           </span>
-          <!-- Problem-type items are backed by hash-chained submissions -->
+        </div>
+
+        <div
+          data-type="assessment"
+          class="evidence-item flex flex-col justify-between gap-5 rounded-2xl border border-white/10 bg-surface2/80 frosted-panel p-6 transition hover:border-brand/30 md:flex-row md:items-center"
+        >
+          <div class="flex gap-4">
+            <div
+              class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand-bright font-mono font-bold"
+            >
+              ✓
+            </div>
+            <div>
+              <div class="flex flex-wrap items-center gap-3">
+                <h3 class="font-semibold text-white">Java OOP Assessment</h3>
+                <span
+                  class="rounded-full bg-white/5 border border-white/10 px-2.5 py-0.5 text-xs text-white/40 font-mono"
+                >
+                  Sample record
+                </span>
+                <span
+                  class="rounded-full bg-brand/10 border border-brand/20 px-2.5 py-0.5 text-xs text-brand-bright font-mono"
+                >
+                  Assessment
+                </span>
+              </div>
+              <p class="mt-1.5 text-sm text-white/50">
+                Object-oriented programming principles · Score 88%
+              </p>
+              <p class="mt-2 font-mono text-xs text-white/30">
+                Added 12 days ago
+              </p>
+            </div>
+          </div>
+          <span
+            class="font-mono text-sm text-brand-bright bg-brand/10 px-3 py-1 rounded-full border border-brand/20 self-start md:self-auto"
+          >
+            +6 evidence points
+          </span>
+        </div>
+
+        <div
+          data-type="problem"
+          class="evidence-item flex flex-col justify-between gap-5 rounded-2xl border border-white/10 bg-surface2/80 frosted-panel p-6 transition hover:border-brand/30 md:flex-row md:items-center"
+        >
+          <div class="flex gap-4">
+            <div
+              class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand-bright font-mono font-bold"
+            >
+              #
+            </div>
+            <div>
+              <div class="flex flex-wrap items-center gap-3">
+                <h3 class="font-semibold text-white">Reverse Linked List</h3>
+                <span
+                  class="rounded-full bg-white/5 border border-white/10 px-2.5 py-0.5 text-xs text-white/40 font-mono"
+                >
+                  Sample record
+                </span>
+                <span
+                  class="rounded-full bg-brand/10 border border-brand/20 px-2.5 py-0.5 text-xs text-brand-bright font-mono"
+                >
+                  Coding Problem
+                </span>
+              </div>
+              <p class="mt-1.5 text-sm text-white/50">
+                Linked lists · Java · In-place pointer manipulation
+              </p>
+              <p class="mt-2 font-mono text-xs text-white/30">
+                Added 15 days ago
+              </p>
+            </div>
+          </div>
+          <div
+            class="flex flex-col items-start md:items-end gap-2 self-start md:self-auto"
+          >
+            <span
+              class="font-mono text-sm text-brand-bright bg-brand/10 px-3 py-1 rounded-full border border-brand/20"
+            >
+              +2 evidence points
+            </span>
+            <!-- Problem-type items are backed by hash-chained submissions -->
+            <button
+              data-record-id="REPLACE_WITH_RECORD_ID"
+              onclick="verifyEvidence(this)"
+              title="Re-check that this record's stored history is unchanged."
+              class="verify-btn inline-flex items-center gap-1.5 font-mono text-xs text-cyan hover:text-white transition disabled:opacity-50"
+            >
+              <svg
+                class="w-3.5 h-3.5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                <path d="m9 11 3 3L22 4" />
+              </svg>
+              <span class="verify-label">Verify chain</span>
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ADD EVIDENCE MODAL -->
+    <div
+      id="evidenceModal"
+      class="fixed inset-0 z-[100] hidden bg-black/80 p-6 backdrop-blur-xl flex items-center justify-center"
+    >
+      <div
+        class="w-full max-w-lg rounded-3xl border border-white/10 bg-surface2/90 backdrop-blur-2xl p-7 shadow-2xl"
+      >
+        <div
+          class="flex items-center justify-between pb-4 border-b border-white/5"
+        >
+          <h2 class="text-xl font-bold font-display text-white">
+            Add New Evidence
+          </h2>
           <button
-            data-record-id="REPLACE_WITH_RECORD_ID"
-            onclick="verifyEvidence(this)"
-            title="Re-check that this record's stored history is unchanged."
-            class="verify-btn inline-flex items-center gap-1.5 font-mono text-xs text-cyan hover:text-white transition disabled:opacity-50">
-            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
-            <span class="verify-label">Verify chain</span>
+            onclick="
+              document.getElementById('evidenceModal').classList.add('hidden')
+            "
+            class="text-2xl text-white/40 hover:text-white p-1 leading-none"
+          >
+            ×
           </button>
         </div>
-      </div>
 
-    </section>
-
-  </main>
-
-  <!-- ADD EVIDENCE MODAL -->
-  <div id="evidenceModal" class="fixed inset-0 z-[100] hidden bg-black/80 p-6 backdrop-blur-xl flex items-center justify-center">
-    <div class="w-full max-w-lg rounded-3xl border border-white/10 bg-surface2/90 backdrop-blur-2xl p-7 shadow-2xl">
-
-      <div class="flex items-center justify-between pb-4 border-b border-white/5">
-        <h2 class="text-xl font-bold font-display text-white">
-          Add New Evidence
-        </h2>
-        <button
-          onclick="document.getElementById('evidenceModal').classList.add('hidden')"
-          class="text-2xl text-white/40 hover:text-white p-1 leading-none">
-          ×
-        </button>
-      </div>
-
-      <form id="addEvidenceForm" class="mt-6 space-y-4">
-        <div>
-          <label class="mb-1.5 block text-xs font-mono uppercase tracking-wider text-white/50">
-            Evidence Name / Problem Title
-          </label>
-          <input
-            id="evName"
-            type="text"
-            required
-            placeholder="e.g. Binary Tree Inorder Traversal"
-            class="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-2.5 text-white text-sm outline-none transition focus:border-brand/70">
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
+        <form id="addEvidenceForm" class="mt-6 space-y-4">
           <div>
-            <label class="mb-1.5 block text-xs font-mono uppercase tracking-wider text-white/50">
-              Type
+            <label
+              class="mb-1.5 block text-xs font-mono uppercase tracking-wider text-white/50"
+            >
+              Evidence Name / Problem Title
             </label>
-            <select id="evType" class="w-full rounded-xl border border-white/10 bg-base px-4 py-2.5 text-white text-sm outline-none">
-              <option value="problem">Coding Problem</option>
-              <option value="project">Project</option>
-              <option value="assessment">Assessment</option>
-            </select>
+            <input
+              id="evName"
+              type="text"
+              required
+              placeholder="e.g. Binary Tree Inorder Traversal"
+              class="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-2.5 text-white text-sm outline-none transition focus:border-brand/70"
+            />
           </div>
 
-          <div>
-            <label class="mb-1.5 block text-xs font-mono uppercase tracking-wider text-white/50">
-              Skill
-            </label>
-            <select id="evSkill" class="w-full rounded-xl border border-white/10 bg-base px-4 py-2.5 text-white text-sm outline-none">
-              <!-- Options rendered by the script below from js/skills.js
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label
+                class="mb-1.5 block text-xs font-mono uppercase tracking-wider text-white/50"
+              >
+                Type
+              </label>
+              <select
+                id="evType"
+                class="w-full rounded-xl border border-white/10 bg-base px-4 py-2.5 text-white text-sm outline-none"
+              >
+                <option value="problem">Coding Problem</option>
+                <option value="project">Project</option>
+                <option value="assessment">Assessment</option>
+              </select>
+            </div>
+
+            <div>
+              <label
+                class="mb-1.5 block text-xs font-mono uppercase tracking-wider text-white/50"
+              >
+                Skill
+              </label>
+              <select
+                id="evSkill"
+                class="w-full rounded-xl border border-white/10 bg-base px-4 py-2.5 text-white text-sm outline-none"
+              >
+                <!-- Options rendered by the script below from js/skills.js
                    (single source of truth for tracked skills) -->
-            </select>
+              </select>
+            </div>
           </div>
-        </div>
 
-        <div>
-          <label class="mb-1.5 block text-xs font-mono uppercase tracking-wider text-white/50">
-            Details / Link
-          </label>
-          <input
-            id="evDetail"
-            type="text"
-            placeholder="e.g. Tree recursion · Solved in 12m"
-            class="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-2.5 text-white text-sm outline-none transition focus:border-brand/70">
-        </div>
+          <div>
+            <label
+              class="mb-1.5 block text-xs font-mono uppercase tracking-wider text-white/50"
+            >
+              Details / Link
+            </label>
+            <input
+              id="evDetail"
+              type="text"
+              placeholder="e.g. Tree recursion · Solved in 12m"
+              class="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-2.5 text-white text-sm outline-none transition focus:border-brand/70"
+            />
+          </div>
 
-        <div class="pt-2 flex items-center gap-3">
-          <button
-            type="button"
-            onclick="document.getElementById('evidenceModal').classList.add('hidden')"
-            class="flex-1 rounded-xl border border-white/10 py-3 text-sm font-medium text-white/60 hover:text-white">
-            Cancel
-          </button>
-          <button
-            type="submit"
-            class="flex-1 rounded-lg bg-brand py-3 font-semibold text-white hover:bg-brand-bright transition">
-            Save Evidence
-          </button>
-        </div>
-      </form>
-
+          <div class="pt-2 flex items-center gap-3">
+            <button
+              type="button"
+              onclick="
+                document.getElementById('evidenceModal').classList.add('hidden')
+              "
+              class="flex-1 rounded-xl border border-white/10 py-3 text-sm font-medium text-white/60 hover:text-white"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="flex-1 rounded-lg bg-brand py-3 font-semibold text-white hover:bg-brand-bright transition"
+            >
+              Save Evidence
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
-  </div>
 
-  <script>
-    // ------------------------------------------------------------------------
-    // Real evidence counts + user records (shared stats module) + persistence
-    // for user-added evidence in localStorage (skillproof_user_evidence).
-    // The static example cards carry a "Sample record" chip and are NOT
-    // counted in the stat cards below.
-    // ------------------------------------------------------------------------
-    async function loadEvidenceData() {
-      let stats = null;
-      try {
-        stats = await window.UserStats.getUserStats();
-      } catch {
-        stats = null;
-      }
+    <script>
+      // ------------------------------------------------------------------------
+      // Real evidence counts + user records (shared stats module) + persistence
+      // for user-added evidence in localStorage (skillproof_user_evidence).
+      // The static example cards carry a "Sample record" chip and are NOT
+      // counted in the stat cards below.
+      // ------------------------------------------------------------------------
+      async function loadEvidenceData() {
+        let stats = null;
+        try {
+          stats = await window.UserStats.getUserStats();
+        } catch {
+          stats = null;
+        }
 
-      let projects = 0;
-      let assessments = 0;
-      let userItems = [];
-      try {
-        userItems = JSON.parse(localStorage.getItem("skillproof_user_evidence") || "[]");
-      } catch {
-        userItems = [];
-      }
-      projects = userItems.filter((e) => e.type === "project").length;
-      assessments = userItems.filter((e) => e.type === "assessment").length;
-      const problems = stats ? stats.solvedTotal : 0;
-      const total = problems + projects + assessments;
+        let projects = 0;
+        let assessments = 0;
+        let userItems = [];
+        try {
+          userItems = JSON.parse(
+            localStorage.getItem("skillproof_user_evidence") || "[]",
+          );
+        } catch {
+          userItems = [];
+        }
+        projects = userItems.filter((e) => e.type === "project").length;
+        assessments = userItems.filter((e) => e.type === "assessment").length;
+        const problems = stats ? stats.solvedTotal : 0;
+        const total = problems + projects + assessments;
 
-      const totalEl = document.getElementById("total-evidence-count");
-      if (totalEl) totalEl.textContent = total;
-      const projEl = document.getElementById("total-projects-count");
-      if (projEl) projEl.textContent = projects;
-      const probEl = document.getElementById("total-problems-count");
-      if (probEl) probEl.textContent = problems;
-      const asstEl = document.getElementById("total-assessments-count");
-      if (asstEl) asstEl.textContent = assessments;
+        const totalEl = document.getElementById("total-evidence-count");
+        if (totalEl) totalEl.textContent = total;
+        const projEl = document.getElementById("total-projects-count");
+        if (projEl) projEl.textContent = projects;
+        const probEl = document.getElementById("total-problems-count");
+        if (probEl) probEl.textContent = problems;
+        const asstEl = document.getElementById("total-assessments-count");
+        if (asstEl) asstEl.textContent = assessments;
 
-      // Render the user's accepted problem submissions as real records
-      if (stats && stats.submissions.length > 0) {
-        const list = document.getElementById("evidenceList");
-        const accepted = [...stats.submissions]
-          .filter((s) => s.status === "accepted" || s.status === "Accepted")
-          .sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt))
-          .slice(0, 5);
-        for (const s of accepted) {
-          const item = document.createElement("div");
-          item.setAttribute("data-type", "problem");
-          item.className = "evidence-item flex flex-col justify-between gap-5 rounded-2xl border border-brand/30 bg-surface2/80 frosted-panel p-6 transition hover:border-brand/50 md:flex-row md:items-center";
-          const when = s.submittedAt ? new Date(s.submittedAt).toLocaleDateString() : "recently";
-          item.innerHTML = `
+        // Render the user's accepted problem submissions as real records
+        if (stats && stats.submissions.length > 0) {
+          const list = document.getElementById("evidenceList");
+          const accepted = [...stats.submissions]
+            .filter((s) => s.status === "accepted" || s.status === "Accepted")
+            .sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt))
+            .slice(0, 5);
+          for (const s of accepted) {
+            const item = document.createElement("div");
+            item.setAttribute("data-type", "problem");
+            item.className =
+              "evidence-item flex flex-col justify-between gap-5 rounded-2xl border border-brand/30 bg-surface2/80 frosted-panel p-6 transition hover:border-brand/50 md:flex-row md:items-center";
+            const when = s.submittedAt
+              ? new Date(s.submittedAt).toLocaleDateString()
+              : "recently";
+            item.innerHTML = `
             <div class="flex gap-4">
               <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand-bright font-mono font-bold">#</div>
               <div>
@@ -485,115 +719,140 @@
             </div>
             <div class="flex flex-col items-start md:items-end gap-2 self-start md:self-auto">
               <span class="font-mono text-sm text-brand-bright bg-brand/10 px-3 py-1 rounded-full border border-brand/20">+${s.points || 2} evidence points</span>
-              ${s.recordId ? `
+              ${
+                s.recordId
+                  ? `
               <button data-record-id="${s.recordId}" onclick="verifyEvidence(this)" title="Re-check that this record's stored history is unchanged." class="verify-btn inline-flex items-center gap-1.5 font-mono text-xs text-cyan hover:text-white transition disabled:opacity-50">
                 <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
                 <span class="verify-label">Verify chain</span>
-              </button>` : ""}
+              </button>`
+                  : ""
+              }
             </div>`;
-          list.prepend(item);
+            list.prepend(item);
+          }
         }
       }
-    }
-    // Kick off async load. getUserStats() self-heals: it force-loads the
-    // problem catalog on demand, so counts are correct even though this
-    // page doesn't include problems-data.js directly.
-    loadEvidenceData();
-    // Module execution order can vary in dev; re-render once the window
-    // has fully loaded so counts are always based on the complete catalog.
-    window.addEventListener("load", () => loadEvidenceData());
+      // Kick off async load. getUserStats() self-heals: it force-loads the
+      // problem catalog on demand, so counts are correct even though this
+      // page doesn't include problems-data.js directly.
+      loadEvidenceData();
+      // Module execution order can vary in dev; re-render once the window
+      // has fully loaded so counts are always based on the complete catalog.
+      window.addEventListener("load", () => loadEvidenceData());
 
-    function filterEvidence(type) {
-      const items = document.querySelectorAll(".evidence-item");
-      const buttons = document.querySelectorAll(".filter-btn");
+      function filterEvidence(type) {
+        const items = document.querySelectorAll(".evidence-item");
+        const buttons = document.querySelectorAll(".filter-btn");
 
-      buttons.forEach((btn) => {
-        btn.className = "filter-btn rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/60 hover:text-white transition";
-      });
+        buttons.forEach((btn) => {
+          btn.className =
+            "filter-btn rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/60 hover:text-white transition";
+        });
 
-      const activeBtn = document.getElementById("btn-filter-" + type);
-      if (activeBtn) {
-        activeBtn.className = "filter-btn rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white transition";
-      }
-
-      items.forEach((item) => {
-        if (type === "all" || item.dataset.type === type) {
-          item.style.display = "flex";
-        } else {
-          item.style.display = "none";
+        const activeBtn = document.getElementById("btn-filter-" + type);
+        if (activeBtn) {
+          activeBtn.className =
+            "filter-btn rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white transition";
         }
-      });
-    }
-    window.filterEvidence = filterEvidence;
 
-    // ------------------------------------------------------------------------
-    // Evidence integrity check. Calls the verify-record Edge Function, which
-    // recomputes the user's hash chain and reports whether the recorded
-    // history for a submission is unchanged. Honest framing: this DETECTS
-    // edits/deletions — it is not "cryptographic proof" and not immutability.
-    // ------------------------------------------------------------------------
-    async function verifyEvidence(button) {
-      const recordId = button.dataset.recordId;
-      const label = button.querySelector(".verify-label");
-      if (!recordId) {
-        button.title = "No server-graded submission record is linked yet. Solve a problem to create one.";
-        return;
+        items.forEach((item) => {
+          if (type === "all" || item.dataset.type === type) {
+            item.style.display = "flex";
+          } else {
+            item.style.display = "none";
+          }
+        });
       }
-      button.disabled = true;
-      const original = label.textContent;
-      label.textContent = "Checking…";
-      try {
-        const res = await window.SupabaseDB.verifyRecord(recordId);
-        if (!res.ok) {
+      window.filterEvidence = filterEvidence;
+
+      // ------------------------------------------------------------------------
+      // Evidence integrity check. Calls the verify-record Edge Function, which
+      // recomputes the user's hash chain and reports whether the recorded
+      // history for a submission is unchanged. Honest framing: this DETECTS
+      // edits/deletions — it is not "cryptographic proof" and not immutability.
+      // ------------------------------------------------------------------------
+      async function verifyEvidence(button) {
+        const recordId = button.dataset.recordId;
+        const label = button.querySelector(".verify-label");
+        if (!recordId) {
+          button.title =
+            "No server-graded submission record is linked yet. Solve a problem to create one.";
+          return;
+        }
+        button.disabled = true;
+        const original = label.textContent;
+        label.textContent = "Checking…";
+        try {
+          const res = await window.SupabaseDB.verifyRecord(recordId);
+          if (!res.ok) {
+            label.textContent = "Check failed";
+            button.title = res.error || "Verification request failed";
+          } else if (res.valid === true) {
+            label.textContent = "✓ Chain intact";
+            button.classList.remove("text-cyan");
+            button.classList.add("text-emerald-400");
+            button.title = "Recorded history unchanged since submission.";
+          } else if (res.valid === false) {
+            label.textContent = "⚠ Chain broken";
+            button.classList.remove("text-cyan");
+            button.classList.add("text-danger");
+            button.title =
+              res.reason || "Record history could not be verified.";
+          } else {
+            label.textContent = "— Inconclusive";
+            button.title = res.reason || "Verification could not complete.";
+          }
+        } catch (e) {
           label.textContent = "Check failed";
-          button.title = res.error || "Verification request failed";
-        } else if (res.valid === true) {
-          label.textContent = "✓ Chain intact";
-          button.classList.remove("text-cyan");
-          button.classList.add("text-emerald-400");
-          button.title = "Recorded history unchanged since submission.";
-        } else if (res.valid === false) {
-          label.textContent = "⚠ Chain broken";
-          button.classList.remove("text-cyan");
-          button.classList.add("text-danger");
-          button.title = res.reason || "Record history could not be verified.";
-        } else {
-          label.textContent = "— Inconclusive";
-          button.title = res.reason || "Verification could not complete.";
+          button.title = String((e && e.message) || e);
+        } finally {
+          button.disabled = false;
+          setTimeout(() => {
+            label.textContent = original;
+            button.classList.add("text-cyan");
+            button.classList.remove("text-emerald-400", "text-danger");
+            button.title =
+              "Re-check that this record's stored history is unchanged.";
+          }, 6000);
         }
-      } catch (e) {
-        label.textContent = "Check failed";
-        button.title = String((e && e.message) || e);
-      } finally {
-        button.disabled = false;
-        setTimeout(() => {
-          label.textContent = original;
-          button.classList.add("text-cyan");
-          button.classList.remove("text-emerald-400", "text-danger");
-          button.title = "Re-check that this record's stored history is unchanged.";
-        }, 6000);
       }
-    }
-    window.verifyEvidence = verifyEvidence;
+      window.verifyEvidence = verifyEvidence;
 
-    // Add Evidence submit handler
-    document.getElementById("addEvidenceForm").addEventListener("submit", function(e) {
-      e.preventDefault();
-      const name = document.getElementById("evName").value;
-      const type = document.getElementById("evType").value;
-      const skill = document.getElementById("evSkill").value;
-      const detail = document.getElementById("evDetail").value || (skill + " implementation");
+      // Add Evidence submit handler
+      document
+        .getElementById("addEvidenceForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          const name = document.getElementById("evName").value;
+          const type = document.getElementById("evType").value;
+          const skill = document.getElementById("evSkill").value;
+          const detail =
+            document.getElementById("evDetail").value ||
+            skill + " implementation";
 
-      const list = document.getElementById("evidenceList");
-      const newItem = document.createElement("div");
-      newItem.setAttribute("data-type", type);
-      newItem.className = "evidence-item flex flex-col justify-between gap-5 rounded-2xl border border-gold/30 bg-surface2/80 frosted-panel p-6 transition hover:border-brand/50 md:flex-row md:items-center";
+          const list = document.getElementById("evidenceList");
+          const newItem = document.createElement("div");
+          newItem.setAttribute("data-type", type);
+          newItem.className =
+            "evidence-item flex flex-col justify-between gap-5 rounded-2xl border border-gold/30 bg-surface2/80 frosted-panel p-6 transition hover:border-brand/50 md:flex-row md:items-center";
 
-      const icon = type === "problem" ? "#" : (type === "project" ? "◇" : "✓");
-      const typeLabel = type === "problem" ? "Coding Problem" : (type === "project" ? "Project" : "Assessment");
-      const pts = type === "problem" ? "+2 evidence points" : (type === "project" ? "+8 evidence points" : "+6 evidence points");
+          const icon =
+            type === "problem" ? "#" : type === "project" ? "◇" : "✓";
+          const typeLabel =
+            type === "problem"
+              ? "Coding Problem"
+              : type === "project"
+                ? "Project"
+                : "Assessment";
+          const pts =
+            type === "problem"
+              ? "+2 evidence points"
+              : type === "project"
+                ? "+8 evidence points"
+                : "+6 evidence points";
 
-      newItem.innerHTML = `
+          newItem.innerHTML = `
         <div class="flex gap-4">
           <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand-bright font-mono font-bold">
             ${icon}
@@ -617,7 +876,9 @@
           <span class="font-mono text-sm text-cyan bg-cyan/10 px-3 py-1 rounded-full border border-cyan/20">
             ${pts}
           </span>
-          ${type === "problem" ? `
+          ${
+            type === "problem"
+              ? `
           <!-- No server record id yet: the button appears once a verified
                submission exists for this item -->
           <button
@@ -627,41 +888,55 @@
             class="verify-btn inline-flex items-center gap-1.5 font-mono text-xs text-cyan hover:text-white transition disabled:opacity-50">
             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
             <span class="verify-label">Verify chain</span>
-          </button>` : ""}
+          </button>`
+              : ""
+          }
         </div>
       `;
 
-      list.prepend(newItem);
-      document.getElementById("evidenceModal").classList.add("hidden");
-      document.getElementById("addEvidenceForm").reset();
+          list.prepend(newItem);
+          document.getElementById("evidenceModal").classList.add("hidden");
+          document.getElementById("addEvidenceForm").reset();
 
-      // Persist so the record survives reloads and shows on reload counts
-      try {
-        const stored = JSON.parse(localStorage.getItem("skillproof_user_evidence") || "[]");
-        stored.unshift({ id: "ev_" + Date.now(), type, name, skill, detail, timestamp: new Date().toISOString(), recordId: null });
-        localStorage.setItem("skillproof_user_evidence", JSON.stringify(stored));
-      } catch {
-        /* storage unavailable — the card still shows for this session */
-      }
+          // Persist so the record survives reloads and shows on reload counts
+          try {
+            const stored = JSON.parse(
+              localStorage.getItem("skillproof_user_evidence") || "[]",
+            );
+            stored.unshift({
+              id: "ev_" + Date.now(),
+              type,
+              name,
+              skill,
+              detail,
+              timestamp: new Date().toISOString(),
+              recordId: null,
+            });
+            localStorage.setItem(
+              "skillproof_user_evidence",
+              JSON.stringify(stored),
+            );
+          } catch {
+            /* storage unavailable — the card still shows for this session */
+          }
 
-      // Recompute counts from the real sources instead of blind increment
-      loadEvidenceData();
-    });
+          // Recompute counts from the real sources instead of blind increment
+          loadEvidenceData();
+        });
 
-    // Skill dropdown — rendered from the skills config (js/skills.js).
-    // Module scripts load after this classic script, so poll briefly for
-    // window.KredoraSkills rather than assuming it exists yet.
-    (function renderSkillOptions(attempt) {
-      attempt = attempt || 0;
-      const select = document.getElementById("evSkill");
-      if (!select) return;
-      if (window.KredoraSkills) {
-        select.innerHTML = window.KredoraSkills.skillOptions("Java");
-      } else if (attempt < 50) {
-        setTimeout(() => renderSkillOptions(attempt + 1), 60);
-      }
-    })();
-  </script>
-
-</body>
+      // Skill dropdown — rendered from the skills config (js/skills.js).
+      // Module scripts load after this classic script, so poll briefly for
+      // window.KredoraSkills rather than assuming it exists yet.
+      (function renderSkillOptions(attempt) {
+        attempt = attempt || 0;
+        const select = document.getElementById("evSkill");
+        if (!select) return;
+        if (window.KredoraSkills) {
+          select.innerHTML = window.KredoraSkills.skillOptions("Java");
+        } else if (attempt < 50) {
+          setTimeout(() => renderSkillOptions(attempt + 1), 60);
+        }
+      })();
+    </script>
+  </body>
 </html>
