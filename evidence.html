@@ -68,9 +68,7 @@
   <script type="module">
     import "./js/supabase-client.js";
     import "./js/auth.js";
-    if (!window.Auth.requireAuth("evidence.html")) {
-      // Redirects to login.html
-    }
+    window.Auth.requireAuth("evidence.html"); // redirects to login.html when no Supabase Auth session
   </script>
 </head>
 
