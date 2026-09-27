@@ -41,19 +41,37 @@ create table if not exists public.problem_submissions (
   passed_tests  integer not null default 0 check (passed_tests >= 0),
   total_tests   integer not null default 0 check (total_tests >= 0),
   submitted_at          timestamptz not null default now(),
-  -- Hash chain (accepted submissions only — see run-submission function):
-  --   record_hash = sha256(canonical json of {user_id, problem_id, language,
-  --     code, timestamp, previous_record_hash})
+  -- Hash chain v2 (accepted submissions only — computed by the Edge
+  -- Function; the browser can never choose or alter any of these fields):
+  --   code_hash   = sha256(source code), pinned separately from the record
+  --   tests_summary = compact pass/fail map, chained with the verdict
+  --   record_hash = sha256(canonical json of {code_hash, language,
+  --     passed_tests, previous_record_hash, problem_id, status,
+  --     submitted_at, tests_summary, total_tests, user_id})
   -- previous_record_hash links to the user's previous ACCEPTED row ("") for
-  -- the first one. Verifying recomputes the whole chain: any edit to a
-  -- chained field, or any deletion inside the chain, makes every later
-  -- hash mismatch. It does NOT protect against a full database rewrite by
-  -- someone with service-role/DBA access, and it is not a certificate of
-  -- correctness — only of what was recorded. NULL for failed submissions
-  -- and for anonymous (user_id IS NULL) submissions.
+  -- the first one. submitted_at is stamped by the DATABASE (default now())
+  -- and the hash PINS the exact value the row carries, so a later clock edit
+  -- also breaks the chain. The hash is computed from the same DB-returned
+  -- row the evidence stores — never from a separate in-memory timestamp.
+  -- Verifying (verify-record) recomputes the whole chain: any edit to a
+  -- chained field, any deletion inside the chain, or any reordering makes
+  -- every later link fail. It does NOT protect against a full database
+  -- rewrite by someone with service-role/DBA access, and it is not a
+  -- certificate of correctness — only of what was recorded.
+  code_hash             text,
+  tests_summary         text,
+  record_version        integer not null default 2,
   record_hash           text,
   previous_record_hash  text
 );
+
+-- Append-only enforcement for the normal client (defense in depth on top of
+-- the missing grants below): authenticated users have no UPDATE or DELETE
+-- policy, so "new row violates row-level security" / permission-denied is
+-- the expected result for any client-side mutation attempt. The service
+-- role (Edge Functions) is the ONLY writer.
+comment on table public.problem_submissions is
+  'Append-only record of every code submission. Written ONLY by the run-submission Edge Function (service role). No client INSERT/UPDATE/DELETE policies or grants. Accepted rows carry a v2 hash chain: code_hash (sha256 of source), tests_summary, and record_hash = sha256 over the pinned submitted_at (DB clock), verdict, counts, user, problem, language and the previous accepted row''s hash — so post-hoc edits, deletions, or reordering are detectable via the verify-record function. Tamper-evident, NOT tamper-proof: does not protect against full rewrites by the service role or a DBA, and hashes pin recorded content, not correctness.';
 
 comment on table public.problem_submissions is
   'Append-only record of every code submission. Written ONLY by the run-submission Edge Function (service role). No client INSERT/UPDATE/DELETE policies. Accepted rows carry a sha256 hash chained to the user''s previous accepted row (record_hash/previous_record_hash) so post-hoc edits or deletions are detectable via the verify-record function. Tamper-evident, NOT tamper-proof: does not protect against full rewrites by the service role or a DBA, and hashes pin recorded content, not correctness.';

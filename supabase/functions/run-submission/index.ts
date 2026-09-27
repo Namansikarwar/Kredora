@@ -140,6 +140,11 @@ function canon(v: unknown): string {
   return JSON.stringify(v);
 }
 
+async function sha256Hex(data: string): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(data));
+  return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
 interface ProblemRow {
   id: string;
   difficulty: string;
@@ -616,43 +621,33 @@ Deno.serve(async (req) => {
     : "Wrong Answer";
   const dbStatus = allPassed ? "accepted" : compileErr || rte ? "error" : "failed";
 
-  // ---- Hash chain (accepted submissions only) ------------------------------
-  // record_hash = sha256(canonical({user_id, problem_id, language, code,
-  // timestamp, previous_record_hash})). See the security note at the top of
-  // this file for exactly what this does and does not protect against.
-  let recordHash: string | null = null;
-  let previousRecordHash: string | null = null;
-  if (allPassed && userId) {
-    // The user's previous ACCEPTED row, oldest -> newest; its record_hash is
-    // what we chain onto. Read-modify-write races could in theory link two
-    // rows to the same predecessor; verify-record treats the chain as a
-    // sequence by time, so any anomaly surfaces as an invalid link there.
-    const { data: prevRows } = await sb
-      .from("problem_submissions")
-      .select("record_hash")
-      .eq("user_id", userId)
-      .eq("status", "accepted")
-      .not("record_hash", "is", null)
-      .order("submitted_at", { ascending: false })
-      .limit(1);
-    previousRecordHash = (prevRows && prevRows[0]?.record_hash) || "";
+  // ---- Evidence integrity fields (ALL computed server-side) ----------------
+  // codeHash and testsSummary pin the graded content for every submission;
+  // the record hash itself is stamped post-insert below (accepted only). The
+  // browser can never choose or modify previous_record_hash, record_hash,
+  // verification state, timestamps, scores, or test results.
+  const testsSummary = outcomes.map((o) => (o.passed ? "1" : "0")).join("");
+  const codeHash = await sha256Hex(code);
 
-    // Canonical string — keys sorted, stable across JS/Deno runtimes. MUST
-    // match verify-record's computeHash byte for byte (same keys, same
-    // order) or every new record would fail chain verification.
-    const payload = JSON.stringify({
-      code,
-      language,
-      previous_record_hash: previousRecordHash,
-      problem_id: problemId,
-      timestamp: new Date().toISOString(),
-      user_id: userId,
-    });
-    const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(payload));
-    recordHash = Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, "0")).join("");
-  }
+  // The user's previous ACCEPTED v2 row's record_hash is what we chain onto
+  // ("" for a first link). Read races could in theory link two rows to the
+  // same predecessor; verify-record walks the chain in time order and flags
+  // any duplicate link as invalid ordering.
+  const previousRecordHash: string | null = allPassed
+    ? ((await sb
+        .from("problem_submissions")
+        .select("record_hash")
+        .eq("user_id", userId)
+        .eq("status", "accepted")
+        .eq("record_version", 2)
+        .not("record_hash", "is", null)
+        .order("submitted_at", { ascending: false })
+        .limit(1)
+      ).data?.[0]?.record_hash ?? "")
+    : null;
 
-  // Evidence row — service-role insert (clients have NO insert policy).
+  // Evidence row — service-role insert (clients have NO insert policy and no
+  // UPDATE/DELETE path). The row exists only if THIS function wrote it.
   const { data: inserted, error: insertErr } = await sb.from("problem_submissions").insert({
     user_id: userId,
     problem_id: problemId,
@@ -663,10 +658,44 @@ Deno.serve(async (req) => {
     memory: `${maxMemoryMb} MB`,
     passed_tests: passedCount,
     total_tests: totalCount,
-    record_hash: recordHash,
+    code_hash: codeHash,
+    tests_summary: testsSummary,
     previous_record_hash: previousRecordHash,
-  }).select("id").single();
-  if (insertErr) console.warn("submission insert failed:", insertErr.message);
+  }).select("id, submitted_at").single();
+  if (insertErr || !inserted) {
+    console.error("submission insert failed:", insertErr?.message);
+    return fail("Could not record submission evidence: " + (insertErr?.message ?? "no row returned"), 500);
+  }
+
+  // Chain stamp: compute record_hash over the DB-stamped submitted_at that
+  // this exact row now carries (database clock, not a JS clock), then pin
+  // it. Canonical JSON — keys sorted; MUST match verify-record's computeHash
+  // byte for byte. A failure here is hard: the row stays unverified rather
+  // than half-chained.
+  let recordHash: string | null = null;
+  if (allPassed) {
+    const payload = JSON.stringify({
+      code_hash: codeHash,
+      language,
+      passed_tests: passedCount,
+      previous_record_hash: previousRecordHash,
+      problem_id: problemId,
+      status: dbStatus,
+      submitted_at: inserted.submitted_at,
+      tests_summary: testsSummary,
+      total_tests: totalCount,
+      user_id: userId,
+    });
+    recordHash = await sha256Hex(payload);
+    const { error: hashErr } = await sb
+      .from("problem_submissions")
+      .update({ record_hash: recordHash })
+      .eq("id", inserted.id);
+    if (hashErr) {
+      console.error("chain stamp failed:", hashErr.message);
+      return fail("Could not finalize submission evidence: " + hashErr.message, 500);
+    }
+  }
 
   return json({
     ok: true,
@@ -676,11 +705,11 @@ Deno.serve(async (req) => {
     totalCount,
     runtime: `${totalRuntimeMs} ms`,
     memory: `${maxMemoryMb} MB`,
-    // Id of the stored evidence row (present when the insert succeeded).
-    // Clients may display it and hand it to verify-record; they can neither
-    // forge nor alter the row it refers to.
-    recordId: inserted?.id ?? null,
+    // Id + chain hash of the stored evidence row. Clients may display them
+    // and hand them to verify-record; they can neither forge nor alter the
+    // row they refer to.
+    recordId: inserted.id,
     recordHash,
-    testResults: outcomes,
+    testResults: outcomes, // hidden verdicts only — no inputs/expected/logs
   });
 });
