@@ -74,8 +74,15 @@ const CORS = {
 
 // ---- Limits ----------------------------------------------------------------
 const MAX_CODE_BYTES = 64 * 1024; // 64 KB source limit
-const RATE_LIMIT = 20; // submissions per sliding window
-const RATE_WINDOW_S = 60; // per user (or per IP for anon)
+// ---- Rate limiting configuration (never hardcoded at call sites) ------------
+// Resolution order inside the atomic DB limiter: the explicit args passed
+// from here -> the per-kind row in public.submission_rate_limit_config ->
+// built-in SQL fallbacks. Tune live via the config table, or per-deploy via
+// these Edge Function secrets.
+const RATE_LIMIT_USER = Math.max(1, Number(Deno.env.get("RATE_LIMIT_USER") ?? "20"));
+const RATE_WINDOW_S_USER = Math.max(1, Number(Deno.env.get("RATE_WINDOW_S_USER") ?? "60"));
+const RATE_LIMIT_IP = Math.max(1, Number(Deno.env.get("RATE_LIMIT_IP") ?? "60"));
+const RATE_WINDOW_S_IP = Math.max(1, Number(Deno.env.get("RATE_WINDOW_S_IP") ?? "60"));
 const MAX_TESTS_PER_RUN = 20; // hard cap on Judge0 batch size
 const POLL_TIMEOUT_MS = 25_000;
 
@@ -328,27 +335,44 @@ function serviceClient(): SupabaseClient {
   return createClient(url, key, { auth: { persistSession: false } });
 }
 
-// ---- Rate limiting (sliding window via submission_rate_limits) ---------------
-async function checkRateLimit(sb: SupabaseClient, identity: string) {
-  const nowIso = new Date().toISOString();
-  const windowStart = new Date(Date.now() - RATE_WINDOW_S * 1000).toISOString();
-  const { data, error } = await sb
-    .from("submission_rate_limits")
-    .select("window_start, hit_count")
-    .eq("identity", identity)
-    .gte("window_start", windowStart)
-    .maybeSingle();
+// ---- Rate limiting (atomic, fail-closed, DB-clock sliding window) -----------
+// consume_rate_limit() (see supabase/schema.sql) increments AND checks in ONE
+// statement against the DATABASE clock — safe under concurrent requests and
+// immune to client-supplied timestamps or counters (it has no parameters for
+// them). It is executable by the service role only, so a browser cannot call,
+// reset, or probe it. ANY failure here throws: callers must fail CLOSED — a
+// broken limiter must never degrade into unlimited submissions.
+interface RateDecision {
+  allowed: boolean;
+  currentHits: number;
+  limitValue: number;
+  retryAfterS: number;
+}
+
+async function consumeRateLimit(
+  sb: SupabaseClient,
+  identity: string,
+  kind: "user" | "ip",
+  limit: number,
+  windowS: number,
+): Promise<RateDecision> {
+  const { data, error } = await sb.rpc("consume_rate_limit", {
+    p_identity: identity,
+    p_kind: kind,
+    p_limit: limit,
+    p_window_s: windowS,
+  });
   if (error) {
-    console.warn("rate-limit read failed, failing open:", error.message);
-    return { allowed: true };
+    // Fail CLOSED: no admission without a working limiter.
+    throw new Error(`rate limiter unavailable: ${error.message}`);
   }
-  if (data && Number(data.hit_count) >= RATE_LIMIT) return { allowed: false };
-  const { error: upErr } = await sb.from("submission_rate_limits").upsert(
-    { identity, window_start: data?.window_start ?? nowIso, hit_count: Number(data?.hit_count ?? 0) + 1 },
-    { onConflict: "identity" },
-  );
-  if (upErr) console.warn("rate-limit upsert failed:", upErr.message);
-  return { allowed: true };
+  const row = Array.isArray(data) ? data[0] : data;
+  return {
+    allowed: Boolean(row?.allowed),
+    currentHits: Number(row?.current_hits ?? 0),
+    limitValue: Number(row?.limit_value ?? limit),
+    retryAfterS: Math.max(1, Number(row?.retry_after_s ?? windowS)),
+  };
 }
 
 // ---- Judge0 ------------------------------------------------------------------
@@ -448,9 +472,37 @@ Deno.serve(async (req) => {
     return fail("Invalid or expired session.", 401);
   }
 
-  const rate = await checkRateLimit(sb, `user:${userId}`);
-  if (!rate.allowed) {
-    return fail(`Rate limit exceeded: max ${RATE_LIMIT} submissions per ${RATE_WINDOW_S}s`, 429);
+  // Two independent layers, both atomic and fail-closed:
+  //   1. per authenticated user (primary — JWT-derived identity, so changing
+  //      any browser storage value cannot influence it)
+  //   2. per client IP (secondary — many accounts or token replay from one
+  //      host). Proxy headers are advisory for limiting ONLY; they never
+  //      identify the submitter.
+  const ip =
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    req.headers.get("cf-connecting-ip") || "unknown";
+
+  let userRate: RateDecision;
+  let ipRate: RateDecision;
+  try {
+    userRate = await consumeRateLimit(sb, `user:${userId}`, "user", RATE_LIMIT_USER, RATE_WINDOW_S_USER);
+    ipRate = await consumeRateLimit(sb, `ip:${ip}`, "ip", RATE_LIMIT_IP, RATE_WINDOW_S_IP);
+  } catch (e) {
+    console.error("rate limiter failure — failing closed:", (e as Error).message);
+    return fail("Submission temporarily unavailable; please retry shortly.", 503);
+  }
+
+  if (!userRate.allowed || !ipRate.allowed) {
+    const exceeded = !userRate.allowed ? userRate : ipRate;
+    const scope = !userRate.allowed ? "user" : "ip";
+    console.warn(`rate limit hit (${scope})`, { userId, ip, hits: exceeded.currentHits, limit: exceeded.limitValue });
+    return new Response(
+      JSON.stringify({
+        ok: false,
+        error: `Rate limit exceeded: max ${exceeded.limitValue} submissions in the current window — try again in ${exceeded.retryAfterS}s.`,
+      }),
+      { status: 429, headers: { ...CORS, "Content-Type": "application/json", "Retry-After": String(exceeded.retryAfterS) } },
+    );
   }
 
   // Problem validation: the DATABASE record is authoritative. Existence,

@@ -25,9 +25,9 @@
 -- ----------------------------------------------------------------------------
 -- 1. problem_submissions — append-only evidence of coding work
 -- ----------------------------------------------------------------------------
--- user_id is NULLABLE: unauthenticated users can submit from the live site
--- and the Edge Function stamps rows with a null user. RLS then treats
--- "null user_id rows" as visible to nobody except the service role.
+-- user_id is ALWAYS set: submissions require an authenticated Supabase
+-- session — the Edge Function stamps every row with the JWT-derived user id
+-- and rejects anonymous callers. There is no anonymous submission path.
 create table if not exists public.problem_submissions (
   id            uuid primary key default gen_random_uuid(),
   user_id       uuid references auth.users (id) on delete cascade,
@@ -56,7 +56,7 @@ create table if not exists public.problem_submissions (
 );
 
 comment on table public.problem_submissions is
-  'Append-only record of every code submission. Written ONLY by the run-submission Edge Function (service role). No client INSERT/UPDATE/DELETE policies. Accepted rows carry a sha256 hash chained to the user\'s previous accepted row (record_hash/previous_record_hash) so post-hoc edits or deletions are detectable via the verify-record function. Tamper-evident, NOT tamper-proof: does not protect against full rewrites by the service role or a DBA, and hashes pin recorded content, not correctness.';
+  'Append-only record of every code submission. Written ONLY by the run-submission Edge Function (service role). No client INSERT/UPDATE/DELETE policies. Accepted rows carry a sha256 hash chained to the user''s previous accepted row (record_hash/previous_record_hash) so post-hoc edits or deletions are detectable via the verify-record function. Tamper-evident, NOT tamper-proof: does not protect against full rewrites by the service role or a DBA, and hashes pin recorded content, not correctness.';
 
 -- ----------------------------------------------------------------------------
 -- 1b. problem_tests — HIDDEN test cases, server-side only
@@ -100,6 +100,151 @@ alter table public.submission_rate_limits force row level security;
 -- No policies: anon/authenticated have no business reading or writing this.
 
 create index if not exists idx_rate_limits_window on public.submission_rate_limits (window_start);
+
+-- ----------------------------------------------------------------------------
+-- 1c-2. Atomic sliding-window rate limiter (fail-closed, race-safe)
+-- ----------------------------------------------------------------------------
+-- The Edge Function previously did read-then-upsert (a race under concurrent
+-- requests) and silently FAILED OPEN on any database error — a limiter outage
+-- meant unlimited submissions. Both fixed here:
+--
+--   * consume_rate_limit() is ONE atomic statement: the counter increment and
+--     the limit check happen inside the same UPDATE ... WHERE ... RETURNING,
+--     using the DATABASE clock (now()). No client-supplied timestamps or
+--     counters are ever consulted — there are no parameters for them.
+--   * The function is SECURITY DEFINER and intentionally executable ONLY by
+--     the service role (no grants to anon/authenticated), so the check cannot
+--     be bypassed, reset, or probed from a browser, regardless of RLS.
+--   * Any error surfaces as an exception -> the Edge Function FAILS CLOSED
+--     (rejects the submission). A broken limiter never grants unlimited use.
+--   * Sliding window: on first hit inside a fresh window, window_start resets
+--     to now(); the window the caller is compared against is always
+--     [now() - window_seconds, now()].
+--   * Limits are CONFIGURATION, not code: submission_rate_limit_config rows
+--     (per-identity kind) are read inside the same atomic call. Seeded
+--     defaults below; override per environment without redeploying.
+create or replace function public.consume_rate_limit(
+  p_identity     text,
+  p_kind         text,            -- 'user' | 'ip'
+  p_limit        integer default null,
+  p_window_s     integer default null
+)
+returns table (allowed boolean, current_hits integer, limit_value integer, retry_after_s integer)
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_limit        integer;
+  v_window_s     integer;
+  v_new_count    integer;
+  v_window_start timestamptz;
+begin
+  -- Resolve configuration: explicit args (service-role caller) win, else the
+  -- per-kind config row, else the 'default' row, else built-in fallbacks.
+  select coalesce(p_limit, r.limit_value, 20),
+         coalesce(p_window_s, r.window_seconds, 60)
+    into v_limit, v_window_s
+    from public.submission_rate_limit_config r
+    where r.kind = p_kind;
+
+  v_limit    := coalesce(v_limit, 20);
+  v_window_s := greatest(1, coalesce(v_window_s, 60));
+
+  -- Single atomic statement against the DATABASE clock. Returns the row only
+  -- when the increment was permitted; returns no row when the limit is hit.
+  update public.submission_rate_limits
+     set hit_count = case
+           when window_start < now() - make_interval(secs => v_window_s)
+             or window_start is null
+           then 1                                   -- fresh window
+           else hit_count + 1 end,
+         window_start = case
+           when window_start < now() - make_interval(secs => v_window_s)
+             or window_start is null
+           then now()                               -- restart the window
+           else window_start end
+   where identity = p_identity
+     and (
+       window_start < now() - make_interval(secs => v_window_s)
+       or window_start is null
+       or hit_count < v_limit                        -- still inside the limit
+     )
+  returning hit_count, window_start into v_new_count, v_window_start;
+
+  if found then
+    return query select true, v_new_count, v_limit,
+      greatest(0, ceil(extract(epoch from
+        (v_window_start + make_interval(secs => v_window_s)) - now()))::integer);
+    return;
+  end if;
+
+  -- No row updated: either the limit is hit, or this identity has no row yet.
+  -- Insert the first row atomically; a concurrent duplicate loses the race
+  -- gracefully (ON CONFLICT DO NOTHING) and re-checks against the winner.
+  insert into public.submission_rate_limits (identity, window_start, hit_count)
+  values (p_identity, now(), 1)
+  on conflict (identity) do nothing;
+
+  if found then
+    return query select true, 1, v_limit,
+      v_window_s::integer;
+    return;
+  end if;
+
+  -- Lost the insert race -> someone else created the row concurrently.
+  -- Re-read under the new window state and decide against it.
+  select window_start, hit_count into v_window_start, v_new_count
+    from public.submission_rate_limits where identity = p_identity;
+  if v_window_start < now() - make_interval(secs => v_window_s) then
+    -- Stale window (should be rare); admit conservatively and restart.
+    update public.submission_rate_limits
+       set hit_count = 1, window_start = now()
+     where identity = p_identity;
+    return query select true, 1, v_limit, v_window_s::integer;
+  elsif v_new_count < v_limit then
+    update public.submission_rate_limits
+       set hit_count = hit_count + 1
+     where identity = p_identity;
+    return query select true, v_new_count + 1, v_limit,
+      greatest(0, ceil(extract(epoch from
+        (v_window_start + make_interval(secs => v_window_s)) - now()))::integer);
+  else
+    return query select false, v_new_count, v_limit,
+      greatest(0, ceil(extract(epoch from
+        (v_window_start + make_interval(secs => v_window_s)) - now()))::integer);
+  end if;
+end;
+$$;
+
+-- Service role ONLY: the browser must not be able to call the limiter,
+-- reset counters, or probe remaining quota. Revoking from PUBLIC (the
+-- default grant) strips anon/authenticated AND service_role, so the service
+-- role gets an explicit grant back — the Edge Function is the sole caller.
+revoke all on function public.consume_rate_limit(text, text, integer, integer)
+  from public, anon, authenticated;
+grant execute on function public.consume_rate_limit(text, text, integer, integer)
+  to service_role;
+
+-- Per-kind limit configuration (reads use the definer's rights, inside the
+-- function). Seeded defaults; update rows to tune without redeploying.
+create table if not exists public.submission_rate_limit_config (
+  kind           text primary key,
+  limit_value    integer not null check (limit_value > 0),
+  window_seconds integer not null check (window_seconds > 0)
+);
+
+insert into public.submission_rate_limit_config (kind, limit_value, window_seconds) values
+  ('user', 20, 60),      -- per authenticated user: 20 submissions / minute
+  ('ip',   60, 60)       -- per client IP (secondary anti-abuse layer)
+on conflict (kind) do nothing;
+
+alter table public.submission_rate_limit_config enable row level security;
+alter table public.submission_rate_limit_config force row level security;
+revoke all on public.submission_rate_limit_config from anon, authenticated;
+
+comment on function public.consume_rate_limit(text, text, integer, integer) is
+  'Atomic sliding-window rate limiter for submissions. Uses the database clock only (no client-supplied timestamps/counters), single-statement increment+check for concurrency safety, per-kind configurable limits, executable by the service role only. Callers must fail closed on error.';
 
 -- ----------------------------------------------------------------------------
 -- 1d. problems — the AUTHORITATIVE problem record (server-side)
@@ -235,7 +380,7 @@ select
   (select count(*) from public.problem_submissions s
      where s.user_id = p.user_id) AS total_submissions,
   -- Simple heuristic: 5 points per accepted problem, capped at 100.
-  -- The app ships 21 problems, so solving all of them scores 100.
+  -- The app ships 20 problems, so solving all of them scores 100.
   least(100, (select count(distinct s.problem_id) from public.problem_submissions s
               where s.user_id = p.user_id and s.status = 'accepted') * 5) AS skill_score,
   p.updated_at AS last_active_at
