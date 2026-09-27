@@ -1446,21 +1446,12 @@ const ProgressTracker = {
       if (subs[problemId].length > 15) subs[problemId] = subs[problemId].slice(0, 15);
       localStorage.setItem(this.SUBMISSIONS_KEY, JSON.stringify(subs));
 
-      // Sync submission to Supabase if connected
-      if (window.SupabaseDB && typeof window.SupabaseDB.recordSubmission === "function") {
-        const user = window.Auth?.getUser?.() || { email: "local_user" };
-        window.SupabaseDB.recordSubmission({
-          problemId,
-          userId: user.email,
-          language: record.language || "JavaScript",
-          code: record.code || "",
-          status: record.status || "Completed",
-          runtime: record.runtime || "0 ms",
-          memory: record.memory || "0 MB",
-          passedTests: record.passedTests || 0,
-          totalTests: record.totalTests || 0
-        });
-      }
+      // SECURITY: submissions are recorded server-side ONLY. The browser can
+      // never insert into problem_submissions — the run-submission Edge
+      // Function writes that row (service role) and computes the verdict,
+      // counts, runtime, memory and status itself. What is stored here is a
+      // purely LOCAL record (offline/Run-only submissions); it is not server
+      // evidence and must never be displayed as server-graded.
     } catch (e) {
       console.error("Failed to save submission:", e);
     }
@@ -1506,6 +1497,9 @@ const ProgressTracker = {
   },
 
   logVerifiedSkillProofEvidence(problem, submission, wasAlreadySolved) {
+    // `verified` is true ONLY when the verdict came from the run-submission
+    // Edge Function (server-graded). A local sample-run pass is NOT verified —
+    // the browser cannot grade itself into verified evidence.
     try {
       const raw = localStorage.getItem(this.EVIDENCE_KEY);
       const evidenceList = raw ? JSON.parse(raw) : [];
@@ -1518,7 +1512,8 @@ const ProgressTracker = {
         category: problem.category,
         detail: `Solved in ${submission.runtime} · ${problem.difficulty} · ${problem.category}`,
         timestamp: "Just now",
-        verified: true,
+        // Server-graded only: never mark browser-graded runs as verified.
+        verified: submission.verifiedServerSide === true,
         // Id of the server-graded problem_submissions row (when the submit
         // was graded by the run-submission Edge Function). Lets the Verify
         // buttons on evidence.html re-check the record's hash chain.

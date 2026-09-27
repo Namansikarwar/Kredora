@@ -102,6 +102,63 @@ alter table public.submission_rate_limits force row level security;
 create index if not exists idx_rate_limits_window on public.submission_rate_limits (window_start);
 
 -- ----------------------------------------------------------------------------
+-- 1d. problems — the AUTHORITATIVE problem record (server-side)
+-- ----------------------------------------------------------------------------
+-- The browser's problem list (js/problems-data.js) is for DISPLAY only and is
+-- never trusted: the run-submission Edge Function validates every submission
+-- against THIS table. A problem id that does not exist here with active =
+-- true cannot be graded, no matter what the client sends. The difficulty and
+-- points stored here are the server-side values used for any scoring — the
+-- client-sent difficulty/score/test-count are ignored by design.
+create table if not exists public.problems (
+  id          text primary key,
+  title       text not null,
+  difficulty  text not null check (difficulty in ('Easy', 'Medium', 'Hard')),
+  points      integer not null default 2 check (points >= 0),
+  active      boolean not null default true,
+  created_at  timestamptz not null default now()
+);
+
+-- Zero policies: anon/authenticated have NO direct access. Browsing stays on
+-- the client bundle; this table is the grading authority, read only by the
+-- run-submission Edge Function with the service role.
+alter table public.problems enable row level security;
+alter table public.problems force row level security;
+
+create index if not exists idx_problems_active on public.problems (active);
+
+comment on table public.problems is
+  'Authoritative problem registry. run-submission validates problem existence and language support against this table (service-role read); the client catalog is display-only. No policies: inaccessible to anon/authenticated.';
+
+-- Seed / re-sync: keep in sync with js/problems-data.js (display-only list).
+-- Idempotent: re-running updates title/difficulty/points, never duplicates.
+insert into public.problems (id, title, difficulty, points) values
+  ('two-sum', 'Two Sum', 'Easy', 2),
+  ('valid-palindrome', 'Valid Palindrome', 'Easy', 2),
+  ('valid-parentheses', 'Valid Parentheses', 'Easy', 2),
+  ('maximum-subarray', 'Maximum Subarray', 'Medium', 4),
+  ('container-with-most-water', 'Container With Most Water', 'Medium', 4),
+  ('longest-substring-without-repeating-characters', 'Longest Substring Without Repeating Characters', 'Medium', 4),
+  ('climbing-stairs', 'Climbing Stairs', 'Easy', 2),
+  ('trapping-rain-water', 'Trapping Rain Water', 'Hard', 8),
+  ('binary-search', 'Binary Search', 'Easy', 2),
+  ('coin-change', 'Coin Change', 'Medium', 4),
+  ('valid-anagram', 'Valid Anagram', 'Easy', 2),
+  ('reverse-linked-list', 'Reverse Linked List', 'Easy', 2),
+  ('binary-tree-inorder-traversal', 'Binary Tree Inorder Traversal', 'Easy', 2),
+  ('maximum-depth-of-binary-tree', 'Maximum Depth of Binary Tree', 'Easy', 2),
+  ('intersection-of-two-arrays', 'Intersection of Two Arrays', 'Easy', 2),
+  ('fibonacci-number', 'Fibonacci Number', 'Easy', 2),
+  ('single-number', 'Single Number', 'Easy', 2),
+  ('move-zeroes', 'Move Zeroes', 'Easy', 2),
+  ('plus-one', 'Plus One', 'Easy', 2),
+  ('contains-duplicate', 'Contains Duplicate', 'Easy', 2)
+on conflict (id) do update
+  set title = excluded.title,
+      difficulty = excluded.difficulty,
+      points = excluded.points;
+
+-- ----------------------------------------------------------------------------
 -- 2. user_progress — per-user solved-problem state
 -- ----------------------------------------------------------------------------
 create table if not exists public.user_progress (
@@ -205,6 +262,8 @@ grant select on public.profile_summaries to anon, authenticated;
 revoke all on public.problem_submissions from anon, authenticated;
 revoke all on public.user_progress from anon, authenticated;
 revoke all on public.problem_tests from anon, authenticated;
+revoke all on public.submission_rate_limits from anon, authenticated;
+revoke all on public.problems from anon, authenticated;
 
 -- ----------------------------------------------------------------------------
 -- 5. Indexes
@@ -232,6 +291,14 @@ create index if not exists idx_problem_submissions_user_time
 -- As an authenticated user (session from the app), ALL access should fail:
 --   select * from public.problem_submissions;  -- permission denied (no grants)
 --   insert into public.problem_submissions ... -- permission denied (no grants)
+--   update public.problem_submissions set status = 'accepted' where id = '...';
+--                                              -- permission denied (no grants)
+--   delete from public.problem_submissions;    -- permission denied (no grants)
+-- A user can therefore NEVER insert, update, or delete their own verified
+-- submission records directly — not even their own rows. The ONLY writer is
+-- the run-submission Edge Function with the service-role key. Hidden tests
+-- (problem_tests) and the authoritative problems table are equally
+-- unreadable: no grants, no policies, service-role only.
 --
 -- A service-role connection (Edge Functions only) reads/writes freely.
 -- UPDATE / DELETE attempts from clients fail with "new row violates row-level

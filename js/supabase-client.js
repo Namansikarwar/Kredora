@@ -77,45 +77,13 @@ const SupabaseDB = {
     }
   },
 
-  // Record submission into Supabase table 'problem_submissions'.
-  // Append-only by policy: owner can INSERT, never UPDATE/DELETE.
-  // Requires a Supabase Auth session; otherwise the caller should fall
-  // back to local storage (problems-data.js already does).
-  async recordSubmission(submission) {
-    const client = await this.init();
-    if (!client) return null;
-
-    const authUserId = await this.getAuthUserId();
-    if (!authUserId) {
-      console.info("[Kredora] recordSubmission skipped: no Supabase Auth session (RLS requires auth.uid() = user_id).");
-      return null;
-    }
-
-    try {
-      const { data, error } = await client
-        .from("problem_submissions")
-        .insert([{
-          user_id: authUserId,
-          problem_id: String(submission.problemId || "unknown"),
-          language: String(submission.language || "javascript"),
-          code: typeof submission.code === "string" ? submission.code : null,
-          status: String(submission.status || "submitted"),
-          runtime: submission.runtime != null ? String(submission.runtime) : null,
-          memory: submission.memory != null ? String(submission.memory) : null,
-          passed_tests: Number.isFinite(Number(submission.passedTests)) ? Number(submission.passedTests) : 0,
-          total_tests: Number.isFinite(Number(submission.totalTests)) ? Number(submission.totalTests) : 0
-        }]);
-
-      if (error) {
-        console.warn("[Kredora] Supabase recordSubmission warning:", error.message);
-        return null;
-      }
-      return data;
-    } catch (e) {
-      console.warn("[Kredora] Supabase recordSubmission exception:", e);
-      return null;
-    }
-  },
+  // ------------------------------------------------------------------------
+  // SECURITY: there is deliberately NO client-side recordSubmission anymore.
+  // The browser can never insert into problem_submissions — rows are written
+  // ONLY by the run-submission Edge Function (service role), which computes
+  // verdict, counts, runtime, memory and status server-side and derives the
+  // user identity from the Supabase Auth JWT. See runSubmission() below.
+  // ------------------------------------------------------------------------
 
   // Sync solved progress map to Supabase table 'user_progress'.
   // The `userId` argument is the app-local identity (display purposes

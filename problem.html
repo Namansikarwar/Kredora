@@ -528,35 +528,18 @@
           Open Supabase Dashboard → SQL Editor → New Query, paste this script, and click "Run":
         </p>
         <pre class="p-2.5 rounded-xl bg-black/60 border border-white/5 font-mono text-[10px] text-cyan/90 max-h-36 overflow-y-auto selection:bg-cyan/20 leading-relaxed" id="sqlSchemaPreview">
-create table if not exists public.problem_submissions (
-  id uuid default gen_random_uuid() primary key,
-  problem_id text not null,
-  user_id text not null,
-  language text,
-  code text,
-  status text,
-  runtime text,
-  memory text,
-  passed_tests int,
-  total_tests int,
-  submitted_at timestamptz default now()
-);
-
-alter table public.problem_submissions enable row level security;
-
-create policy "Allow insert for submissions" on public.problem_submissions for insert with check (true);
-create policy "Allow select for submissions" on public.problem_submissions for select using (true);
-
-create table if not exists public.user_progress (
-  user_id text primary key,
-  solved_data jsonb default '{}'::jsonb,
-  updated_at timestamptz default now()
-);
-
-alter table public.user_progress enable row level security;
-
-create policy "Allow read user progress" on public.user_progress for select using (true);
-create policy "Allow upsert user progress" on public.user_progress for all using (true) with check (true);
+-- The secure, canonical schema is served verbatim from supabase/schema.sql
+-- (see the Copy SQL Script button). Summary of its security model:
+--
+--   problem_submissions: NO client INSERT/UPDATE/DELETE policies and no
+--     grants for anon/authenticated — rows are written ONLY by the
+--     run-submission Edge Function with the service-role key.
+--   problem_tests (hidden tests): NO policies at all; service-role read only.
+--   user_progress: owner-SELECT/owner-write only (auth.uid() = user_id).
+--   profile_summaries: the single anon-readable view (safe fields only).
+--
+-- Do NOT paste ad-hoc policies like "for insert with check (true)" on
+-- problem_submissions — that would let any browser forge submissions.
         </pre>
       </div>
 
@@ -1086,11 +1069,16 @@ create policy "Allow upsert user progress" on public.user_progress for all using
             }
             result = remote; // { status, allPassed, passedCount, totalCount, runtime, memory, testResults }
           } else {
-            // Offline fallback: grade samples locally (no hidden tests are
-            // available client-side, so a full pass marks the problem solved
-            // on samples only and is flagged in the submission record).
-            result = await runner.execute(userCode, currentProblem.functionName, currentProblem.sampleTestCases);
-            result.gradedLocally = true;
+            // SECURITY: no local grading fallback. Submissions are graded
+            // ONLY by the run-submission Edge Function (hidden tests live
+            // server-side; the browser can never verify itself). Without a
+            // configured backend the Submit button cannot pass.
+            renderRunResults({
+              allPassed: false, status: "Not Connected",
+              runtime: "--", passedCount: 0, totalCount: 0, testResults: [],
+              logs: ["Connect Supabase to submit — grading happens server-side only."]
+            });
+            return; // finally re-enables the button
           }
           lastRunResult = result;
           activeResultCaseIndex = 0;
@@ -1112,7 +1100,9 @@ create policy "Allow upsert user progress" on public.user_progress for all using
               memory: result.memory,
               language: currentLang,
               code: userCode,
-              verifiedServerSide: !result.gradedLocally,
+              // True here means the verdict came from the Edge Function —
+              // there is no other path since local grading was removed.
+              verifiedServerSide: true,
               recordId: result.recordId || null
             });
 

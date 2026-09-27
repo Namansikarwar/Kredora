@@ -1,9 +1,16 @@
 // ============================================================================
-// Kredora — run-submission Edge Function
+// Kredora — run-submission Edge Function (THE authoritative submission path)
 // ============================================================================
-// Receives { problemId, language, code, fnName }, runs the code against the
-// test cases stored in public.problem_tests (service-role read, invisible to
-// clients), and writes an append-only row into public.problem_submissions
+// Browser → authenticated Supabase session (Bearer JWT) → this function →
+// server-side validation → hidden tests (service-role) → Judge0 → grading →
+// database (service-role insert) → evidence. The verdict, counts, runtime,
+// memory and status are ALL computed here — nothing from the browser is
+// trusted. Anonymous (no JWT) requests are rejected 401.
+//
+// Receives { problemId, language, code, fnName }, validates against the
+// server-side catalog allowlist, runs the code against the HIDDEN test cases
+// stored in public.problem_tests (service-role read, invisible to clients),
+// and writes an append-only row into public.problem_submissions
 // (service-role insert — clients have no INSERT policy).
 //
 // Sandbox: Judge0 CE (self-hosted OR RapidAPI-hosted — configure via env).
@@ -72,6 +79,12 @@ const RATE_WINDOW_S = 60; // per user (or per IP for anon)
 const MAX_TESTS_PER_RUN = 20; // hard cap on Judge0 batch size
 const POLL_TIMEOUT_MS = 25_000;
 
+// ---- Problem validation (DB is authoritative) -------------------------------
+// The client's catalog is NOT trusted: problem existence, difficulty and
+// points are validated against the public.problems table (service-role read)
+// in validateProblem() below. Add new problems there AND seed their hidden
+// tests via scripts/generate-seed-tests.mjs.
+
 const LANGS: Record<string, { judge0Id: number; cpu: number }> = {
   javascript: { judge0Id: 93, cpu: 5 }, // Node.js 18.15.0
   python: { judge0Id: 71, cpu: 5 }, // Python 3.10.0
@@ -118,6 +131,29 @@ function canon(v: unknown): string {
     return "{" + Object.keys(o).sort().map((k) => `${JSON.stringify(k)}:${canon(o[k])}`).join(",") + "}";
   }
   return JSON.stringify(v);
+}
+
+interface ProblemRow {
+  id: string;
+  difficulty: string;
+  points: number;
+}
+
+// The database is the authoritative problem record: an id must exist in
+// public.problems with active = true to be gradeable at all. Returns null
+// when the problem is unknown/retired so the caller rejects before any work.
+async function validateProblem(sb: SupabaseClient, problemId: string): Promise<ProblemRow | null> {
+  const { data, error } = await sb
+    .from("problems")
+    .select("id, difficulty, points")
+    .eq("id", problemId)
+    .eq("active", true)
+    .maybeSingle<ProblemRow>();
+  if (error) {
+    console.error("problem lookup failed:", error.message);
+    return null;
+  }
+  return data ?? null;
 }
 
 // ---- Language harnesses ------------------------------------------------------
@@ -381,7 +417,7 @@ Deno.serve(async (req) => {
   const fnName = String(body.fnName ?? "").trim();
 
   if (!problemId) return fail("problemId is required");
-  if (!LANGS[language]) return fail("Unsupported language (javascript | python | java)");
+  if (!code.trim()) return fail("code is required");
   if (!FN_NAME_RE.test(fnName)) return fail("fnName must be a valid identifier");
 
   const codeBytes = new TextEncoder().encode(code).length;
@@ -394,42 +430,56 @@ Deno.serve(async (req) => {
     return fail((e as Error).message, 500);
   }
 
-  // Identity: Supabase Auth JWT if present, else client-IP bucket.
-  let userId: string | null = null;
-  let identity = "anon";
+  // Identity: derived ONLY from the Supabase Auth JWT, server-side. Body
+  // fields (userId, user_id, email...) are never trusted. Anonymous requests
+  // are rejected — there is no client-IP fallback identity.
+  let userId: string;
   const authHeader = req.headers.get("Authorization") ?? "";
-  if (authHeader.startsWith("Bearer ") && authHeader.length > 20) {
-    try {
-      const { data } = await sb.auth.getUser(authHeader.slice(7));
-      if (data?.user) {
-        userId = data.user.id;
-        identity = `user:${data.user.id}`;
-      }
-    } catch {
-      /* invalid token -> anon */
-    }
+  if (!authHeader.startsWith("Bearer ") || authHeader.length <= 20) {
+    return fail("Sign in to submit: submissions require an authenticated Supabase session.", 401);
   }
-  if (identity === "anon") {
-    const ip =
-      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-      req.headers.get("cf-connecting-ip") || "unknown";
-    identity = `ip:${ip}`;
+  try {
+    const { data: userData, error: userErr } = await sb.auth.getUser(authHeader.slice(7));
+    if (userErr || !userData?.user) {
+      return fail("Invalid or expired session.", 401);
+    }
+    userId = userData.user.id;
+  } catch {
+    return fail("Invalid or expired session.", 401);
   }
 
-  const rate = await checkRateLimit(sb, identity);
+  const rate = await checkRateLimit(sb, `user:${userId}`);
   if (!rate.allowed) {
     return fail(`Rate limit exceeded: max ${RATE_LIMIT} submissions per ${RATE_WINDOW_S}s`, 429);
   }
 
-  // Load ALL tests for this problem — service role bypasses RLS on problem_tests.
+  // Problem validation: the DATABASE record is authoritative. Existence,
+  // difficulty and points come from public.problems — the frontend problem
+  // definition, expected outputs, difficulty, scores and test counts are
+  // never trusted. Unknown or retired problems are rejected here.
+  const problem = await validateProblem(sb, problemId);
+  if (!problem) {
+    return fail("Unknown or inactive problem", 404);
+  }
+
+  // Language validation: must be a server-supported language.
+  if (!LANGS[language]) {
+    return fail("Unsupported language (javascript | python | java)");
+  }
+
+  // Load HIDDEN tests only — service role bypasses RLS on problem_tests.
+  // The kind='hidden' filter is a second guard on top of the CHECK constraint
+  // in schema.sql: sample rows exist for seeding but are never graded here,
+  // and no request field can widen the graded set.
   const { data: tests, error: testsErr } = await sb
     .from("problem_tests")
     .select("kind, input, expected")
     .eq("problem_id", problemId)
+    .eq("kind", "hidden")
     .order("created_at", { ascending: true });
   if (testsErr) return fail("Could not load tests: " + testsErr.message, 500);
-  if (!tests || tests.length === 0) return fail("No test cases registered for this problem", 404);
-  if (tests.length > MAX_TESTS_PER_RUN) return fail("Problem has too many registered tests", 500);
+  if (!tests || tests.length === 0) return fail("No hidden test cases registered for this problem", 404);
+  if (tests.length > MAX_TESTS_PER_RUN) return fail("Problem has too many registered hidden tests", 500);
 
   // One Judge0 submission per test; stdin = JSON args array.
   const lang = LANGS[language];
@@ -458,10 +508,11 @@ Deno.serve(async (req) => {
     return fail((e as Error).message, 502);
   }
 
-  // Interpret results; hide expected values and inputs for hidden tests.
+  // Interpret results. Only hidden tests are graded; verdicts are echoed to
+  // the browser WITHOUT inputs, expected values or logs.
   const outcomes: TestOutcome[] = tests.map((t: TestCaseRow, i: number) => {
     const j = judgeResults[i];
-    const hidden = t.kind !== "sample";
+    const hidden = true; // only hidden tests are fetched/graded server-side
     const runtimeMs = j.time ? Math.round(parseFloat(j.time) * 1000) : 0;
     const memoryMb = j.memory ? Math.round((j.memory / 1024) * 10) / 10 : 0;
     const base: TestOutcome = { index: i, hidden, passed: false, status: "Runtime Error", runtimeMs, memoryMb };
@@ -492,21 +543,9 @@ Deno.serve(async (req) => {
     }
 
     const passed = canon(parsed.value) === canon(t.expected);
-    const logs = (parsed.logs ?? []).slice(0, 50);
-    if (hidden) return { ...base, passed, status: passed ? "Accepted" : "Wrong Answer" };
-
-    const raw = t.input as { input?: unknown[]; inputDisplay?: string } | unknown[];
-    const args = Array.isArray(raw) ? raw : Array.isArray(raw.input) ? raw.input : [];
-    const inputDisplay = !Array.isArray(raw) && typeof raw.inputDisplay === "string" ? raw.inputDisplay : JSON.stringify(args);
-    return {
-      ...base,
-      passed,
-      status: passed ? "Accepted" : "Wrong Answer",
-      inputDisplay,
-      userOutputDisplay: JSON.stringify(parsed.value ?? null),
-      expectedDisplay: JSON.stringify(t.expected ?? null),
-      logs,
-    };
+    // Hidden tests: verdict only. Inputs, expected values and logs are never
+    // echoed to the browser — they exist server-side only.
+    return { ...base, passed, status: passed ? "Accepted" : "Wrong Answer" };
   });
 
   const passedCount = outcomes.filter((o) => o.passed).length;
@@ -546,7 +585,9 @@ Deno.serve(async (req) => {
       .limit(1);
     previousRecordHash = (prevRows && prevRows[0]?.record_hash) || "";
 
-    // Canonical string — keys sorted, stable across JS/Deno runtimes.
+    // Canonical string — keys sorted, stable across JS/Deno runtimes. MUST
+    // match verify-record's computeHash byte for byte (same keys, same
+    // order) or every new record would fail chain verification.
     const payload = JSON.stringify({
       code,
       language,
