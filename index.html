@@ -515,8 +515,8 @@
   </script>
   <script>
     // Update CTAs if already logged in
-    document.addEventListener("DOMContentLoaded", () => {
-      if (window.Auth && window.Auth.isAuthenticated()) {
+    document.addEventListener("DOMContentLoaded", async () => {
+      if (window.Auth && (await window.Auth.isAuthenticated())) {
         const heroCta = document.getElementById("hero-cta-btn");
         if (heroCta) {
           heroCta.textContent = "Go to your Dashboard";

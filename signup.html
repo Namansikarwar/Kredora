@@ -147,6 +147,24 @@
           </div>
 
           <div>
+            <label for="signupEmail" class="mb-1.5 block text-xs font-mono uppercase tracking-wider text-inkdim">
+              Email <span class="text-danger">*</span>
+            </label>
+            <div class="relative">
+              <input
+                id="signupEmail"
+                type="email"
+                required
+                autocomplete="email"
+                placeholder="you@example.com"
+                class="w-full rounded-xl border border-white/10 bg-black/30 px-4 py-2.5 text-white text-sm outline-none transition focus:border-gold/70 focus:ring-1 focus:ring-gold/40">
+              <span class="absolute right-3.5 top-3 text-inkdim">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>
+              </span>
+            </div>
+          </div>
+
+          <div>
             <label for="signupPassword" class="mb-1.5 block text-xs font-mono uppercase tracking-wider text-inkdim">
               Password <span class="text-danger">*</span>
             </label>
@@ -250,12 +268,12 @@
   <script type="module" src="js/data.js"></script>
   <script type="module" src="js/auth.js"></script>
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("DOMContentLoaded", async () => {
       const yearEl = document.getElementById("current-year");
       if (yearEl) yearEl.textContent = new Date().getFullYear();
 
-      // Check if user is already authenticated
-      if (window.Auth && window.Auth.isAuthenticated()) {
+      // Check if user is already authenticated (Supabase Auth session)
+      if (window.Auth && (await window.Auth.isAuthenticated())) {
         window.location.href = "dashboard.html";
         return;
       }
@@ -320,12 +338,13 @@
       const errorEl = document.getElementById("signupError");
       const submitBtn = document.getElementById("signupSubmitBtn");
 
-      form.addEventListener("submit", (e) => {
+      form.addEventListener("submit", async (e) => {
         e.preventDefault();
         errorEl.classList.add("hidden");
 
         const name = document.getElementById("signupName").value.trim();
         const username = document.getElementById("signupUsername").value.trim();
+        const email = document.getElementById("signupEmail").value.trim();
         const password = passwordInput.value;
         const confirmPassword = confirmInput.value;
         const terms = document.getElementById("termsCheck").checked;
@@ -351,28 +370,34 @@
           <span>Creating account...</span>
         `;
 
-        setTimeout(() => {
-          const result = window.Auth.signup({
-            name: name || username,
-            username,
-            password,
-            confirmPassword,
-          });
+        // Supabase Auth sign-up — the only account-creation path in the app.
+        const result = await window.Auth.signup({
+          name: name || username,
+          username,
+          email,
+          password,
+          confirmPassword,
+        });
 
-          if (!result.success) {
-            errorEl.textContent = result.message || "Failed to create account.";
-            errorEl.classList.remove("hidden");
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = `
-              <span>Create Account & Continue</span>
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            `;
-            return;
-          }
+        if (!result.success) {
+          errorEl.textContent = result.message || "Failed to create account.";
+          errorEl.classList.remove("hidden");
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = `
+            <span>Create Account & Continue</span>
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          `;
+          return;
+        }
 
-          // Automatically redirects to dashboard
-          window.location.href = "dashboard.html";
-        }, 400);
+        if (result.needsConfirmation) {
+          // Email confirmation required — no session yet; finish at login.
+          window.location.href = "login.html?registered=true";
+          return;
+        }
+
+        // Session created immediately: go straight to the dashboard.
+        window.location.href = "dashboard.html";
       });
     });
   </script>

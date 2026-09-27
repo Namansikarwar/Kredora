@@ -67,9 +67,7 @@
 <script type="module">
   import "./js/supabase-client.js";
   import "./js/auth.js";
-  if (!window.Auth.requireAuth("dashboard.html")) {
-    // Execution will redirect to login.html
-  }
+  window.Auth.requireAuth("dashboard.html"); // redirects to login.html when no Supabase Auth session
 </script>
 </head>
 
@@ -506,7 +504,7 @@
     import "./js/auth.js";
 
     document.addEventListener("DOMContentLoaded", async () => {
-      const user = window.Auth ? window.Auth.getCurrentUser() : null;
+      const user = window.Auth ? await window.Auth.getCurrentUser() : null;
       if (user) {
         const nameEl = document.getElementById("dash-user-name");
         if (nameEl) nameEl.textContent = user.name || user.username;

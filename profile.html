@@ -385,8 +385,8 @@
     </script>
 
     <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        const user = window.Auth ? window.Auth.getCurrentUser() : null;
+      document.addEventListener("DOMContentLoaded", async () => {
+        const user = window.Auth ? await window.Auth.getCurrentUser() : null;
         if (user) {
           const profileName = document.getElementById("profileName");
           if (profileName) profileName.textContent = user.name || user.username;
