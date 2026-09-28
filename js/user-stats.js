@@ -28,7 +28,7 @@ if (typeof window !== "undefined") {
 import { getSupabase } from "./supabase-client.js";
 import { SKILLS, skillByName } from "./skills.js";
 
-// Points awarded per accepted submission, by difficulty. Mirrors the
+// Points awarded per VERIFIED (server-graded) submission, by difficulty. Mirrors the
 // `points` field on each problem in js/problems-data.js.
 const DIFFICULTY_POINTS = { Easy: 2, Medium: 4, Hard: 8 };
 
@@ -58,6 +58,19 @@ function relTime(iso) {
   return `${Math.round(days / 7)}w ago`;
 }
 
+/** Evidence states shared with code-runner.js (window.EvidenceStates). */
+const STATES = { LOCAL: "LOCAL", SUBMITTED: "SUBMITTED", VERIFIED: "VERIFIED", FAILED: "FAILED" };
+
+function stateForRecord(r) {
+  if (r.state) return r.state;
+  // Legacy local records: an "Accepted" string alone is NOT verified — only
+  // server rows (serverRecordId / serverRow) may map to VERIFIED/FAILED.
+  if (r.serverRecordId || r.serverRow) {
+    return r.status === "accepted" || r.status === "Accepted" ? STATES.VERIFIED : STATES.FAILED;
+  }
+  return STATES.LOCAL;
+}
+
 /** Flatten local submission storage ({ problemId: [records] }) to a list. */
 function flattenLocalSubmissions(raw) {
   const out = [];
@@ -73,6 +86,8 @@ function flattenLocalSubmissions(raw) {
           difficulty: r.difficulty || null,
           language: r.language || null,
           status: r.status || null,
+          state: stateForRecord(r),
+          serverRecordId: r.serverRecordId || null,
           runtime: r.runtime || null,
           submittedAt: r.timestamp || r.submittedAt || null,
         });
@@ -118,6 +133,8 @@ export async function getSubmissions() {
         difficulty: null, // joined client-side against the catalog
         language: row.language,
         status: row.status,
+        state: row.status === "accepted" ? STATES.VERIFIED : STATES.FAILED, // server-graded
+        serverRecordId: row.id,
         runtime: row.runtime,
         submittedAt: row.submitted_at,
         serverRow: true,
@@ -133,11 +150,11 @@ export async function getSubmissions() {
   }
 }
 
-/** Distinct problems with at least one accepted submission. */
+/** Distinct problems with at least one VERIFIED (server-graded) submission. */
 function acceptedProblemIds(subs) {
   const ids = new Set();
   for (const s of subs) {
-    if (s.status === "accepted" || s.status === "Accepted") ids.add(s.problemId);
+    if (s.state === STATES.VERIFIED) ids.add(s.problemId);
   }
   return ids;
 }
@@ -173,10 +190,10 @@ export function computeStreak(subs) {
   return streak;
 }
 
-/** Verified points: sum of per-difficulty points over accepted submissions. */
+/** Verified points: per-difficulty points over VERIFIED (server-graded) submissions only. */
 export function computePoints(subs) {
   return subs.reduce((sum, s) => {
-    if (!(s.status === "accepted" || s.status === "Accepted")) return sum;
+    if (s.state !== STATES.VERIFIED) return sum;
     const pts = DIFFICULTY_POINTS[s.difficulty];
     return sum + (Number.isFinite(pts) ? pts : DIFFICULTY_POINTS.Easy);
   }, 0);
@@ -290,7 +307,7 @@ export function getRecentActivity(subs, limit = 4) {
     .sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt))
     .slice(0, limit)
     .map((s) => {
-      const accepted = s.status === "accepted" || s.status === "Accepted";
+      const accepted = s.state === STATES.VERIFIED; // only server-graded passes read as solved
       const title = s.problemTitle || s.problemId;
       const verb = accepted ? "Solved" : "Attempted";
       const lang = s.language ? ` · ${s.language}` : "";
@@ -398,7 +415,7 @@ export function getSkillsProgress(subs, userEvidence) {
     if (!skillId) continue;
     const skill = out.get(skillId);
     skill.attempts += 1;
-    if (s.status === "accepted" || s.status === "Accepted") {
+    if (s.state === STATES.VERIFIED) {
       skill.solved += 1;
       skill.score = Math.min(100, skill.score + 5);
       const t = new Date(s.submittedAt).getTime();
@@ -454,9 +471,9 @@ export function getSkillBreakdown(subs, catalog) {
     if (attempted.has(p.id)) skill.attempted += 1;
   }
 
-  // Last accepted timestamp per category, from the user's submissions.
+  // Last accepted timestamp per category, from VERIFIED submissions only.
   for (const s of subs) {
-    if (!(s.status === "accepted" || s.status === "Accepted")) continue;
+    if (s.state !== STATES.VERIFIED) continue;
     const p = catalog.find((c) => c.id === s.problemId);
     if (!p) continue;
     const skill = byCategory.get(p.category || "General");

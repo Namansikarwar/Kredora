@@ -759,19 +759,31 @@
           return;
         }
 
-        list.innerHTML = subs.map((s, idx) => `
+        list.innerHTML = subs.map((s, idx) => {
+          // Evidence state: server-graded rows are VERIFIED/FAILED; anything
+          // else is a LOCAL sample run and is labeled as such.
+          const state = s.state || (s.serverRecordId ? "VERIFIED-or-FAILED" : "LOCAL");
+          const isVerified = state === "VERIFIED";
+          const isServer = state === "VERIFIED" || state === "FAILED";
+          const stateBadgeClass = isVerified
+            ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300'
+            : isServer
+              ? 'border-danger/30 bg-danger/10 text-danger'
+              : 'border-white/15 bg-white/5 text-white/50';
+          const stateLabel = isVerified ? "VERIFIED" : isServer ? "FAILED · server" : "LOCAL · not evidence";
+          return `
           <div class="rounded-xl border border-white/10 bg-white/[0.02] backdrop-blur-sm p-3 text-xs flex items-center justify-between hover:border-white/20 transition cursor-pointer" data-sub-idx="${idx}">
             <div class="flex items-center gap-3">
+              <span class="font-mono text-[10px] px-1.5 py-0.5 rounded border ${stateBadgeClass}">${stateLabel}</span>
               <span class="font-bold ${s.status === 'Accepted' ? 'text-emerald-400' : 'text-danger'} font-display">${s.status}</span>
               <span class="font-mono text-white/50 text-[11px]">${s.runtime || ''}</span>
-              <span class="font-mono text-white/40 text-[11px]">${s.memory || ''}</span>
             </div>
             <div class="flex items-center gap-2">
               <span class="font-mono text-xs text-white/40">${new Date(s.timestamp).toLocaleDateString()}</span>
               <button class="text-gold hover:underline text-[11px] font-mono">Load Code</button>
             </div>
-          </div>
-        `).join("");
+          </div>`;
+        }).join("");
 
         list.querySelectorAll("[data-sub-idx]").forEach(item => {
           item.addEventListener("click", () => {
@@ -938,6 +950,10 @@
         try {
           const userCode = editor.value;
           const result = await runner.execute(userCode, currentProblem.functionName, currentProblem.sampleTestCases);
+          // LOCAL execution against bundled samples — never verified evidence.
+          result.state = window.EvidenceStates ? window.EvidenceStates.LOCAL : "LOCAL";
+          result.origin = "LOCAL";
+          result.statusLabel = "LOCAL RUN — not verified evidence";
           lastRunResult = result;
           activeResultCaseIndex = 0;
 
@@ -961,9 +977,22 @@
         dot.classList.remove("hidden");
         dot.className = `w-2 h-2 rounded-full ${res.allPassed ? 'bg-emerald-400' : 'bg-danger'}`;
 
+        const isVerified = res.state === "VERIFIED";
+        const isLocal = !isVerified; // server results always carry state; local runs default to LOCAL
+
         const statusBadge = document.getElementById("runStatusBadge");
         statusBadge.textContent = res.status;
         statusBadge.className = `text-base font-bold font-display ${res.allPassed ? 'text-emerald-400' : 'text-danger'}`;
+
+        // Origin badge — a LOCAL sample run must never look like VERIFIED.
+        let originBadge = document.getElementById("runOriginBadge");
+        if (!originBadge) {
+          originBadge = document.createElement("span");
+          originBadge.id = "runOriginBadge";
+          statusBadge.insertAdjacentElement("afterend", originBadge);
+        }
+        originBadge.textContent = isVerified ? "VERIFIED · server-graded" : "LOCAL · sample run — not evidence";
+        originBadge.className = `ml-2 align-middle text-[10px] font-mono px-2 py-0.5 rounded border ${isVerified ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300' : 'border-white/15 bg-white/5 text-white/50'}`;
 
         document.getElementById("runTimingBadge").textContent = `Runtime: ${res.runtime}`;
         document.getElementById("casesPassedBadge").textContent = `${res.passedCount} / ${res.totalCount} testcases passed`;
@@ -1067,7 +1096,10 @@
               });
               return; // finally re-enables the button
             }
-            result = remote; // { status, allPassed, passedCount, totalCount, runtime, memory, testResults }
+            result = remote; // server-graded — carries state VERIFIED/FAILED below
+            result.state = result.allPassed ? "VERIFIED" : "FAILED";
+            result.origin = "SERVER";
+            result.statusLabel = result.allPassed ? "VERIFIED — server-graded on hidden tests" : "FAILED — server-graded";
           } else {
             // SECURITY: no local grading fallback. Submissions are graded
             // ONLY by the run-submission Edge Function (hidden tests live
@@ -1100,10 +1132,9 @@
               memory: result.memory,
               language: currentLang,
               code: userCode,
-              // True here means the verdict came from the Edge Function —
-              // there is no other path since local grading was removed.
-              verifiedServerSide: true,
-              recordId: result.recordId || null
+              state: result.state, // VERIFIED — only the server path reaches here
+              serverRecordId: result.recordId || null,
+              recordHash: result.recordHash || null,
             });
 
             // Update badge on header
@@ -1119,8 +1150,11 @@
             document.getElementById("modalMemory").textContent = result.memory || "--";
             document.getElementById("successModal").classList.remove("hidden");
           } else {
-            // Record failed attempt
+            // Record failed attempt (server-graded, state FAILED — counts
+            // as an attempt, never as verified evidence).
             tracker.recordSubmission(currentProblem.id, {
+              state: "FAILED",
+              serverRecordId: result.recordId || null,
               status: result.status || "Wrong Answer",
               runtime: result.runtime,
               memory: result.memory,

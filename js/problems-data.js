@@ -1414,8 +1414,12 @@ const ProgressTracker = {
 
     localStorage.setItem(this.SOLVED_KEY, JSON.stringify(map));
 
-    // Also record into submission history
+    // Also record into submission history — carries the evidence state
+    // (VERIFIED only when graded by the server; LOCAL runs never reach
+    // markSolved, which is called only on the server-graded pass path).
     this.recordSubmission(problem.id, {
+      state: submission.state || "VERIFIED",
+      serverRecordId: submission.serverRecordId || null,
       status: "Accepted",
       runtime: submission.runtime,
       memory: submission.memory,
@@ -1497,9 +1501,9 @@ const ProgressTracker = {
   },
 
   logVerifiedSkillProofEvidence(problem, submission, wasAlreadySolved) {
-    // `verified` is true ONLY when the verdict came from the run-submission
-    // Edge Function (server-graded). A local sample-run pass is NOT verified —
-    // the browser cannot grade itself into verified evidence.
+    // `verified` is true ONLY for server-graded submissions (state VERIFIED).
+    // A local sample-run pass can never reach verified evidence — the
+    // browser cannot grade itself into the evidence ledger.
     try {
       const raw = localStorage.getItem(this.EVIDENCE_KEY);
       const evidenceList = raw ? JSON.parse(raw) : [];
@@ -1512,12 +1516,13 @@ const ProgressTracker = {
         category: problem.category,
         detail: `Solved in ${submission.runtime} · ${problem.difficulty} · ${problem.category}`,
         timestamp: "Just now",
-        // Server-graded only: never mark browser-graded runs as verified.
-        verified: submission.verifiedServerSide === true,
+        // Server-graded only: state VERIFIED never comes from local runs.
+        verified: submission.state === "VERIFIED" || submission.verifiedServerSide === true,
+        state: submission.state || "LOCAL",
         // Id of the server-graded problem_submissions row (when the submit
         // was graded by the run-submission Edge Function). Lets the Verify
         // buttons on evidence.html re-check the record's hash chain.
-        recordId: submission.recordId || null,
+        recordId: submission.serverRecordId || submission.recordId || null,
         points: problem.points || 2
       };
 

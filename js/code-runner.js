@@ -2,7 +2,19 @@
  * Kredora Coding Arena — In-Browser Safe Code Runner & Judge
  * Executes code against test suites with deep comparison, console capture,
  * runtime measurement, and LeetCode-grade validation.
+ *
+ * EVIDENCE STATES: everything this module produces is a LOCAL execution
+ * against bundled sample tests in the browser. It is a development aid and
+ * can NEVER produce VERIFIED evidence — only the run-submission Edge
+ * Function (Judge0 + server-side hidden tests) may mint VERIFIED results.
  */
+
+const EvidenceStates = {
+  LOCAL: "LOCAL",           // browser-executed against samples; never evidence
+  SUBMITTED: "SUBMITTED",   // sent to the server, awaiting/neutral outcome
+  VERIFIED: "VERIFIED",     // server-graded pass on authoritative hidden tests
+  FAILED: "FAILED",         // server-graded non-pass
+};
 
 const CodeRunner = {
   deepEqual(actual, expected) {
@@ -81,6 +93,9 @@ const CodeRunner = {
       userFn = factory(customConsole);
     } catch (err) {
       return {
+        state: EvidenceStates.LOCAL,
+        origin: "LOCAL",
+        statusLabel: "LOCAL RUN — not verified evidence",
         status: "Runtime Error",
         error: err.message,
         runtime: "0 ms",
@@ -146,6 +161,9 @@ const CodeRunner = {
     }
 
     return {
+      state: EvidenceStates.LOCAL,
+      origin: "LOCAL",
+      statusLabel: "LOCAL RUN — not verified evidence",
       status,
       allPassed,
       failingCase,
@@ -160,5 +178,6 @@ const CodeRunner = {
 };
 
 window.CodeRunner = CodeRunner;
+window.EvidenceStates = EvidenceStates;
 
 export {};
