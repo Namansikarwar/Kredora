@@ -71,9 +71,6 @@ create table if not exists public.problem_submissions (
 -- the expected result for any client-side mutation attempt. The service
 -- role (Edge Functions) is the ONLY writer.
 comment on table public.problem_submissions is
-  'Append-only record of every code submission. Written ONLY by the run-submission Edge Function (service role). No client INSERT/UPDATE/DELETE policies or grants. Accepted rows carry a v2 hash chain: code_hash (sha256 of source), tests_summary, and record_hash = sha256 over the pinned submitted_at (DB clock), verdict, counts, user, problem, language and the previous accepted row''s hash — so post-hoc edits, deletions, or reordering are detectable via the verify-record function. Tamper-evident, NOT tamper-proof: does not protect against full rewrites by the service role or a DBA, and hashes pin recorded content, not correctness.';
-
-comment on table public.problem_submissions is
   'Append-only record of every code submission. Written ONLY by the run-submission Edge Function (service role). No client INSERT/UPDATE/DELETE policies. Accepted rows carry a sha256 hash chained to the user''s previous accepted row (record_hash/previous_record_hash) so post-hoc edits or deletions are detectable via the verify-record function. Tamper-evident, NOT tamper-proof: does not protect against full rewrites by the service role or a DBA, and hashes pin recorded content, not correctness.';
 
 -- ----------------------------------------------------------------------------
@@ -343,6 +340,11 @@ alter table public.user_progress        enable row level security;
 -- by the browser, but this keeps direct SQL mistakes from leaking rows).
 alter table public.problem_submissions force row level security;
 alter table public.user_progress        force row level security;
+-- NO INSERT/UPDATE/DELETE grant or policy for clients: the run-submission
+-- Edge Function writes rows with the service_role key (bypasses RLS), so the
+-- browser can never forge, alter, or remove a submission — including its own
+-- VERIFIED evidence. Clients may only SELECT their own rows (policy below;
+-- the SELECT grant is restored in section 5's defense-in-depth block).
 
 -- Re-create policies idempotently
 -- NO INSERT/UPDATE/DELETE policy for clients: the run-submission Edge
@@ -422,7 +424,14 @@ grant select on public.profile_summaries to anon, authenticated;
 -- never need on the base tables. RLS already denies these; this removes
 -- the underlying grants too, so even a future policy mistake cannot leak
 -- rows or permit writes from the browser.
+-- Writes are fully revoked first: no INSERT/UPDATE/DELETE grant exists for
+-- anon/authenticated, so the append-only guarantee holds at the grant layer.
+-- The owner-SELECT grant is then RESTORED (after the revoke — order matters):
+-- the "submissions: owner reads own rows" policy depends on it, and without
+-- the grant every read fails with "permission denied" (this broke the
+-- user-stats/evidence client reads).
 revoke all on public.problem_submissions from anon, authenticated;
+grant select on public.problem_submissions to authenticated;
 revoke all on public.user_progress from anon, authenticated;
 revoke all on public.problem_tests from anon, authenticated;
 revoke all on public.submission_rate_limits from anon, authenticated;
@@ -441,6 +450,123 @@ create index if not exists idx_problem_submissions_submitted_at
 create index if not exists idx_problem_submissions_user_time
   on public.problem_submissions (user_id, submitted_at);
 -- user_progress.user_id is the primary key already; nothing extra needed.
+
+-- ----------------------------------------------------------------------------
+-- 5b. Evidence-chain integrity (defense in depth, DB-enforced)
+-- ----------------------------------------------------------------------------
+-- The Edge Functions already compute hashes correctly; these constraints make
+-- whole classes of tampering IMPOSSIBLE at the storage layer, not merely
+-- detectable by verify-record afterwards:
+--
+--   * accepted rows MUST carry a complete v2 chain (record_hash, code_hash,
+--     tests_summary, previous_record_hash all non-null) — an accepted row can
+--     never silently lack verifiable evidence, even if the Edge Function
+--     crashed between insert and chain-stamp.
+--   * a non-accepted row cannot carry a record_hash — prevents pre-minting
+--     "evidence" for submissions that never passed.
+--   * (user_id, record_hash) is UNIQUE, and a partial unique index forbids
+--     two accepted rows from claiming the same previous_record_hash — forks
+--     cannot be written, closing the read-then-insert race in run-submission
+--     at the database level. No-op on re-run; skipped with a notice if
+--     legacy data already contains forks/duplicates.
+--
+-- Idempotent: IF NOT EXISTS / DO blocks make the whole script safe to re-run.
+alter table public.problem_submissions drop constraint if exists submissions_accepted_must_be_chained;
+alter table public.problem_submissions
+  add constraint submissions_accepted_must_be_chained check (
+    status <> 'accepted'
+    or (record_hash is not null
+        and code_hash is not null
+        and tests_summary is not null
+        and previous_record_hash is not null)
+  ) not valid;
+
+alter table public.problem_submissions drop constraint if exists submissions_unaccepted_unhashed;
+alter table public.problem_submissions
+  add constraint submissions_unaccepted_unhashed check (
+    status = 'accepted' or record_hash is null
+  ) not valid;
+
+-- Unique per (user, hash). Plain UNIQUE would collide across users only in
+-- the astronomically unlikely hash-collision case, but scoping to user_id
+-- documents intent: one chain lineage per user, no forks within it.
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint
+    where conname = 'submissions_user_record_hash_unique'
+      and conrelid = 'public.problem_submissions'::regclass
+  ) then
+    if exists (
+      select 1 from public.problem_submissions
+      where record_hash is not null
+      group by user_id, record_hash having count(*) > 1
+    ) then
+      raise notice 'submissions_user_record_hash_unique not added: existing forked chain data present — dedupe first';
+    else
+      alter table public.problem_submissions
+        add constraint submissions_user_record_hash_unique
+        unique (user_id, record_hash);
+    end if;
+  end if;
+end $$;
+
+comment on constraint submissions_accepted_must_be_chained on public.problem_submissions is
+  'DB-enforced invariant: an accepted submission always carries a complete v2 chain (record_hash, code_hash, tests_summary, previous_record_hash). Pairs with run-submission''s two-phase write: accepted rows enter as status=''submitted'' and atomically flip to ''accepted'' together with their chain stamp, so an accepted row without evidence cannot exist at any instant. NOT VALID: existing rows are not retro-validated.';
+comment on constraint submissions_user_record_hash_unique on public.problem_submissions is
+  'DB-enforced integrity: within one user''s history, a given record_hash exists once. Skipped (with a notice) if legacy forked data is present.';
+
+-- Fork prevention at the exact moment a row becomes evidence: no two ACCEPTED
+-- rows of one user may ever claim the same previous_record_hash (including two
+-- roots claiming ""). This is what actually closes the concurrent-submission
+-- fork race: both twins flip status to ''accepted'' with the same predecessor,
+-- and only the first flip can win — the loser's update errors, and
+-- run-submission deletes its pending row. Checked at creation; skipped with a
+-- notice if legacy forked data is present.
+do $$
+begin
+  if not exists (
+    select 1 from pg_indexes
+    where schemaname = 'public'
+      and indexname = 'uq_submissions_user_prev_hash'
+  ) then
+    if exists (
+      select 1 from public.problem_submissions
+      where status = 'accepted' and previous_record_hash is not null
+      group by user_id, previous_record_hash having count(*) > 1
+    ) then
+      raise notice 'uq_submissions_user_prev_hash not created: existing forked chain data present — dedupe first';
+    else
+      create unique index uq_submissions_user_prev_hash
+        on public.problem_submissions (user_id, previous_record_hash)
+        where status = 'accepted' and previous_record_hash is not null;
+    end if;
+  end if;
+end $$;
+
+-- ---------------------------------------------------------------------------------------
+-- 6b. Verification queries for the evidence chain (optional, run manually to sanity-check)
+-- ---------------------------------------------------------------------------------------
+-- Every accepted row must have a complete chain and a valid version (as a client, expect 0 rows):
+--   select id from public.problem_submissions
+--    where status = 'accepted'
+--      and (record_hash is null or code_hash is null or tests_summary is null
+--           or previous_record_hash is null or record_version < 2);
+-- Detect a fork directly (as a client, expect 0 rows; the UNIQUE constraint
+-- should make this impossible going forward):
+--   select user_id, previous_record_hash, count(*)
+--     from public.problem_submissions
+--    where status = 'accepted' and previous_record_hash is not null
+--    group by user_id, previous_record_hash having count(*) > 1;
+-- Walk every user's chain oldest -> newest; a row whose previous_record_hash
+-- does not match the previous row's record_hash is a broken link (as a client, expect 0 rows):
+--   with walk as (
+--     select s.*, lag(s.record_hash) over (partition by s.user_id order by s.submitted_at) as expected_prev
+--       from public.problem_submissions s
+--      where s.status = 'accepted' and s.record_version >= 2
+--   )
+--   select id from walk
+--    where coalesce(previous_record_hash, '') <> coalesce(expected_prev, '');
 
 -- ----------------------------------------------------------------------------
 -- 6. Verification queries (optional, run manually to sanity-check)

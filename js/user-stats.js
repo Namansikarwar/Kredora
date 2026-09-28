@@ -62,12 +62,14 @@ function relTime(iso) {
 const STATES = { LOCAL: "LOCAL", SUBMITTED: "SUBMITTED", VERIFIED: "VERIFIED", FAILED: "FAILED" };
 
 function stateForRecord(r) {
-  if (r.state) return r.state;
-  // Legacy local records: an "Accepted" string alone is NOT verified — only
-  // server rows (serverRecordId / serverRow) may map to VERIFIED/FAILED.
+  // Only server-attributed records may carry an explicit state — a bare
+  // r.state from localStorage is a client claim, not proof, and is ignored.
+  if ((r.serverRecordId || r.serverRow) && r.state) return r.state;
   if (r.serverRecordId || r.serverRow) {
     return r.status === "accepted" || r.status === "Accepted" ? STATES.VERIFIED : STATES.FAILED;
   }
+  // Legacy local records (an "Accepted" string included) are NOT verified:
+  // only the server can mint VERIFIED, and only for rows it wrote.
   return STATES.LOCAL;
 }
 
@@ -119,7 +121,7 @@ export async function getSubmissions() {
 
     const { data, error } = await db
       .from("problem_submissions")
-      .select("id, problem_id, language, status, runtime, submitted_at")
+      .select("id, problem_id, language, status, runtime, submitted_at, record_version, code_hash")
       .eq("user_id", userId)
       .order("submitted_at", { ascending: false })
       .limit(500);
@@ -133,7 +135,13 @@ export async function getSubmissions() {
         difficulty: null, // joined client-side against the catalog
         language: row.language,
         status: row.status,
-        state: row.status === "accepted" ? STATES.VERIFIED : STATES.FAILED, // server-graded
+        // Server-graded. A row counts as VERIFIED only if it is accepted AND
+        // carries verifiable chain evidence (v2, code hash) — an accepted row
+        // without them cannot be checked, so it must not display as verified.
+        state:
+          row.status === "accepted" && (row.record_version ?? 0) >= 2 && row.code_hash
+            ? STATES.VERIFIED
+            : STATES.FAILED,
         serverRecordId: row.id,
         runtime: row.runtime,
         submittedAt: row.submitted_at,
@@ -514,7 +522,11 @@ export function getUserEvidence(stats) {
       skill: s.language || "Code",
       detail: `Accepted on the server · ${s.difficulty || "problem"}${s.runtime ? ` · ${s.runtime}` : ""}`,
       timestamp: relTime(s.submittedAt),
-      recordId: s.recordId || null,
+      // Server rows carry the id in serverRecordId; local legacy records may
+      // use recordId. The Verify buttons need the SERVER id to re-check the
+      // hash chain, so serverRecordId must win.
+      recordId: s.serverRecordId || s.recordId || null,
+      state: s.state,
     }));
   return [...problemEvidence, ...userEvidence];
 }

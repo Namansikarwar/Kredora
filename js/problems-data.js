@@ -1418,7 +1418,8 @@ const ProgressTracker = {
     // (VERIFIED only when graded by the server; LOCAL runs never reach
     // markSolved, which is called only on the server-graded pass path).
     this.recordSubmission(problem.id, {
-      state: submission.state || "VERIFIED",
+      // No server state, no verified record — never default to VERIFIED.
+      state: submission.state === "VERIFIED" ? "VERIFIED" : submission.state || "LOCAL",
       serverRecordId: submission.serverRecordId || null,
       status: "Accepted",
       runtime: submission.runtime,

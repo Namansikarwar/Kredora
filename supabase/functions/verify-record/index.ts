@@ -196,6 +196,18 @@ Deno.serve(async (req) => {
       recordId,
     });
   }
+  if (target.record_version > 2) {
+    // Unknown NEWER chain version: this verifier cannot attest to it either
+    // way. Report that explicitly instead of falling through to a generic
+    // (and misleading) "record modified" failure.
+    return json({
+      ok: true,
+      valid: null,
+      checkable: false,
+      reason: `This record uses chain version ${target.record_version}, which this verifier does not understand. Verification inconclusive.`,
+      recordId,
+    });
+  }
 
   // Load the user's full accepted v2 history, oldest -> newest, and walk the
   // chain forward. Every accepted row must continue the one chain built so
@@ -220,6 +232,39 @@ Deno.serve(async (req) => {
       valid: null,
       checkable: true,
       reason: `User has more than ${MAX_CHAIN_WALK} accepted records; chain walk is bounded. Verification inconclusive for this row.`,
+      recordId,
+    });
+  }
+
+  // Forks/orphans that do NOT involve the target: a predecessor-hash claimed
+  // by two rows, or a link pointing at a hash that no row carries. Neither
+  // stops the linear walk from reaching the target, but both mean history is
+  // not intact — report them instead of an unearned "chain intact".
+  const prevClaims = new Map<string, number>();
+  for (const row of chainRows) {
+    const prev = row.previous_record_hash ?? "";
+    prevClaims.set(prev, (prevClaims.get(prev) ?? 0) + 1);
+  }
+  const forkedPrev = [...prevClaims.entries()].find(([, n]) => n > 1);
+  if (forkedPrev) {
+    return json({
+      ok: true,
+      valid: false,
+      checkable: true,
+      reason: "Chain fork detected: two records claim the same predecessor hash — the recorded history is not a single intact chain.",
+      recordId,
+    });
+  }
+  const knownHashes = new Set(chainRows.map((r) => r.record_hash as string));
+  const orphan = chainRows.find(
+    (r) => r.id !== recordId && (r.previous_record_hash ?? "") !== "" && !knownHashes.has(r.previous_record_hash as string),
+  );
+  if (orphan) {
+    return json({
+      ok: true,
+      valid: false,
+      checkable: true,
+      reason: "Chain orphan detected: a record links to a predecessor that no longer exists in the recorded history (deleted or never written).",
       recordId,
     });
   }
@@ -301,9 +346,22 @@ Deno.serve(async (req) => {
     });
   }
 
+  // The walk finished WITHOUT reaching the target. With the fork/orphan
+  // screens above, every silent-skip path is now explained explicitly —
+  // verify-record must never return an unexplained valid:false.
+  if (!targetValid) {
+    return json({
+      ok: true,
+      valid: false,
+      checkable: true,
+      reason: `Record could not be reached while walking ${chainRows.length} accepted records: the chain beyond position ${chainRows.length} is unverifiable (history truncated, reordered, or walk limit reached).`,
+      recordId,
+    });
+  }
+
   return json({
     ok: true,
-    valid: targetValid,
+    valid: true,
     checkable: true,
     // Verification information only — no source code, no test payloads.
     record: {

@@ -33,12 +33,17 @@ import { createClient, type SupabaseClient } from "https://esm.sh/@supabase/supa
 // ============================================================================
 // WHAT THE HASH CHAIN DOES AND DOES NOT PROTECT AGAINST
 // ============================================================================
-// On every ACCEPTED submission this function computes
-//   record_hash = sha256(canonical-json({user_id, problem_id, language,
-//                                        code, timestamp, previous_record_hash}))
-// where previous_record_hash is the record_hash of that user's previous
-// accepted submission ("" for the first). Rows also store the
-// previous_record_hash they were chained onto.
+// On every ACCEPTED submission this function computes (v2 chain)
+//   record_hash = sha256(canonical-json({code_hash, language, passed_tests,
+//     previous_record_hash, problem_id, status, submitted_at, tests_summary,
+//     total_tests, user_id}))
+// where submitted_at is the DATABASE-stamped timestamp read back from the
+// inserted row, code_hash = sha256(source), tests_summary is the compact
+// pass/fail map, and previous_record_hash is the record_hash of the user's
+// previous accepted row ("" for the first). The row is written in TWO phases
+// (status 'submitted' -> flip to 'accepted' together with the hash in one
+// UPDATE), so an accepted row without a complete chain cannot exist at any
+// instant; schema.sql enforces both invariants at the storage layer.
 //
 // DETECTS (tamper-EVIDENT):
 //  - editing any chained field of an accepted row (code, user, problem,
@@ -630,30 +635,58 @@ Deno.serve(async (req) => {
   const codeHash = await sha256Hex(code);
 
   // The user's previous ACCEPTED v2 row's record_hash is what we chain onto
-  // ("" for a first link). Read races could in theory link two rows to the
-  // same predecessor; verify-record walks the chain in time order and flags
-  // any duplicate link as invalid ordering.
-  const previousRecordHash: string | null = allPassed
-    ? ((await sb
+  // ("" for a first link). Two concurrent submissions could otherwise read
+  // the SAME predecessor and fork the chain, so any ambiguity at the chain
+  // head (two accepted rows sharing the newest submitted_at) fails closed
+  // here rather than guessing — the retry sees a settled history. The
+  // partial unique index uq_submissions_user_prev_hash (schema.sql)
+  // additionally makes it impossible for two accepted rows ever to claim
+  // the same predecessor.
+  let previousRecordHash: string | null = null;
+  if (allPassed) {
+    try {
+      const { data: preds, error: predErr } = await sb
         .from("problem_submissions")
-        .select("record_hash")
+        .select("id, record_hash, submitted_at")
         .eq("user_id", userId)
         .eq("status", "accepted")
         .eq("record_version", 2)
         .not("record_hash", "is", null)
         .order("submitted_at", { ascending: false })
-        .limit(1)
-      ).data?.[0]?.record_hash ?? "")
-    : null;
+        .order("id", { ascending: false })
+        .limit(2);
+      if (predErr) throw new Error("could not read chain predecessor: " + predErr.message);
+      if (preds && preds.length === 2 && preds[0].submitted_at === preds[1].submitted_at) {
+        // Unresolvable fork window: two accepted rows share the newest
+        // timestamp, so a new link could attach to either. Fail closed
+        // rather than guess — the retry will see a settled history.
+        throw new Error("concurrent submissions detected; please retry in a moment");
+      }
+      previousRecordHash = preds && preds.length > 0 ? (preds[0].record_hash as string) : "";
+    } catch (e) {
+      console.error("chain predecessor failed — failing closed:", (e as Error).message);
+      return fail("Submission could not be recorded: " + (e as Error).message, 503);
+    }
+  }
 
   // Evidence row — service-role insert (clients have NO insert policy and no
   // UPDATE/DELETE path). The row exists only if THIS function wrote it.
+  // INSERT ... .single() under PostgREST is atomic: if it returns a row, the
+  // row exists exactly once. We rely on that below: from here on, EVERY exit
+  // path either finishes the chain stamp or removes the partial row, so an
+  // accepted submission can never persist unhashed (schema.sql's
+  // submissions_accepted_must_be_chained constraint is the backstop).
   const { data: inserted, error: insertErr } = await sb.from("problem_submissions").insert({
     user_id: userId,
     problem_id: problemId,
     language,
     code,
-    status: dbStatus,
+    // Two-phase evidence write: every row enters as 'submitted' (a state with
+    // no chain obligations) and atomically flips to accepted/failed/error in
+    // the UPDATEs below — together with the hash stamp for accepted rows.
+    // schema.sql's submissions_accepted_must_be_chained constraint makes an
+    // accepted row without a complete chain impossible at any instant.
+    status: "submitted",
     runtime: `${totalRuntimeMs} ms`,
     memory: `${maxMemoryMb} MB`,
     passed_tests: passedCount,
@@ -686,14 +719,42 @@ Deno.serve(async (req) => {
       total_tests: totalCount,
       user_id: userId,
     });
-    recordHash = await sha256Hex(payload);
-    const { error: hashErr } = await sb
+    try {
+      recordHash = await sha256Hex(payload);
+      // Phase 2 for accepted rows: flip status AND pin the hash in ONE atomic
+      // UPDATE. The partial unique index uq_submissions_user_prev_hash
+      // enforces fork-freedom at exactly this moment: a concurrent twin
+      // claiming the same predecessor loses this race (unique violation),
+      // deletes its pending row below, and the user retries — the chain
+      // never forks.
+      const { error: stampErr } = await sb
+        .from("problem_submissions")
+        .update({ status: "accepted", record_hash: recordHash })
+        .eq("id", inserted.id)
+        .eq("status", "submitted"); // only a pending row may flip
+      if (stampErr) throw new Error(stampErr.message);
+    } catch (e) {
+      // FAIL CLOSED: never leave an accepted row without its record_hash —
+      // that row would look VERIFIED to clients yet be unverifiable forever.
+      // Delete the pending row (service role) and reject the submission; the
+      // user retries against the settled chain head.
+      console.error("chain stamp failed — removing pending row:", (e as Error).message);
+      await sb.from("problem_submissions").delete().eq("id", inserted.id);
+      return fail("Could not finalize submission evidence; please retry.", 500);
+    }
+  } else {
+    // Phase 2 for non-accepted outcomes: finalize the verdict (no chain, no
+    // hash — the schema forbids record_hash on non-accepted rows). Same
+    // fail-closed cleanup if the flip fails.
+    const { error: finErr } = await sb
       .from("problem_submissions")
-      .update({ record_hash: recordHash })
-      .eq("id", inserted.id);
-    if (hashErr) {
-      console.error("chain stamp failed:", hashErr.message);
-      return fail("Could not finalize submission evidence: " + hashErr.message, 500);
+      .update({ status: dbStatus })
+      .eq("id", inserted.id)
+      .eq("status", "submitted");
+    if (finErr) {
+      console.error("status finalize failed — removing pending row:", finErr.message);
+      await sb.from("problem_submissions").delete().eq("id", inserted.id);
+      return fail("Could not finalize submission record; please retry.", 500);
     }
   }
 
