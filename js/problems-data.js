@@ -104,12 +104,6 @@ function twoSum(nums, target) {
       { input: [[3, 2, 4], 6], inputDisplay: "nums = [3,2,4], target = 6", expected: [1, 2] },
       { input: [[3, 3], 6], inputDisplay: "nums = [3,3], target = 6", expected: [0, 1] }
     ],
-    hiddenTestCases: [
-      { input: [[1, 5, 8, 12, 19, 25], 27], inputDisplay: "nums = [1,5,8,12,19,25], target = 27", expected: [2, 4] },
-      { input: [[-3, 4, 3, 90], 0], inputDisplay: "nums = [-3,4,3,90], target = 0", expected: [0, 2] },
-      { input: [[0, 4, 3, 0], 0], inputDisplay: "nums = [0,4,3,0], target = 0", expected: [0, 3] },
-      { input: [[1000000, 500, -1000000], -999500], inputDisplay: "nums = [1000000,500,-1000000], target = -999500", expected: [1, 2] }
-    ],
     hints: [
       "A brute force approach would search all pairs, taking O(n²) time.",
       "Can you use a Hash Map to store elements you have already seen in O(n) time?"
@@ -207,11 +201,6 @@ function isPalindrome(s) {
       { input: ["A man, a plan, a canal: Panama"], inputDisplay: 's = "A man, a plan, a canal: Panama"', expected: true },
       { input: ["race a car"], inputDisplay: 's = "race a car"', expected: false },
       { input: [" "], inputDisplay: 's = " "', expected: true }
-    ],
-    hiddenTestCases: [
-      { input: ["0P"], inputDisplay: 's = "0P"', expected: false },
-      { input: ["ab_a"], inputDisplay: 's = "ab_a"', expected: true },
-      { input: ["Was it a car or a cat I saw?"], inputDisplay: 's = "Was it a car or a cat I saw?"', expected: true }
     ],
     hints: [
       "Consider using two pointers: one starting from the beginning and one from the end.",
@@ -314,12 +303,6 @@ function isValid(s) {
       { input: ["(]"], inputDisplay: 's = "(]"', expected: false },
       { input: ["([])"], inputDisplay: 's = "([])"', expected: true }
     ],
-    hiddenTestCases: [
-      { input: ["["], inputDisplay: 's = "["', expected: false },
-      { input: ["]"], inputDisplay: 's = "]"', expected: false },
-      { input: ["{[]}(){[()()]}"], inputDisplay: 's = "{[]}(){[()()]}"', expected: true },
-      { input: ["(((((((((())))))))))"], inputDisplay: 's = "(((((((((())))))))))"', expected: true }
-    ],
     hints: [
       "Use a stack to push open brackets.",
       "When a closing bracket is found, verify it matches the most recent open bracket on top of the stack."
@@ -416,11 +399,6 @@ function maxSubArray(nums) {
       { input: [[-2, 1, -3, 4, -1, 2, 1, -5, 4]], inputDisplay: "nums = [-2,1,-3,4,-1,2,1,-5,4]", expected: 6 },
       { input: [[1]], inputDisplay: "nums = [1]", expected: 1 },
       { input: [[5, 4, -1, 7, 8]], inputDisplay: "nums = [5,4,-1,7,8]", expected: 23 }
-    ],
-    hiddenTestCases: [
-      { input: [[-1]], inputDisplay: "nums = [-1]", expected: -1 },
-      { input: [[-5, -2, -8, -1]], inputDisplay: "nums = [-5,-2,-8,-1]", expected: -1 },
-      { input: [[2, -1, 3, 4, -5, 10]], inputDisplay: "nums = [2,-1,3,4,-5,10]", expected: 13 }
     ],
     hints: [
       "Kadane's Algorithm: at each position, decide whether to append to the previous running sum or start fresh."
@@ -524,11 +502,6 @@ function maxArea(height) {
     sampleTestCases: [
       { input: [[1, 8, 6, 2, 5, 4, 8, 3, 7]], inputDisplay: "height = [1,8,6,2,5,4,8,3,7]", expected: 49 },
       { input: [[1, 1]], inputDisplay: "height = [1,1]", expected: 1 }
-    ],
-    hiddenTestCases: [
-      { input: [[4, 3, 2, 1, 4]], inputDisplay: "height = [4,3,2,1,4]", expected: 16 },
-      { input: [[1, 2, 1]], inputDisplay: "height = [1,2,1]", expected: 2 },
-      { input: [[2, 3, 4, 5, 18, 17, 6]], inputDisplay: "height = [2,3,4,5,18,17,6]", expected: 17 }
     ],
     hints: [
       "The area is limited by the shorter line.",
@@ -639,12 +612,6 @@ function lengthOfLongestSubstring(s) {
       { input: ["bbbbb"], inputDisplay: 's = "bbbbb"', expected: 1 },
       { input: ["pwwkew"], inputDisplay: 's = "pwwkew"', expected: 3 }
     ],
-    hiddenTestCases: [
-      { input: [""], inputDisplay: 's = ""', expected: 0 },
-      { input: [" "], inputDisplay: 's = " "', expected: 1 },
-      { input: ["au"], inputDisplay: 's = "au"', expected: 2 },
-      { input: ["dvdf"], inputDisplay: 's = "dvdf"', expected: 3 }
-    ],
     hints: [
       "Use a sliding window with two pointers representing the current window.",
       "Store each character's last seen index in a hash map to advance the window forward instantly."
@@ -738,11 +705,6 @@ function climbStairs(n) {
       { input: [2], inputDisplay: "n = 2", expected: 2 },
       { input: [3], inputDisplay: "n = 3", expected: 3 },
       { input: [4], inputDisplay: "n = 4", expected: 5 }
-    ],
-    hiddenTestCases: [
-      { input: [1], inputDisplay: "n = 1", expected: 1 },
-      { input: [5], inputDisplay: "n = 5", expected: 8 },
-      { input: [8], inputDisplay: "n = 8", expected: 34 }
     ],
     hints: [
       "To reach step n, you must take 1 step from n-1, or 2 steps from n-2.",
@@ -869,11 +831,6 @@ function trap(height) {
       { input: [[0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1]], inputDisplay: "height = [0,1,0,2,1,0,1,3,2,1,2,1]", expected: 6 },
       { input: [[4, 2, 0, 3, 2, 5]], inputDisplay: "height = [4,2,0,3,2,5]", expected: 9 }
     ],
-    hiddenTestCases: [
-      { input: [[2, 0, 2]], inputDisplay: "height = [2,0,2]", expected: 2 },
-      { input: [[3, 0, 0, 2, 0, 4]], inputDisplay: "height = [3,0,0,2,0,4]", expected: 10 },
-      { input: [[0]], inputDisplay: "height = [0]", expected: 0 }
-    ],
     hints: [
       "Water trapped at index i is determined by min(max_left, max_right) - height[i].",
       "Can we calculate this in O(1) space with two pointers?"
@@ -978,12 +935,6 @@ function search(nums, target) {
     sampleTestCases: [
       { input: [[-1, 0, 3, 5, 9, 12], 9], inputDisplay: "nums = [-1,0,3,5,9,12], target = 9", expected: 4 },
       { input: [[-1, 0, 3, 5, 9, 12], 2], inputDisplay: "nums = [-1,0,3,5,9,12], target = 2", expected: -1 }
-    ],
-    hiddenTestCases: [
-      { input: [[5], 5], inputDisplay: "nums = [5], target = 5", expected: 0 },
-      { input: [[2, 5], 5], inputDisplay: "nums = [2,5], target = 5", expected: 1 },
-      { input: [[2, 5], 2], inputDisplay: "nums = [2,5], target = 2", expected: 0 },
-      { input: [[1, 3, 5, 7, 9, 11], 8], inputDisplay: "nums = [1,3,5,7,9,11], target = 8", expected: -1 }
     ],
     hints: [
       "Divide and conquer: calculate mid index and adjust boundary accordingly."
@@ -1090,10 +1041,6 @@ function coinChange(coins, amount) {
       { input: [[2], 3], inputDisplay: "coins = [2], amount = 3", expected: -1 },
       { input: [[1], 0], inputDisplay: "coins = [1], amount = 0", expected: 0 }
     ],
-    hiddenTestCases: [
-      { input: [[186, 419, 83, 408], 6249], inputDisplay: "coins = [186,419,83,408], amount = 6249", expected: 20 },
-      { input: [[2, 5, 10, 1], 27], inputDisplay: "coins = [2,5,10,1], amount = 27", expected: 4 }
-    ],
     hints: [
       "Use Dynamic Programming where dp[i] is the minimum coins needed to make amount i.",
       "dp[i] = min(dp[i - coin] + 1) for all coin in coins."
@@ -1128,7 +1075,6 @@ function coinChange(coins, amount) {
       java: `class Solution {\n    public boolean isAnagram(String s, String t) {\n        if (s.length() != t.length()) return false;\n        int[] c = new int[26];\n        for (int i = 0; i < s.length(); i++) {\n            c[s.charAt(i) - 'a']++;\n            c[t.charAt(i) - 'a']--;\n        }\n        for (int n : c) if (n != 0) return false;\n        return true;\n    }\n}`
     },
     sampleTestCases: [{ input: ["anagram", "nagaram"], inputDisplay: 's = "anagram", t = "nagaram"', expected: true }],
-    hiddenTestCases: [{ input: ["rat", "car"], inputDisplay: 's = "rat", t = "car"', expected: false }]
   },
   {
     id: "reverse-linked-list",
@@ -1154,7 +1100,6 @@ function coinChange(coins, amount) {
       java: `class Solution {\n    public ListNode reverseList(ListNode head) {\n        ListNode prev = null, curr = head;\n        while (curr != null) {\n            ListNode nxt = curr.next;\n            curr.next = prev;\n            prev = curr;\n            curr = nxt;\n        }\n        return prev;\n    }\n}`
     },
     sampleTestCases: [{ input: [[1,2,3,4,5]], inputDisplay: "head = [1,2,3,4,5]", expected: [5,4,3,2,1] }],
-    hiddenTestCases: [{ input: [[1,2]], inputDisplay: "head = [1,2]", expected: [2,1] }]
   },
   {
     id: "binary-tree-inorder-traversal",
@@ -1180,7 +1125,6 @@ function coinChange(coins, amount) {
       java: `class Solution {\n    public List<Integer> inorderTraversal(TreeNode root) {\n        List<Integer> res = new ArrayList<>();\n        helper(root, res);\n        return res;\n    }\n    private void helper(TreeNode node, List<Integer> res) {\n        if (node == null) return;\n        helper(node.left, res);\n        res.add(node.val);\n        helper(node.right, res);\n    }\n}`
     },
     sampleTestCases: [{ input: [[1,null,2,3]], inputDisplay: "root = [1,null,2,3]", expected: [1,3,2] }],
-    hiddenTestCases: [{ input: [[]], inputDisplay: "root = []", expected: [] }]
   },
   {
     id: "maximum-depth-of-binary-tree",
@@ -1206,7 +1150,6 @@ function coinChange(coins, amount) {
       java: `class Solution {\n    public int maxDepth(TreeNode root) {\n        if (root == null) return 0;\n        return 1 + Math.max(maxDepth(root.left), maxDepth(root.right));\n    }\n}`
     },
     sampleTestCases: [{ input: [[3,9,20,null,null,15,7]], inputDisplay: "root = [3,9,20,null,null,15,7]", expected: 3 }],
-    hiddenTestCases: [{ input: [[1,null,2]], inputDisplay: "root = [1,null,2]", expected: 2 }]
   },
   {
     id: "intersection-of-two-arrays",
@@ -1232,7 +1175,6 @@ function coinChange(coins, amount) {
       java: `class Solution {\n    public int[] intersection(int[] nums1, int[] nums2) {\n        Set<Integer> set1 = new HashSet<>();\n        for (int n : nums1) set1.add(n);\n        Set<Integer> set2 = new HashSet<>();\n        for (int n : nums2) if (set1.contains(n)) set2.add(n);\n        int[] res = new int[set2.size()];\n        int i = 0;\n        for (int n : set2) res[i++] = n;\n        return res;\n    }\n}`
     },
     sampleTestCases: [{ input: [[1,2,2,1], [2,2]], inputDisplay: "nums1 = [1,2,2,1], nums2 = [2,2]", expected: [2] }],
-    hiddenTestCases: [{ input: [[4,9,5], [9,4,9,8,4]], inputDisplay: "nums1 = [4,9,5], nums2 = [9,4,9,8,4]", expected: [9,4] }]
   },
   {
     id: "fibonacci-number",
@@ -1258,7 +1200,6 @@ function coinChange(coins, amount) {
       java: `class Solution {\n    public int fib(int n) {\n        if (n <= 1) return n;\n        int a = 0, b = 1;\n        for (int i = 2; i <= n; i++) {\n            int c = a + b;\n            a = b;\n            b = c;\n        }\n        return b;\n    }\n}`
     },
     sampleTestCases: [{ input: [4], inputDisplay: "n = 4", expected: 3 }],
-    hiddenTestCases: [{ input: [10], inputDisplay: "n = 10", expected: 55 }]
   },
   {
     id: "single-number",
@@ -1284,7 +1225,6 @@ function coinChange(coins, amount) {
       java: `class Solution {\n    public int singleNumber(int[] nums) {\n        int res = 0;\n        for (int n : nums) res ^= n;\n        return res;\n    }\n}`
     },
     sampleTestCases: [{ input: [[2,2,1]], inputDisplay: "nums = [2,2,1]", expected: 1 }],
-    hiddenTestCases: [{ input: [[4,1,2,1,2]], inputDisplay: "nums = [4,1,2,1,2]", expected: 4 }]
   },
   {
     id: "move-zeroes",
@@ -1310,7 +1250,6 @@ function coinChange(coins, amount) {
       java: `class Solution {\n    public void moveZeroes(int[] nums) {\n        int pos = 0;\n        for (int n : nums) {\n            if (n != 0) nums[pos++] = n;\n        }\n        while (pos < nums.length) {\n            nums[pos++] = 0;\n        }\n    }\n}`
     },
     sampleTestCases: [{ input: [[0,1,0,3,12]], inputDisplay: "nums = [0,1,0,3,12]", expected: [1,3,12,0,0] }],
-    hiddenTestCases: [{ input: [[0]], inputDisplay: "nums = [0]", expected: [0] }]
   },
   {
     id: "plus-one",
@@ -1336,7 +1275,6 @@ function coinChange(coins, amount) {
       java: `class Solution {\n    public int[] plusOne(int[] digits) {\n        for (int i = digits.length - 1; i >= 0; i--) {\n            if (digits[i] < 9) {\n                digits[i]++;\n                return digits;\n            }\n            digits[i] = 0;\n        }\n        int[] res = new int[digits.length + 1];\n        res[0] = 1;\n        return res;\n    }\n}`
     },
     sampleTestCases: [{ input: [[1,2,3]], inputDisplay: "digits = [1,2,3]", expected: [1,2,4] }],
-    hiddenTestCases: [{ input: [[9]], inputDisplay: "digits = [9]", expected: [1,0] }]
   },
   {
     id: "contains-duplicate",
@@ -1362,7 +1300,6 @@ function coinChange(coins, amount) {
       java: `class Solution {\n    public boolean containsDuplicate(int[] nums) {\n        Set<Integer> set = new HashSet<>();\n        for (int n : nums) {\n            if (!set.add(n)) return true;\n        }\n        return false;\n    }\n}`
     },
     sampleTestCases: [{ input: [[1,2,3,1]], inputDisplay: "nums = [1,2,3,1]", expected: true }],
-    hiddenTestCases: [{ input: [[1,2,3,4]], inputDisplay: "nums = [1,2,3,4]", expected: false }]
   }
 ];
 
@@ -1585,19 +1522,21 @@ const ProgressTracker = {
 };
 
 // ----------------------------------------------------------------------------
-// SECURITY: hidden test cases are NOT shipped to the browser anymore. They
-// live server-side in public.problem_tests (see supabase/schema.sql) and are
-// applied by the run-submission Edge Function. The client keeps samples only.
-// To regenerate the server seed after editing problems here:
+// SECURITY: hidden test cases are NOT in this file at all — anything in here
+// is bundled into the browser build. They live server-side in
+// supabase/hidden-tests.json (never bundled, never served) and are applied to
+// public.problem_tests by the run-submission Edge Function. To regenerate the
+// server seed after editing problems or hidden cases:
 //   node scripts/generate-seed-tests.mjs
 // ----------------------------------------------------------------------------
 const CODING_PROBLEMS_CLIENT = CODING_PROBLEMS.map((p) => ({
   ...p,
-  hiddenTestCases: [] // stripped at build/module-load time
+  hiddenTestCases: [] // always empty here: kept so client code sees a stable shape
 }));
 
-// Expose the sanitized set globally. The full set (with hidden tests) exists
-// ONLY inside this module scope and is never published to window.
+// Expose the samples-only set globally. The browser never receives the graded
+// hidden cases — those live server-side in supabase/hidden-tests.json and are
+// applied to public.problem_tests by the run-submission Edge Function.
 window.CODING_PROBLEMS = CODING_PROBLEMS_CLIENT;
 window.ProgressTracker = ProgressTracker;
 

@@ -22,6 +22,22 @@ export default defineConfig(() => {
       hmr: process.env.DISABLE_HMR !== 'true',
       // Disable file watching when DISABLE_HMR is true to save CPU during agent edits.
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
+      fs: {
+        // The dev server is reachable from the LAN (--host=0.0.0.0) and serves
+        // the project root, so server-only material has to be blocked by name.
+        // hidden-tests.json / seed-tests.sql hold the graded hidden test cases
+        // in cleartext; nothing in the browser app may ever fetch them.
+        // supabase/schema.sql stays served on purpose: supabase-client.js
+        // imports it with ?raw to power the "Copy SQL Script" button.
+        deny: [
+          '.env',
+          '.env.*',
+          '*.{crt,pem}',
+          '**/.git/**',
+          '**/supabase/hidden-tests.json',
+          '**/supabase/seed-tests.sql',
+        ],
+      },
     },
     build: {
       rollupOptions: {

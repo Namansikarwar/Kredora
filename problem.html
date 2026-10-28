@@ -1290,14 +1290,30 @@
           diagUrl.textContent = testRes.projectUrl || "Connected";
           diagLat.textContent = `${testRes.latencyMs || 1} ms`;
 
-          const subOk = testRes.tables && testRes.tables.problem_submissions;
-          const progOk = testRes.tables && testRes.tables.user_progress;
-
-          diagSub.textContent = subOk ? "Table exists" : "Not found in public schema";
-          diagSub.className = subOk ? "text-emerald-400 font-semibold" : "text-amber-400";
-
-          diagProg.textContent = progOk ? "Table exists" : "Not found in public schema";
-          diagProg.className = progOk ? "text-emerald-400 font-semibold" : "text-amber-400";
+          // A table that exists but refuses this role (RLS / missing grant) is a
+          // HEALTHY result — only a genuinely absent table needs the SQL script.
+          const renderTableDiag = (el, name) => {
+            const t = testRes.tables || {};
+            const exists = t[`${name}_exists`];
+            const restricted = t[`${name}_restricted`];
+            const rowsVisible = t[`${name}_rows_visible`] || 0;
+            const err = t[`${name}_error`];
+            if (exists === false) {
+              el.textContent = "Not found in public schema";
+              el.className = "text-amber-400";
+            } else if (restricted) {
+              el.textContent = "Table exists · RLS-protected";
+              el.className = "text-emerald-400 font-semibold";
+            } else if (err) {
+              el.textContent = `Table exists · ${err}`;
+              el.className = "text-amber-400";
+            } else {
+              el.textContent = `Table exists · ${rowsVisible} row(s) visible`;
+              el.className = "text-emerald-400 font-semibold";
+            }
+          };
+          renderTableDiag(diagSub, "problem_submissions");
+          renderTableDiag(diagProg, "user_progress");
 
           if (testRes.schemaNeeded) {
             tableNotice.classList.remove("hidden");
