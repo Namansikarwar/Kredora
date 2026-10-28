@@ -5,6 +5,43 @@
    Aesthetic: restrained Linear/Vercel-style developer platform
 ----------------------------------------------------------------- */
 
+/* Tailwind v4 utilities are compiled by @tailwindcss/vite from this import —
+   don't reintroduce the cdn.tailwindcss.com <script> tag on pages. */
+@import "tailwindcss";
+
+@theme {
+  /* ported from the inline tailwind.config blocks (CDN runtime) — v4 tokens */
+  --color-base: #080B12;
+  --color-surface: #0D111A;
+  --color-surface2: #111722;
+  --color-elevated: #151C29;
+  --color-borderc: #202938;
+  --color-ink: #F4F7FB;
+  --color-inkdim: #98A2B3;
+  --color-muted: #667085;
+  --color-brand: #7C5CFC;
+  --color-brand-bright: #9D85FF;
+  --color-brand-hover: #6E4DEE;
+  --color-brand-dim: #4C39A8;
+  --color-brand-glow: rgb(124 92 252 / 0.35);
+  --color-gold: #7C5CFC;
+  --color-gold-bright: #9D85FF;
+  --color-gold-dim: #4C39A8;
+  --color-cyan: #4CC9F0;
+  --color-success: #32D583;
+  --color-warning: #FDB022;
+  --color-danger: #F97066;
+  --color-danger-bright: #FDA29B;
+  --color-easy: #32D583;
+  --color-medium: #FDB022;
+  --color-hard: #F97066;
+  --font-display: "Space Grotesk", "Inter", ui-sans-serif, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap');
 
 :root {

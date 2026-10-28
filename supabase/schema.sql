@@ -437,6 +437,25 @@ revoke all on public.problem_tests from anon, authenticated;
 revoke all on public.submission_rate_limits from anon, authenticated;
 revoke all on public.problems from anon, authenticated;
 
+-- Restore the owner's client privileges on user_progress. The revoke above
+-- strips the table grant, and grants — not policies — are the prerequisite:
+-- without this, every owner read/write died with "permission denied"
+-- (42501) even though the owner policies below/above exist. RLS then scopes
+-- each operation to the caller's own row.
+grant select, insert, update, delete on public.user_progress to authenticated;
+
+-- Full service-role privileges on every table the Edge Functions touch.
+-- The functions run on service_role (RLS bypassed), but that only removes
+-- the policy check — the role still needs the table GRANT to execute any
+-- DML at all. Without these, run-submission/verify-record fail on their
+-- first SELECT ("permission denied for table ...") with no diagnostic hint.
+grant all on public.problem_submissions to service_role;
+grant all on public.user_progress        to service_role;
+grant all on public.problem_tests        to service_role;
+grant all on public.problems             to service_role;
+grant all on public.submission_rate_limits        to service_role;
+grant all on public.submission_rate_limit_config  to service_role;
+
 -- ----------------------------------------------------------------------------
 -- 5. Indexes
 -- ----------------------------------------------------------------------------

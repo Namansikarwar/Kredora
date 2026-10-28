@@ -106,95 +106,8 @@ function animateCounter(el, target, duration = 1100) {
   requestAnimationFrame(tick);
 }
 
-function renderScoreBreakdown() {
-  const list = document.getElementById("score-factor-list");
-  const DATA = window.SKILLPROOF_DATA;
-  if (!list || !DATA) return;
-  const { factors } = DATA.scoreBreakdown;
-
-  list.innerHTML = factors
-    .map(
-      (factor) => `
-      <div class="factor-row" data-points="${factor.points}" data-max="${factor.max}">
-        <div class="flex items-baseline justify-between mb-2">
-          <p class="text-sm text-ink font-medium">${factor.label}</p>
-          <p class="font-mono text-sm text-inkdim">
-            <span class="factor-counter text-gold">0</span>/${factor.max}
-          </p>
-        </div>
-        <div class="h-2 rounded-full bg-white/5 overflow-hidden">
-          <div class="factor-bar h-full rounded-full bg-gradient-to-r from-cyan to-brand"></div>
-        </div>
-        <p class="mt-1.5 text-xs text-inkdim font-mono">${factor.detail}</p>
-      </div>`
-    )
-    .join("");
-
-  const section = document.getElementById("score-breakdown");
-  const totalCounter = document.getElementById("breakdown-total-counter");
-  if (!section) return;
-
-  const runAnimation = () => {
-    list.querySelectorAll(".factor-row").forEach((row, i) => {
-      const points = Number(row.dataset.points);
-      const max = Number(row.dataset.max);
-      const bar = row.querySelector(".factor-bar");
-      const counter = row.querySelector(".factor-counter");
-
-      setTimeout(() => {
-        if (bar) bar.style.width = `${(points / max) * 100}%`;
-        if (counter) animateCounter(counter, points);
-      }, i * 110);
-    });
-
-    if (totalCounter) {
-      animateCounter(totalCounter, DATA.scoreBreakdown.total, 1300);
-    }
-  };
-
-  if (!("IntersectionObserver" in window)) {
-    runAnimation();
-    return;
-  }
-
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          runAnimation();
-          observer.unobserve(entry.target);
-        }
-      });
-    },
-    { threshold: 0.35 }
-  );
-  observer.observe(section);
-}
-
-function renderExampleSkills() {
-  const container = document.getElementById("example-skill-list");
-  const DATA = window.SKILLPROOF_DATA;
-  if (!container || !DATA) return;
-
-  container.innerHTML = DATA.skills
-    .map(
-      (skill) => `
-      <li class="flex items-center gap-4 py-3 border-b border-white/5 last:border-b-0">
-        <span class="w-24 shrink-0 font-display text-sm text-slate-200">${skill.name}</span>
-        <span class="flex-1 h-1.5 rounded-full bg-white/5 overflow-hidden">
-          <span class="block h-full rounded-full bg-gradient-to-r from-cyan to-brand" style="width:${skill.score}%"></span>
-        </span>
-        <span class="w-10 shrink-0 text-right font-mono text-sm text-brand-bright">${skill.score}</span>
-      </li>`
-    )
-    .join("");
-}
-
 // Dashboard specific rendering
 function renderDashboard() {
-  const DATA = window.SKILLPROOF_DATA;
-  if (!DATA) return;
-
   // Evidence-graph totals: real counts from the user's own records
   // (accepted submissions + saved evidence). No connected-account source
   // exists, so activity stays 0 — shown as an honest zero, not a sample.
@@ -230,11 +143,11 @@ function renderDashboard() {
     });
   }
 
-  // NOTE: the score breakdown card and the example skills list on the
-  // landing page are sample-profile visuals (SKILLPROOF_DATA) — labeled
-  // as an example in the markup. Everything below renders REAL per-user
-  // values from the user's actual submissions (skillBreakdown is computed
-  // in js/user-stats.js from submissions × problem categories).
+  // NOTE: the landing page's hero proof card and "claims vs proof" visuals are
+  // static marketing mockups, deliberately labeled "example" in the markup.
+  // Everything below renders REAL per-user values from the user's actual
+  // submissions (skillBreakdown is computed in js/user-stats.js from
+  // submissions × problem categories).
 
   // Skill rings in evidence graph — the four tracked skills from
   // js/skills.js, at their real scores. A zero ring means "no evidence
@@ -528,7 +441,6 @@ document.addEventListener("DOMContentLoaded", () => {
   initScrollReveal();
   initScoreRings();
   initSmoothAnchors();
-  renderScoreBreakdown();
   renderDashboard();
 });
 
