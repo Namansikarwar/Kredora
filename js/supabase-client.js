@@ -308,9 +308,33 @@ const SupabaseDB = {
       const subRes = await client.from("problem_submissions").select("id").limit(1);
       const progRes = await client.from("user_progress").select("user_id").limit(1);
 
-      // PGRST205 = relation missing -> schema not applied yet.
-      const subMissing = subRes.error && subRes.error.code === "PGRST205";
-      const progMissing = progRes.error && progRes.error.code === "PGRST205";
+      // Two failures look alike in the UI but mean opposite things:
+      //   PGRST205 / 42P01 -> the table is missing: supabase/schema.sql was not run.
+      //   42501            -> the table IS there and this role may not read it,
+      //                       which is exactly the posture schema.sql creates:
+      //                       anon has no grant at all, and a signed-in user sees
+      //                       only their own rows.
+      // So "permission denied" is a healthy signal, not a setup problem.
+      const missingCodes = ["PGRST205", "42P01"];
+      const classify = (res) => {
+        const err = res.error;
+        const missing = Boolean(err) && (
+          missingCodes.includes(err.code) ||
+          /does not exist|could not find the table|schema cache/i.test(err.message || "")
+        );
+        const restricted = Boolean(err) && !missing && (
+          err.code === "42501" ||
+          /permission denied|insufficient privilege|not allowed/i.test(err.message || "")
+        );
+        return {
+          exists: !err || !missing,
+          restricted,
+          rowsVisible: res.data ? res.data.length : 0,
+          error: err ? err.message : null
+        };
+      };
+      const sub = classify(subRes);
+      const prog = classify(progRes);
 
       let projectUrl = "";
       try { projectUrl = new URL(url).hostname; } catch (e) { /* keep empty */ }
@@ -319,8 +343,6 @@ const SupabaseDB = {
       // owner-only for authenticated users. An empty (0-row) result is the
       // EXPECTED healthy state, not a failure — distinguish it from errors.
       const hasSession = Boolean(authedUser);
-      const subOk = !subRes.error;
-      const progOk = !progRes.error;
 
       return {
         ok: true,
@@ -329,16 +351,22 @@ const SupabaseDB = {
         authOk: !authErr,
         authed: hasSession,
         projectUrl,
-        rlsActive: true,
+        rlsActive: sub.restricted || prog.restricted,
         tables: {
-          problem_submissions: subOk,
-          problem_submissions_error: subRes.error ? subRes.error.message : null,
-          problem_submissions_rows_visible: subRes.data ? subRes.data.length : 0,
-          user_progress: progOk,
-          user_progress_error: progRes.error ? progRes.error.message : null,
-          user_progress_rows_visible: progRes.data ? progRes.data.length : 0
+          // `exists` = table is present, even when this role is denied access.
+          // `restricted` = table present AND access refused (RLS in force).
+          problem_submissions: sub.exists,
+          problem_submissions_exists: sub.exists,
+          problem_submissions_restricted: sub.restricted,
+          problem_submissions_error: sub.error,
+          problem_submissions_rows_visible: sub.rowsVisible,
+          user_progress: prog.exists,
+          user_progress_exists: prog.exists,
+          user_progress_restricted: prog.restricted,
+          user_progress_error: prog.error,
+          user_progress_rows_visible: prog.rowsVisible
         },
-        schemaNeeded: subMissing || progMissing
+        schemaNeeded: !sub.exists || !prog.exists
       };
     } catch (err) {
       return {
