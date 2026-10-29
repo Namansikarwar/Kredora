@@ -15,8 +15,15 @@ import { createClient } from "@supabase/supabase-js";
 // dashboard's "Copy Tables SQL" button always matches supabase/schema.sql.
 import schemaSql from "../supabase/schema.sql?raw";
 
-const BUILD_URL = String(import.meta.env.VITE_SUPABASE_URL || "").trim();
-const BUILD_KEY = String(import.meta.env.VITE_SUPABASE_ANON_KEY || "").trim();
+// Public, by-design project coordinates. The anon key is RLS-scoped (it can only
+// touch rows belonging to the signed-in user), so shipping it in the browser
+// bundle is the standard Supabase SPA pattern. These constants exist so the site
+// works even when a build runs without .env present (CI or a static deploy
+// pipeline): VITE_SUPABASE_* values still take precedence whenever they are set.
+const PUBLIC_URL = "https://junygonfegrwwwvnxhoa.supabase.co";
+const PUBLIC_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp1bnlnb25mZWdyd3d3dm54aG9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMwNjkwOTQsImV4cCI6MjEwODY0NTA5NH0.HcMWbD7Wz7Bf5MYzEh8LtFdaWpoI21Lx5Yp0o6bzCm0";
+const BUILD_URL = String(import.meta.env.VITE_SUPABASE_URL || "").trim() || PUBLIC_URL;
+const BUILD_KEY = String(import.meta.env.VITE_SUPABASE_ANON_KEY || "").trim() || PUBLIC_ANON_KEY;
 
 const SupabaseDB = {
   client: null,
