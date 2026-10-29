@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Public Profile — Kredora</title>
+    <meta name="description" content="Verified Kredora profile backed by code and assessment evidence." />
+    <link rel="icon" type="image/svg+xml" href="/Kredora/assets/kredora-logo-zCUJXfHa.svg" />
+    <link rel="alternate icon" href="/Kredora/assets/kredora-logo-CgypBcJE.png" type="image/png" />
+
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script type="module" crossorigin src="/Kredora/assets/profile-BXEdmc94.js"></script>
+    <link rel="modulepreload" crossorigin href="/Kredora/assets/auth-Mq3JVvbZ.js">
+    <link rel="modulepreload" crossorigin href="/Kredora/assets/preload-helper-DFLZRFHf.js">
+    <link rel="modulepreload" crossorigin href="/Kredora/assets/user-stats-DeqBXm8I.js">
+    <link rel="stylesheet" crossorigin href="/Kredora/assets/auth-CW-8rB5-.css">
+  </head>
+
+  <body class="min-h-screen bg-base text-white relative overflow-x-hidden">
+    <!-- Ambient blurred glow orbs -->
+    <div
+      class="fixed top-10 left-1/4 w-[520px] h-[320px] bg-brand/10 rounded-full blur-[130px] pointer-events-none -z-10"
+    ></div>
+    <div
+      class="fixed bottom-16 right-1/4 w-[440px] h-[300px] bg-cyan/10 rounded-full blur-[120px] pointer-events-none -z-10"
+    ></div>
+
+    <!-- NAV -->
+    <header class="glass-navbar fixed top-4 inset-x-4 sm:inset-x-6 lg:inset-x-8 max-w-7xl mx-auto z-50 px-6 py-4 flex items-center justify-between">
+      <div class="mx-auto w-full flex items-center justify-between">
+        <a href="index.html" class="flex items-center gap-2.5 text-xl font-bold font-display group">
+          <svg class="h-7 w-auto transition-transform group-hover:scale-105 shrink-0" viewBox="0 0 240 150" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Kredora Logo">
+            <defs>
+            <linearGradient id="kredora-logo-grad-prof" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#9D85FF" />
+              <stop offset="100%" stop-color="#7C5CFC" />
+            </linearGradient>
+            </defs>
+            <g fill="url(#kredora-logo-grad-prof)">
+              <path d="M 4,0 L 108,0 C 90,32 52,65 0,68 L 0,4 C 0,1.8 1.8,0 4,0 Z" />
+              <path d="M 0,82 C 52,85 90,118 108,150 L 4,150 C 1.8,150 0,148.2 0,146 L 0,82 Z" />
+              <path d="M 138,0 L 236,0 C 238.2,0 240,1.8 240,4 L 240,146 C 240,148.2 238.2,150 236,150 L 138,150 C 122,125 102,96 86,75 C 102,54 122,25 138,0 Z" />
+            </g>
+          </svg>
+          <span class="text-white tracking-tight">Kredora</span>
+        </a>
+
+        <nav class="hidden gap-1 md:flex items-center">
+          <a href="dashboard.html" class="nav-item">Dashboard</a>
+          <a href="problem-list.html" class="nav-item">Problems</a>
+          <a href="evidence.html" class="nav-item">Evidence</a>
+          <a href="skill.html" class="nav-item">Skills</a>
+          <a href="profile.html" class="nav-item nav-item-active">Profile</a>
+        </nav>
+
+        <div class="flex items-center gap-3">
+          <button
+            onclick="copyProfileLink()"
+            id="shareBtn"
+            class="hidden sm:inline-flex rounded-lg border border-brand/30 bg-brand/10 px-4 py-2 text-sm text-brand-bright hover:bg-brand/20 transition-colors"
+          >
+            Share profile
+          </button>
+          <div data-auth-nav></div>
+          <button id="nav-toggle" aria-label="Toggle menu" aria-expanded="false" class="md:hidden p-2 -mr-2 text-ink">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile menu -->
+      <div id="mobile-menu" class="md:hidden border-t border-white/10 bg-base/95 backdrop-blur-2xl">
+        <div class="px-5 py-4 flex flex-col gap-1 text-sm">
+          <a href="dashboard.html" class="py-2.5 text-inkdim hover:text-ink">Dashboard</a>
+          <a href="problem-list.html" class="py-2.5 text-inkdim hover:text-ink">Problems</a>
+          <a href="evidence.html" class="py-2.5 text-inkdim hover:text-ink">Evidence</a>
+          <a href="skill.html" class="py-2.5 text-inkdim hover:text-ink">Skills</a>
+          <a href="profile.html" class="py-2.5 text-white font-semibold">Profile</a>
+          <div data-mobile-auth-nav></div>
+        </div>
+      </div>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-6xl px-6 py-12 pt-28 page-enter">
+      <!-- PROFILE HEADER -->
+      <section
+        class="rounded-3xl border border-white/10 bg-[#111827]/80 frosted-panel p-8 md:p-10"
+      >
+        <div
+          class="flex flex-col gap-8 md:flex-row md:items-center md:justify-between"
+        >
+          <div class="flex items-center gap-5">
+            <div
+              id="profileAvatar"
+              class="flex h-20 w-20 items-center justify-center rounded-2xl bg-brand text-3xl font-bold text-white font-display shadow-lg shadow-brand/25"
+            >
+              N
+            </div>
+
+            <div>
+              <p
+                class="font-mono text-xs uppercase tracking-[0.2em] text-cyan"
+              >
+                Verified Kredora profile
+              </p>
+
+              <h1 id="profileName" class="mt-2 text-3xl sm:text-4xl font-bold font-display">Naman Singh</h1>
+
+              <p class="mt-2 text-white/50">
+                Computer Science Student · Web Developer
+              </p>
+            </div>
+          </div>
+
+          <div class="text-left md:text-right">
+            <p
+              class="font-mono text-xs uppercase tracking-[0.2em] text-white/40"
+            >
+              Overall skill score
+            </p>
+
+            <div class="mt-2 text-5xl font-bold text-brand-bright font-display" id="profile-score">—</div>
+
+            <p class="font-mono text-xs text-white/30" id="profile-score-note">/ 100 · computed from accepted problems</p>
+          </div>
+        </div>
+
+        <div class="mt-8 border-t border-white/10 pt-7">
+          <p class="max-w-3xl leading-7 text-white/55">
+            A frontend-focused computer science student building practical
+            projects and continuously developing skills across programming,
+            databases and web development.
+          </p>
+        </div>
+      </section>
+
+      <!-- STATS -->
+      <section class="my-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="rounded-2xl border border-white/10 bg-[#111827]/80 frosted-panel p-6">
+          <p class="text-sm text-white/40 font-mono">Solved</p>
+          <p class="mt-2 text-3xl font-bold font-display text-gold" id="stat-problems">0</p>
+        </div>
+
+        <div class="rounded-2xl border border-white/10 bg-[#111827]/80 frosted-panel p-6">
+          <p class="text-sm text-white/40 font-mono">Submissions</p>
+          <p class="mt-2 text-3xl font-bold font-display" id="stat-submissions">0</p>
+        </div>
+
+        <div class="rounded-2xl border border-white/10 bg-[#111827]/80 frosted-panel p-6">
+          <p class="text-sm text-white/40 font-mono">Streak</p>
+          <p class="mt-2 text-3xl font-bold font-display" id="stat-streak">0</p>
+        </div>
+
+        <div class="rounded-2xl border border-white/10 bg-[#111827]/80 frosted-panel p-6">
+          <p class="text-sm text-white/40 font-mono">Verified pts</p>
+          <p class="mt-2 text-3xl font-bold font-display" id="stat-points">0</p>
+        </div>
+      </section>
+
+      <!-- SKILLS -->
+      <section class="rounded-3xl border border-white/10 bg-[#111827]/80 frosted-panel p-8">
+        <div class="mb-7">
+          <p
+            class="font-mono text-xs uppercase tracking-[0.2em] text-cyan"
+          >
+            Evidence-backed skills
+          </p>
+
+          <h2 class="mt-2 text-2xl font-bold font-display">What I can prove</h2>
+          <p class="mt-1 text-xs text-inkdim font-mono">The four tracked skills from the skills config — scores computed from accepted submissions and evidence I've added.</p>
+        </div>
+
+        <div id="profile-skills-list" class="space-y-5">
+          <p class="text-xs text-inkdim font-mono">Loading your skills…</p>
+        </div>
+      </section>
+
+      <!-- PROJECTS -->
+      <section class="mt-6 rounded-3xl border border-white/10 bg-[#111827]/80 frosted-panel p-8">
+        <div class="mb-7">
+          <p
+            class="font-mono text-xs uppercase tracking-[0.2em] text-brand-bright"
+          >
+            Projects
+          </p>
+
+          <h2 class="mt-2 text-2xl font-bold font-display">
+            Work that supports the profile
+          </h2>
+        </div>
+
+        <div id="profile-projects-grid" class="grid gap-4 md:grid-cols-2">
+          <p class="text-xs text-inkdim font-mono md:col-span-2">Loading your evidence…</p>
+        </div>
+      </section>
+
+      <!-- VERIFICATION -->
+      <section
+        class="mt-6 rounded-3xl border border-cyan/20 bg-cyan/5 frosted-panel p-8"
+      >
+        <div
+          class="flex flex-col gap-5 md:flex-row md:items-center md:justify-between"
+        >
+          <div>
+            <p
+              class="font-mono text-xs uppercase tracking-[0.2em] text-cyan"
+            >
+              Kredora principle
+            </p>
+
+            <h2 class="mt-2 text-2xl font-bold font-display">
+              Every score has evidence behind it.
+            </h2>
+
+            <p class="mt-3 max-w-2xl text-white/45">
+              This profile focuses on demonstrated work instead of self-reported
+              skill ratings.
+            </p>
+          </div>
+
+          <div class="flex flex-col items-start md:items-end gap-3 shrink-0">
+            <a
+              href="evidence.html"
+              class="rounded-lg bg-brand text-white px-5 py-2.5 text-sm font-semibold hover:bg-brand-bright transition-colors"
+            >
+              View evidence
+            </a>
+            <!-- Integrity check on this developer's recorded submission
+                 history. Detects post-hoc edits/deletions; it is not a
+                 correctness certificate or an immutability guarantee. -->
+            <button
+              id="verifyProfileChainBtn"
+              title="Re-check that the recorded submission history behind this profile is unchanged."
+              class="inline-flex items-center gap-1.5 font-mono text-xs text-cyan hover:text-white transition disabled:opacity-50"
+            >
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
+              <span id="verifyProfileChainLabel">Verify evidence chain</span>
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+
+    <script>
+      document.addEventListener("DOMContentLoaded", async () => {
+        const user = window.Auth ? await window.Auth.getCurrentUser() : null;
+        if (user) {
+          const profileName = document.getElementById("profileName");
+          if (profileName) profileName.textContent = user.name || user.username;
+
+          const avatar = document.getElementById("profileAvatar");
+          if (avatar && window.Auth.getInitials) {
+            avatar.textContent = window.Auth.getInitials(user.name || user.username);
+          }
+        }
+      });
+
+      function copyProfileLink() {
+        navigator.clipboard.writeText(window.location.href);
+        const button = document.getElementById("shareBtn");
+        const original = button.innerText;
+        button.innerText = "Link Copied!";
+        setTimeout(() => {
+          button.innerText = original;
+        }, 2000);
+      }
+      window.copyProfileLink = copyProfileLink;
+
+      // ----------------------------------------------------------------------
+      // Profile-level evidence integrity check. Asks the verify-record Edge
+      // Function to walk this developer's hash chain and report whether the
+      // recorded submission history is unchanged. Honest framing: this
+      // DETECTS edits or deletions — it is not "cryptographic proof" and not
+      // immutability, and it says nothing about solution quality.
+      // ----------------------------------------------------------------------
+      async function verifyProfileChain() {
+        const btn = document.getElementById("verifyProfileChainBtn");
+        const label = document.getElementById("verifyProfileChainLabel");
+        if (!btn || !label) return;
+
+        btn.disabled = true;
+        label.textContent = "Checking…";
+        try {
+          // Pull the most recent accepted, hash-chained submission record id
+          // for the signed-in Supabase Auth user and verify its chain.
+          const db = window.SupabaseDB;
+          const userId = await db.getAuthUserId();
+          if (!userId) {
+            label.textContent = "— Sign in to verify";
+            btn.title = "Evidence chains exist for records graded on the server while signed in.";
+            return;
+          }
+          const client = await db.init();
+          const { data, error } = await client
+            .from("profile_summaries")
+            .select("profile_id")
+            .eq("profile_id", userId)
+            .maybeSingle();
+          if (error || !data) {
+            label.textContent = "— No records yet";
+            btn.title = "No server-graded submissions exist for this profile yet.";
+            return;
+          }
+          // profile_summaries exposes counts only — fetch the newest record id
+          // through the Edge Function instead of the locked base table.
+          const res = await db.verifyLatestRecord();
+          if (!res.ok) {
+            label.textContent = "Check failed";
+            btn.title = res.error || "Verification request failed.";
+            return;
+          }
+          if (res.valid === true) {
+            label.textContent = "✓ Chain intact";
+            btn.classList.remove("text-cyan");
+            btn.classList.add("text-emerald-400");
+            btn.title = "Recorded submission history unchanged since grading.";
+          } else if (res.valid === false) {
+            label.textContent = "⚠ Chain broken";
+            btn.classList.remove("text-cyan");
+            btn.classList.add("text-danger");
+            btn.title = res.reason || "Record history could not be verified.";
+          } else {
+            label.textContent = "— Inconclusive";
+            btn.title = res.reason || "Verification could not complete.";
+          }
+        } catch (e) {
+          label.textContent = "Check failed";
+          btn.title = String((e && e.message) || e);
+        } finally {
+          btn.disabled = false;
+        }
+      }
+      window.verifyProfileChain = verifyProfileChain;
+
+      const verifyBtn = document.getElementById("verifyProfileChainBtn");
+      if (verifyBtn) verifyBtn.addEventListener("click", verifyProfileChain);
+    </script>
+  </body>
+</html>
