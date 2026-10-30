@@ -948,14 +948,22 @@
         document.getElementById("runTimingBadge").textContent = `Runtime: ${res.runtime}`;
         document.getElementById("casesPassedBadge").textContent = `${res.passedCount} / ${res.totalCount} testcases passed`;
 
-        // Render Case Tabs in Result
+        // Render Case Tabs in Result — local sample runs only. Server-graded
+        // responses carry no per-test data (see the summary branch below).
         const caseTabs = document.getElementById("resultCaseTabs");
-        caseTabs.innerHTML = res.testResults.map((tc, idx) => `
+        const resCases = res.testResults || [];
+        if (resCases.length === 0) {
+          caseTabs.innerHTML = "";
+          caseTabs.classList.add("hidden");
+        } else {
+          caseTabs.classList.remove("hidden");
+          caseTabs.innerHTML = resCases.map((tc, idx) => `
           <button class="result-case-btn px-3 py-1 rounded-lg border text-xs font-mono flex items-center gap-1.5 transition ${idx === activeResultCaseIndex ? 'border-gold/50 bg-gold/10 text-gold font-semibold' : 'border-white/10 bg-white/5 text-white/60 hover:text-white'}" data-rcase="${idx}">
             <span class="w-1.5 h-1.5 rounded-full ${tc.passed ? 'bg-emerald-400' : 'bg-danger'}"></span>
             Case ${idx + 1}
           </button>
         `).join("");
+        }
 
         document.querySelectorAll(".result-case-btn").forEach(b => {
           b.addEventListener("click", () => {
@@ -965,23 +973,33 @@
         });
 
         // Render Case Details
-        const currCase = res.testResults[activeResultCaseIndex];
+        const currCase = resCases[activeResultCaseIndex];
         const detailContainer = document.getElementById("resultCaseDetail");
 
-        if (currCase) {
-          if (currCase.hidden) {
-            // Server-graded hidden case: show verdict only — never the input
-            // or expected values (they live server-side by design).
-            detailContainer.innerHTML = `
+        if (resCases.length === 0) {
+          // Server-graded run: the response contains only the aggregate
+          // verdict, passed/total counts, runtime and memory — and, because
+          // they depend on the user's source alone, compile errors. Per-test
+          // pass/fail, error text, inputs, expected values and logs are never
+          // sent, so hidden test data can't be brute-forced or exfiltrated.
+          detailContainer.innerHTML = `
             <div class="space-y-2">
-              <span class="text-[11px] text-white/40 uppercase tracking-wider block">Hidden Test Case</span>
-              <div class="rounded-xl border ${currCase.passed ? 'border-emerald-500/30 bg-emerald-500/5 text-emerald-300' : 'border-danger/30 bg-danger/5 text-danger'} p-2.5 font-mono text-xs">
-                ${currCase.passed ? "✓ Passed — graded on the server" : currCase.error ? `<span class="text-danger font-bold">${escapeHtml(currCase.status)}: ${escapeHtml(currCase.error)}</span>` : "✗ Failed — graded on the server"}
+              <span class="text-[11px] text-white/40 uppercase tracking-wider block">Hidden Tests</span>
+              <div class="rounded-xl border ${res.allPassed ? 'border-emerald-500/30 bg-emerald-500/5 text-emerald-300' : 'border-danger/30 bg-danger/5 text-danger'} p-2.5 font-mono text-xs">
+                ${res.allPassed
+                  ? "✓ Accepted — graded on the server"
+                  : res.compileError
+                    ? `<span class="text-danger font-bold">Compilation Error: ${escapeHtml(res.compileError)}</span>`
+                    : res.status === "Runtime Error"
+                      ? `<span class="text-danger font-bold">Runtime error on a hidden test</span>`
+                      : `${escapeHtml(res.status || "Failed")} — graded on the server`}
               </div>
-              ${currCase.runtimeMs ? `<div class="text-[11px] text-white/40 font-mono">runtime: ${currCase.runtimeMs} ms · memory: ${currCase.memoryMb} MB</div>` : ""}
+              <div class="text-[11px] text-white/40 font-mono">runtime: ${res.runtime || "--"} · memory: ${res.memory || "--"}</div>
             </div>
             `;
-          } else {
+        } else if (currCase) {
+          // Local sample run: full input/your-output/expected details are
+          // available client-side by design.
           detailContainer.innerHTML = `
             <div class="space-y-2">
               <span class="text-[11px] text-white/40 uppercase tracking-wider block">Input</span>
@@ -1000,10 +1018,9 @@
               <div class="rounded-xl border border-white/10 bg-black/40 p-2.5 font-mono text-xs text-gold overflow-x-auto">${currCase.expectedDisplay}</div>
             </div>
           `;
-          }
         }
 
-        // Stdout logs — top-level for local runs, per-case for server runs
+        // Stdout logs — local runs only (server responses carry none).
         const logBox = document.getElementById("resultLogsContainer");
         const logText = document.getElementById("resultLogsText");
         const logs = (res.logs && res.logs.length ? res.logs : (currCase && currCase.logs)) || [];

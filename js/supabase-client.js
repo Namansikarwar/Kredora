@@ -191,7 +191,7 @@ const SupabaseDB = {
       if (!res.ok || payload.ok === false) {
         return { ok: false, error: payload.error || `Function error (HTTP ${res.status})`, rateLimited: res.status === 429 };
       }
-      return payload; // { ok, status, allPassed, passedCount, totalCount, runtime, memory, testResults }
+      return payload; // { ok, status, allPassed, passedCount, totalCount, runtime, memory, compileError?, recordId?, recordHash? } — no per-test data
     } catch (e) {
       return { ok: false, error: String((e && e.message) || e) };
     }

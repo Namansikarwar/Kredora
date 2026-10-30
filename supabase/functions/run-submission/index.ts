@@ -126,6 +126,17 @@ interface TestOutcome {
   logs?: string[]; // sample tests only
 }
 
+// Compile/syntax errors come back from Judge0 quoting the offending source
+// line. The JavaScript harness embeds the hidden test args directly in the
+// generated source (`const __args = [...]`), so a compile error that quotes a
+// harness-internal line would leak the hidden input. Python and Java receive
+// args via stdin and are unaffected; the same scrub is harmless there.
+// Strips lines belonging to the harness scaffolding; genuine user-code
+// compile errors survive intact.
+function scrubCompileOutput(s: string): string {
+  return s.split("\n").filter((line) => !/__args|__logs|__result|__origLog|__fn|__KREDORA/.test(line)).join("\n");
+}
+
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { ...CORS, "Content-Type": "application/json" } });
 }
@@ -570,8 +581,17 @@ Deno.serve(async (req) => {
     return fail((e as Error).message, 502);
   }
 
-  // Interpret results. Only hidden tests are graded; verdicts are echoed to
-  // the browser WITHOUT inputs, expected values or logs.
+  // Interpret results. Only hidden tests are graded. NOTHING per-test is
+  // echoed to the browser — no pass/fail flags, no error text, no inputs,
+  // expected values, logs, or per-case runtime/memory. Leaking any of it
+  // would let a caller brute-force hidden expectations (e.g. a thrown error
+  // that encodes the current case args). The response carries only the
+  // aggregate verdict, counts, total runtime and max memory. Compile errors
+  // are the one exception (they depend on the user's source, not the test
+  // data) and are scrubbed of harness scaffolding lines first.
+  //
+  // The raw outcomes (internal only) still drive testsSummary, which is part
+  // of the record hash — itself never exposed per-test.
   const outcomes: TestOutcome[] = tests.map((t: TestCaseRow, i: number) => {
     const j = judgeResults[i];
     const hidden = true; // only hidden tests are fetched/graded server-side
@@ -580,28 +600,34 @@ Deno.serve(async (req) => {
     const base: TestOutcome = { index: i, hidden, passed: false, status: "Runtime Error", runtimeMs, memoryMb };
 
     if (j.status.id === 6) {
-      return { ...base, status: "Compilation Error", error: (j.compile_output || "Compilation failed").slice(0, 800) };
+      // Compile errors are user-source errors, independent of test data —
+      // safe to surface (scrubbed of harness scaffolding lines).
+      return { ...base, status: "Compilation Error", error: scrubCompileOutput(j.compile_output || "Compilation failed").slice(0, 800) };
     }
     if (j.status.id === 5) return { ...base, status: "Time Limit Exceeded" };
     if (j.status.id >= 7) {
-      return { ...base, status: "Runtime Error", error: (j.stderr || j.status.description || "Runtime error").slice(0, 800) };
+      // stderr can embed the args JSON the harness fed in — never returned.
+      return { ...base, status: "Runtime Error", error: "Runtime error on a hidden test" };
     }
     if (j.status.id !== 3) {
-      return { ...base, status: "Runtime Error", error: `Sandbox status: ${j.status.description}` };
+      return { ...base, status: "Runtime Error", error: "Runtime error on a hidden test" };
     }
 
     const markerLines = (j.stdout || "").split("\n").filter((l) => l.startsWith(MARKER));
     if (markerLines.length === 0) {
-      return { ...base, status: "Runtime Error", error: (j.stderr || "No result produced").slice(0, 800) };
+      return { ...base, status: "Runtime Error", error: "Runtime error on a hidden test" };
     }
     let parsed: { ok: boolean; value?: unknown; error?: string; logs?: string[] };
     try {
       parsed = JSON.parse(markerLines[0].slice(MARKER.length));
     } catch {
-      return { ...base, status: "Runtime Error", error: "Unparseable harness output" };
+      return { ...base, status: "Runtime Error", error: "Runtime error on a hidden test" };
     }
     if (!parsed.ok) {
-      return { ...base, status: "Runtime Error", error: String(parsed.error || "Runtime error").slice(0, 800) };
+      // parsed.error is the user's own thrown message — echoing it back lets
+      // them exfiltrate hidden inputs (throw new Error(JSON.stringify(args))).
+      // A generic verdict keeps the case data unrecoverable.
+      return { ...base, status: "Runtime Error", error: "Runtime error on a hidden test" };
     }
 
     const passed = canon(parsed.value) === canon(t.expected);
@@ -771,6 +797,11 @@ Deno.serve(async (req) => {
     // row they refer to.
     recordId: inserted.id,
     recordHash,
-    testResults: outcomes, // hidden verdicts only — no inputs/expected/logs
+    // Aggregate-only run report: verdict, counts, runtime, memory, and —
+    // because they depend only on the user's source, never on test data —
+    // compile errors (JSON.stringify drops the undefined when absent).
+    // Individual case pass/fail, error text, inputs, expected values and
+    // logs NEVER leave this function.
+    compileError: compileErr?.error,
   });
 });
