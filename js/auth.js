@@ -39,6 +39,47 @@ function friendlyAuthError(message) {
   return message || "Authentication error. Please try again.";
 }
 
+// Pages a redirect is allowed to target. Redirects to anything else —
+// absolute URLs, protocol-relative "//host", javascript:/data: URIs, or
+// unknown pages — fall back to dashboard.html (open-redirect / XSS guard).
+const SAFE_REDIRECT_PAGES = new Set([
+  "dashboard.html",
+  "problem.html",
+  "problem-list.html",
+  "evidence.html",
+  "profile.html",
+  "skill.html",
+]);
+
+/**
+ * Sanitize a redirect target (e.g. the login.html?redirect= param).
+ * Accepts only relative paths to pages in SAFE_REDIRECT_PAGES, optionally
+ * followed by a query string. Returns the fallback for anything else.
+ * Handles already-percent-encoded input ("problem.html%3Fid%3D1") and
+ * throws nothing even on malformed escapes.
+ */
+function safeRedirect(target, fallback = "dashboard.html") {
+  if (!target || typeof target !== "string") return fallback;
+  let decoded;
+  try {
+    decoded = decodeURIComponent(target);
+  } catch {
+    return fallback; // malformed percent-encoding
+  }
+  // Reject anything smuggled in: whitespace/control chars, quotes,
+  // backslashes, or a protocol-relative/absolute-URL prefix.
+  if (/[\s\\<>"']/.test(decoded) || /^(?:[a-zA-Z][a-zA-Z0-9+.-]*:|\/\/)/.test(decoded)) {
+    return fallback;
+  }
+  // Allow only "page.html" or "./page.html" or "/page.html", plus an
+  // unlimited query string of URL-safe characters.
+  const match = decoded.match(/^(?:\.\/|\/)*([A-Za-z0-9._-]+\.html)(\?[\w~%+\-.:=&()$*+,;!@/?'\[\]]*)?$/);
+  if (!match) return fallback;
+  const page = match[1].toLowerCase();
+  if (!SAFE_REDIRECT_PAGES.has(page)) return fallback;
+  return page + (match[2] || "");
+}
+
 const Auth = {
   /**
    * Raw Supabase session ({ session, user }) or null.
@@ -202,13 +243,22 @@ const Auth = {
   },
 
   /**
+   * Sanitized redirect target for post-login navigation (see safeRedirect).
+   * Exposed on Auth so page-level inline scripts can use it too.
+   */
+  safeRedirect(target) {
+    return safeRedirect(target);
+  },
+
+  /**
    * Protected-page guard. Waits for the Supabase session; redirects to the
    * login page when there is none. Returns true when authenticated.
    */
   async requireAuth(redirectUrl = null) {
     const authenticated = await this.isAuthenticated();
     if (!authenticated) {
-      const dest = redirectUrl || encodeURIComponent(window.location.pathname.split("/").pop() || "dashboard.html");
+      const candidate = redirectUrl || window.location.pathname.split("/").pop() || "dashboard.html";
+      const dest = encodeURIComponent(safeRedirect(candidate));
       window.location.href = `login.html?redirect=${dest}&msg=auth_required`;
       return false;
     }

@@ -176,7 +176,7 @@
       // Check if user is already authenticated (Supabase Auth session)
       if (window.Auth && (await window.Auth.isAuthenticated())) {
         const redirect = new URLSearchParams(window.location.search).get("redirect");
-        window.location.href = redirect ? decodeURIComponent(redirect) : "dashboard.html";
+        window.location.href = window.Auth.safeRedirect(redirect);
         return;
       }
 
@@ -265,9 +265,9 @@
           return;
         }
 
-        // Successful login: redirect
+        // Successful login: redirect (sanitized — only this site's pages)
         const redirect = params.get("redirect");
-        window.location.href = redirect ? decodeURIComponent(redirect) : "dashboard.html";
+        window.location.href = window.Auth.safeRedirect(redirect);
       });
     });
   </script>
