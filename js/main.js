@@ -2,6 +2,8 @@
  * Kredora — Landing Page and Dashboard Interactivity
  */
 
+import { escapeHtml } from "./utils.js";
+
 function initMobileNav() {
   const toggle = document.getElementById("nav-toggle");
   const menu = document.getElementById("mobile-menu");
@@ -271,10 +273,10 @@ function renderDashboard() {
           (a) => `
       <div class="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.02] border border-white/5 frosted-panel text-sm">
         <div class="truncate mr-2">
-          <p class="text-ink text-xs font-medium truncate">${a.text}</p>
-          <span class="text-[10px] text-inkdim font-mono">${a.time}</span>
+          <p class="text-ink text-xs font-medium truncate">${escapeHtml(a.text)}</p>
+          <span class="text-[10px] text-inkdim font-mono">${escapeHtml(a.time)}</span>
         </div>
-        <span class="text-[10px] font-mono px-2 py-0.5 rounded-md bg-brand/10 text-brand-bright border border-brand/20 shrink-0">${a.badge}</span>
+        <span class="text-[10px] font-mono px-2 py-0.5 rounded-md bg-brand/10 text-brand-bright border border-brand/20 shrink-0">${escapeHtml(a.badge)}</span>
       </div>`
         )
         .join("");
@@ -403,12 +405,12 @@ function renderArenaProgress() {
         return `
           <div class="rounded-xl border border-white/5 bg-white/[0.02] frosted-panel p-3 flex flex-col justify-between hover:border-brand/30 transition">
             <div class="flex items-start justify-between gap-2">
-              <span class="font-display font-semibold text-sm text-white">${item.title}</span>
-              <span class="px-2 py-0.5 rounded text-[10px] font-mono border ${diffColor}">${item.difficulty}</span>
+              <span class="font-display font-semibold text-sm text-white">${escapeHtml(item.title)}</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-mono border ${diffColor}">${escapeHtml(item.difficulty)}</span>
             </div>
             <div class="flex items-center justify-between mt-3 text-xs">
-              <span class="text-white/40 font-mono text-[11px]">${acceptedBadge}</span>
-              <a href="problem.html?id=${item.id}" class="text-brand-bright hover:underline font-mono text-xs">Review Code →</a>
+              <span class="text-white/40 font-mono text-[11px]">${escapeHtml(acceptedBadge)}</span>
+              <a href="problem.html?id=${encodeURIComponent(item.id)}" class="text-brand-bright hover:underline font-mono text-xs">Review Code →</a>
             </div>
           </div>
         `;

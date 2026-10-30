@@ -26,6 +26,7 @@
   <script type="module" src="js/skills.js"></script>
   <script type="module" src="js/problems-data.js"></script>
   <script type="module" src="js/auth.js"></script>
+  <script type="module" src="js/utils.js"></script>
   <script type="module">
     import "./js/supabase-client.js";
     import "./js/auth.js";
@@ -658,10 +659,10 @@
               <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand-bright font-mono font-bold">#</div>
               <div>
                 <div class="flex flex-wrap items-center gap-3">
-                  <h3 class="font-semibold text-white">${s.problemTitle || s.problemId}</h3>
+                  <h3 class="font-semibold text-white">${window.escapeHtml(s.problemTitle || s.problemId)}</h3>
                   <span class="rounded-full bg-brand/10 border border-brand/20 px-2.5 py-0.5 text-xs text-brand-bright font-mono">Coding Problem</span>
                 </div>
-                <p class="mt-1.5 text-sm text-white/50">Accepted on the server · ${s.language || "code"}${s.difficulty ? ` · ${s.difficulty}` : ""}${s.runtime ? ` · ${s.runtime}` : ""}</p>
+                <p class="mt-1.5 text-sm text-white/50">Accepted on the server · ${window.escapeHtml(s.language || "code")}${s.difficulty ? ` · ${window.escapeHtml(s.difficulty)}` : ""}${s.runtime ? ` · ${window.escapeHtml(s.runtime)}` : ""}</p>
                 <p class="mt-2 font-mono text-xs text-white/30">Submitted ${when}</p>
               </div>
             </div>
@@ -670,7 +671,7 @@
               ${
                 s.recordId
                   ? `
-              <button data-record-id="${s.recordId}" onclick="verifyEvidence(this)" title="Re-check that this record's stored history is unchanged." class="verify-btn inline-flex items-center gap-1.5 font-mono text-xs text-cyan hover:text-white transition disabled:opacity-50">
+              <button data-record-id="${window.escapeHtml(s.recordId)}" onclick="verifyEvidence(this)" title="Re-check that this record's stored history is unchanged." class="verify-btn inline-flex items-center gap-1.5 font-mono text-xs text-cyan hover:text-white transition disabled:opacity-50">
                 <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
                 <span class="verify-label">Verify chain</span>
               </button>`
@@ -807,13 +808,13 @@
           </div>
           <div>
             <div class="flex flex-wrap items-center gap-3">
-              <h3 class="font-semibold text-white">${name}</h3>
+              <h3 class="font-semibold text-white">${window.escapeHtml(name)}</h3>
               <span class="rounded-full bg-brand/10 border border-brand/20 px-2.5 py-0.5 text-xs text-brand-bright font-mono">
                 ${typeLabel}
               </span>
             </div>
             <p class="mt-1.5 text-sm text-white/50">
-              ${detail} · ${skill}
+              ${window.escapeHtml(detail)} · ${window.escapeHtml(skill)}
             </p>
             <p class="mt-2 font-mono text-xs text-emerald-400">
               Just now (verified)

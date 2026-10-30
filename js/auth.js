@@ -12,6 +12,7 @@
  * supabase/schema.sql scope every row to auth.uid().
  */
 import { getSupabase } from "./supabase-client.js";
+import { escapeHtml } from "./utils.js";
 
 function friendlyAuthError(message) {
   const msg = String(message || "").toLowerCase();
@@ -301,10 +302,10 @@ const Auth = {
             <div class="relative group">
               <button type="button" class="flex items-center gap-2 py-1 px-2.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-md hover:border-brand/50 transition-colors" id="user-menu-btn" aria-haspopup="true">
                 <span class="w-7 h-7 rounded-full bg-brand grid place-items-center font-display font-semibold text-[11px] text-white">
-                  ${initials}
+                  ${escapeHtml(initials)}
                 </span>
                 <span class="text-xs text-ink font-medium max-w-[100px] truncate hidden lg:inline">
-                  ${user.name || user.username}
+                  ${escapeHtml(user.name || user.username)}
                 </span>
                 <svg class="w-3.5 h-3.5 text-inkdim" viewBox="0 0 20 20" fill="currentColor">
                   <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
@@ -313,7 +314,7 @@ const Auth = {
               <div class="absolute right-0 mt-2 w-48 rounded-xl border border-white/10 bg-elevated/95 backdrop-blur-xl shadow-2xl py-1 text-sm hidden group-hover:block hover:block z-50">
                 <div class="px-4 py-2 border-b border-white/5">
                   <p class="text-xs text-inkdim font-mono">Signed in as</p>
-                  <p class="text-sm font-semibold text-white truncate">${user.name || user.username}</p>
+                  <p class="text-sm font-semibold text-white truncate">${escapeHtml(user.name || user.username)}</p>
                 </div>
                 <a href="dashboard.html" class="block px-4 py-2 text-inkdim hover:text-white hover:bg-white/5 transition-colors">Dashboard</a>
                 <a href="profile.html" class="block px-4 py-2 text-inkdim hover:text-white hover:bg-white/5 transition-colors">Your Profile</a>
@@ -345,7 +346,7 @@ const Auth = {
       if (user) {
         slot.innerHTML = `
           <div class="px-2 py-2 border-t border-white/5 flex items-center justify-between">
-            <span class="text-xs text-inkdim font-mono">Logged in as ${user.name || user.username}</span>
+            <span class="text-xs text-inkdim font-mono">Logged in as ${escapeHtml(user.name || user.username)}</span>
             <button onclick="Auth.logout()" class="text-xs font-semibold text-inkdim hover:text-white transition-colors">Log out</button>
           </div>
         `;

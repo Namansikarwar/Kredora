@@ -201,6 +201,7 @@
   </main>
 
   <script type="module">
+    import { escapeHtml } from "./js/utils.js";
     // Real per-category skill breakdown from the shared stats module.
     // Module execution order can vary in dev; re-render once the window has
     // fully loaded so numbers never stick at their placeholder.
@@ -295,8 +296,8 @@
             const dot = (i) => (i % 2 === 0 ? "bg-brand" : "bg-cyan");
             timeline.innerHTML = accepted
               .map((s, i) => {
-                const title = s.problemTitle || s.problemId;
-                const cat = s.difficulty ? `${s.difficulty} · accepted` : "accepted";
+                const title = escapeHtml(s.problemTitle || s.problemId);
+                const cat = s.difficulty ? `${escapeHtml(s.difficulty)} · accepted` : "accepted";
                 const when = window.UserStats.getRecentActivity([s], 1)[0]?.time || "";
                 return `
             <div class="flex gap-4">
