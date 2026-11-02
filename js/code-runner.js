@@ -99,7 +99,7 @@ const CodeRunner = {
         status: "Runtime Error",
         error: err.message,
         runtime: "0 ms",
-        memory: "0 MB",
+        memory: "n/a (local run)",
         passedCount: 0,
         totalCount: testCases.length,
         testResults: [],
@@ -150,8 +150,6 @@ const CodeRunner = {
     }
 
     const totalElapsed = Math.max(1, Math.round(performance.now() - startTime));
-    // Simulate realistic memory between 41.5MB and 44.8MB
-    const simulatedMemory = (41.5 + (totalElapsed % 20) * 0.15).toFixed(1);
 
     const passedCount = results.filter((r) => r.passed).length;
     let status = "Accepted";
@@ -168,7 +166,7 @@ const CodeRunner = {
       allPassed,
       failingCase,
       runtime: `${totalElapsed} ms`,
-      memory: `${simulatedMemory} MB`,
+      memory: "n/a (local run)",
       passedCount,
       totalCount: testCases.length,
       testResults: results,
