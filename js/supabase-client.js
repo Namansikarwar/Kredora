@@ -11,9 +11,6 @@
  */
 
 import { createClient } from "@supabase/supabase-js";
-// Canonical database schema — bundled as a raw string at build time so the
-// dashboard's "Copy Tables SQL" button always matches supabase/schema.sql.
-import schemaSql from "../supabase/schema.sql?raw";
 
 // Public, by-design project coordinates. The anon key is RLS-scoped (it can only
 // touch rows belonging to the signed-in user), so shipping it in the browser
@@ -147,12 +144,6 @@ const SupabaseDB = {
     } catch (e) {
       return null;
     }
-  },
-
-  // The full RLS schema (tables, policies, public view, indexes).
-  // Served from supabase/schema.sql verbatim — see that file for docs.
-  getSchemaSQL() {
-    return schemaSql;
   },
 
   // ------------------------------------------------------------------------

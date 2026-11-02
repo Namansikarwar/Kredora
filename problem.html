@@ -467,22 +467,22 @@
         </div>
       </div>
 
-      <!-- SQL Schema Reference with Copy Button -->
+      <!-- SQL Schema Reference (links to schema.sql on GitHub) -->
       <div class="rounded-2xl border border-white/10 bg-black/30 p-3.5 text-xs mb-5">
         <div class="flex items-center justify-between mb-2">
           <span class="font-semibold text-white/80 flex items-center gap-1.5 text-xs font-display">
             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Supabase SQL Setup Script
           </span>
-          <button id="copySqlBtn" type="button" class="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 border border-emerald-500/30 text-[11px] font-mono transition">
-            Copy SQL Script
-          </button>
+          <a href="https://github.com/Namansikarwar/Kredora/blob/main/supabase/schema.sql" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 border border-emerald-500/30 text-[11px] font-mono transition">
+            View SQL Script
+          </a>
         </div>
         <p class="text-[11px] text-white/40 mb-2 leading-relaxed">
           Open Supabase Dashboard → SQL Editor → New Query, paste this script, and click "Run":
         </p>
         <pre class="p-2.5 rounded-xl bg-black/60 border border-white/5 font-mono text-[10px] text-cyan/90 max-h-36 overflow-y-auto selection:bg-cyan/20 leading-relaxed" id="sqlSchemaPreview">
--- The secure, canonical schema is served verbatim from supabase/schema.sql
--- (see the Copy SQL Script button). Summary of its security model:
+-- The secure, canonical schema lives in supabase/schema.sql (open it via the
+-- GitHub link above). Summary of its security model:
 --
 --   problem_submissions: NO client INSERT/UPDATE/DELETE policies and no
 --     grants for anon/authenticated — rows are written ONLY by the
@@ -1220,7 +1220,6 @@
       const inputKey = document.getElementById("inputSupabaseKey");
       const saveSupaBtn = document.getElementById("saveSupabaseBtn");
       const testSupaBtn = document.getElementById("testSupabaseBtn");
-      const copySqlBtn = document.getElementById("copySqlBtn");
       const bannerTitle = document.getElementById("supabaseStatusTitle");
       const bannerDot = document.getElementById("supabaseStatusDot");
       const modeBadge = document.getElementById("supabaseModeBadge");
@@ -1312,20 +1311,6 @@
 
       if (dbPill) dbPill.addEventListener("click", openSupabaseModal);
       if (closeSupaBtn) closeSupaBtn.addEventListener("click", () => supaModal.classList.add("hidden"));
-
-      if (copySqlBtn) {
-        copySqlBtn.addEventListener("click", () => {
-          const sql = window.SupabaseDB.getSchemaSQL();
-          navigator.clipboard.writeText(sql).then(() => {
-            copySqlBtn.textContent = "✓ Copied to Clipboard!";
-            copySqlBtn.className = "px-2.5 py-1 rounded-lg bg-emerald-500 text-black font-semibold text-[11px] font-mono transition";
-            setTimeout(() => {
-              copySqlBtn.textContent = "Copy SQL Script";
-              copySqlBtn.className = "px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 border border-emerald-500/30 text-[11px] font-mono transition";
-            }, 2500);
-          });
-        });
-      }
 
       if (saveSupaBtn) {
         saveSupaBtn.addEventListener("click", async () => {

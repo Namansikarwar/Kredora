@@ -165,9 +165,9 @@
             </div>
           </div>
           <div class="flex items-center gap-2 flex-wrap">
-            <button id="dash-copy-sql-btn" type="button" class="px-3 py-1.5 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm text-xs text-ink hover:bg-white/10 transition font-mono flex items-center gap-1.5">
-              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy Tables SQL
-            </button>
+            <a href="https://github.com/Namansikarwar/Kredora/blob/main/supabase/schema.sql" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm text-xs text-ink hover:bg-white/10 transition font-mono flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> View Schema SQL
+            </a>
             <a href="problem.html?id=two-sum" class="px-3.5 py-1.5 rounded-xl bg-gold/15 text-gold border border-gold/30 hover:bg-gold/25 transition text-xs font-semibold">
               Open Arena →
             </a>
@@ -469,29 +469,12 @@
       const statusPill = document.getElementById("dash-db-status-pill");
       const latencyEl = document.getElementById("dash-db-latency");
       const descEl = document.getElementById("dash-db-desc");
-      const copyBtn = document.getElementById("dash-copy-sql-btn");
-
       const PILL = {
         ok: "px-2.5 py-0.5 rounded-full text-[10px] font-mono border text-emerald-400 bg-emerald-500/10 border-emerald-500/30",
         warn: "px-2.5 py-0.5 rounded-full text-[10px] font-mono border text-amber-300 bg-amber-500/10 border-amber-500/30",
         offline: "px-2.5 py-0.5 rounded-full text-[10px] font-mono border text-cyan bg-cyan/10 border-cyan/30",
         error: "px-2.5 py-0.5 rounded-full text-[10px] font-mono border text-danger bg-danger/10 border-danger/30"
       };
-
-      if (copyBtn) {
-        copyBtn.addEventListener("click", () => {
-          if (window.SupabaseDB) {
-            navigator.clipboard.writeText(window.SupabaseDB.getSchemaSQL()).then(() => {
-              copyBtn.textContent = "SQL Copied!";
-              copyBtn.className = "px-3 py-1.5 rounded-xl bg-emerald-500 text-black font-semibold text-xs transition font-mono";
-              setTimeout(() => {
-                copyBtn.textContent = "Copy Tables SQL";
-                copyBtn.className = "px-3 py-1.5 rounded-xl border border-white/10 bg-white/5 text-xs text-ink hover:bg-white/10 transition font-mono flex items-center gap-1.5";
-              }, 2500);
-            });
-          }
-        });
-      }
 
       if (!window.SupabaseDB) return;
 

@@ -27,8 +27,9 @@ export default defineConfig(() => {
         // the project root, so server-only material has to be blocked by name.
         // hidden-tests.json / seed-tests.sql hold the graded hidden test cases
         // in cleartext; nothing in the browser app may ever fetch them.
-        // supabase/schema.sql stays served on purpose: supabase-client.js
-        // imports it with ?raw to power the "Copy SQL Script" button.
+        // supabase/schema.sql is no longer imported with ?raw (that used to
+        // ship the whole schema in the public JS bundle for a Copy SQL
+        // button); the UI links to it on GitHub instead.
         deny: [
           '.env',
           '.env.*',
