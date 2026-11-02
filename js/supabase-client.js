@@ -3,9 +3,8 @@
  *
  * Credentials are compiled in at build time from VITE_SUPABASE_URL and
  * VITE_SUPABASE_ANON_KEY (environment variables / GitHub Actions secrets —
- * Vite inlines import.meta.env.* during `vite build`). Users may still
- * connect their own project at runtime via the Problem page modal, which
- * stores overrides in localStorage.
+ * Vite inlines import.meta.env.* during `vite build`). Config comes only
+ * from these build-time values — there is no runtime override.
  *
  * Exposed as window.SupabaseDB for the inline page scripts.
  */
@@ -26,18 +25,10 @@ const SupabaseDB = {
   client: null,
   isInitialized: false,
 
-  // Build-time env values, overridden by localStorage when the user
-  // connects their own Supabase project from the UI.
+  // Build-time env values only (VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY,
+  // falling back to the public project constants when a build has no .env).
   getConfig() {
-    let url = BUILD_URL;
-    let anonKey = BUILD_KEY;
-    try {
-      url = localStorage.getItem("skillproof_supabase_url") || BUILD_URL;
-      anonKey = localStorage.getItem("skillproof_supabase_key") || BUILD_KEY;
-    } catch (e) {
-      /* storage unavailable — build values only */
-    }
-    return { url: String(url).trim(), anonKey: String(anonKey).trim() };
+    return { url: BUILD_URL, anonKey: BUILD_KEY };
   },
 
   isConfigured() {
@@ -156,7 +147,7 @@ const SupabaseDB = {
   async runSubmission({ problemId, language, code, fnName }) {
     const client = await this.init();
     if (!client) {
-      return { ok: false, error: "Not connected. Add VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY (or connect a project from the Problem page)." };
+      return { ok: false, error: "Not connected. Add VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY at build time." };
     }
     const { url, anonKey } = this.getConfig();
     try {
@@ -199,7 +190,7 @@ const SupabaseDB = {
   async verifyRecord(recordId) {
     const client = await this.init();
     if (!client) {
-      return { ok: false, error: "Not connected. Add VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY (or connect a project from the Problem page)." };
+      return { ok: false, error: "Not connected. Add VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY at build time." };
     }
     if (!recordId) return { ok: false, error: "No submission record id to verify." };
     const { url, anonKey } = this.getConfig();
@@ -233,7 +224,7 @@ const SupabaseDB = {
   async verifyLatestRecord() {
     const client = await this.init();
     if (!client) {
-      return { ok: false, error: "Not connected. Add VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY (or connect a project from the Problem page)." };
+      return { ok: false, error: "Not connected. Add VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY at build time." };
     }
     const { url, anonKey } = this.getConfig();
     try {
@@ -287,7 +278,7 @@ const SupabaseDB = {
       return {
         ok: false,
         configured: false,
-        message: "Supabase is not configured. Set the VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY build secrets, or connect a project from the Problem page."
+        message: "Supabase is not configured. Set the VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY build secrets."
       };
     }
 

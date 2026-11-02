@@ -455,18 +455,6 @@
         </div>
       </div>
 
-      <!-- Credentials Form -->
-      <div class="space-y-3 mb-4">
-        <div>
-          <label class="block text-xs font-medium text-white/70 mb-1">Supabase Project URL (VITE_SUPABASE_URL)</label>
-          <input id="inputSupabaseUrl" type="url" placeholder="https://your-project.supabase.co" class="w-full rounded-xl border border-white/10 bg-black/40 px-3.5 py-2 text-xs text-white font-mono placeholder:text-white/30 focus:outline-none focus:border-emerald-500/50" />
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-white/70 mb-1">Supabase Anon Public API Key (VITE_SUPABASE_ANON_KEY)</label>
-          <input id="inputSupabaseKey" type="password" placeholder="eyJhbGciOiJIUzI1NiIsIn..." class="w-full rounded-xl border border-white/10 bg-black/40 px-3.5 py-2 text-xs text-white font-mono placeholder:text-white/30 focus:outline-none focus:border-emerald-500/50" />
-        </div>
-      </div>
-
       <!-- SQL Schema Reference (links to schema.sql on GitHub) -->
       <div class="rounded-2xl border border-white/10 bg-black/30 p-3.5 text-xs mb-5">
         <div class="flex items-center justify-between mb-2">
@@ -503,9 +491,6 @@
         <div class="flex items-center gap-2">
           <button id="testSupabaseBtn" class="px-3.5 py-2 rounded-xl border border-white/15 bg-white/5 text-xs text-white hover:bg-white/10 transition">
             Test Connection
-          </button>
-          <button id="saveSupabaseBtn" class="px-4 py-2 rounded-xl bg-emerald-500 font-semibold text-xs text-black hover:bg-emerald-400 transition">
-            Save & Connect
           </button>
         </div>
       </div>
@@ -1206,9 +1191,9 @@
           }
         } else {
           dot.className = "w-1.5 h-1.5 rounded-full bg-cyan";
-          text.textContent = "Connect Supabase";
+          text.textContent = "Supabase: Not Configured";
           pill.className = "hidden xl:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl border border-cyan/30 bg-cyan/10 text-[11px] font-mono text-cyan hover:bg-cyan/20 transition cursor-pointer";
-          pill.title = "Using Local Storage. Click to connect your Supabase database.";
+          pill.title = "No build-time Supabase config. Click for diagnostics.";
         }
       }
 
@@ -1216,9 +1201,6 @@
       const supaModal = document.getElementById("supabaseModal");
       const dbPill = document.getElementById("dbStatusPill");
       const closeSupaBtn = document.getElementById("closeSupabaseModalBtn");
-      const inputUrl = document.getElementById("inputSupabaseUrl");
-      const inputKey = document.getElementById("inputSupabaseKey");
-      const saveSupaBtn = document.getElementById("saveSupabaseBtn");
       const testSupaBtn = document.getElementById("testSupabaseBtn");
       const bannerTitle = document.getElementById("supabaseStatusTitle");
       const bannerDot = document.getElementById("supabaseStatusDot");
@@ -1228,8 +1210,6 @@
 
       async function runDiagnostics() {
         const config = window.SupabaseDB ? window.SupabaseDB.getConfig() : { url: "", anonKey: "" };
-        inputUrl.value = config.url || "";
-        inputKey.value = config.anonKey || "";
 
         // Direct SQL Editor link
         try {
@@ -1311,30 +1291,6 @@
 
       if (dbPill) dbPill.addEventListener("click", openSupabaseModal);
       if (closeSupaBtn) closeSupaBtn.addEventListener("click", () => supaModal.classList.add("hidden"));
-
-      if (saveSupaBtn) {
-        saveSupaBtn.addEventListener("click", async () => {
-          const url = inputUrl.value.trim();
-          const key = inputKey.value.trim();
-
-          if (url) localStorage.setItem("skillproof_supabase_url", url);
-          else localStorage.removeItem("skillproof_supabase_url");
-
-          if (key) localStorage.setItem("skillproof_supabase_key", key);
-          else localStorage.removeItem("skillproof_supabase_key");
-
-          if (window.SupabaseDB) {
-            window.SupabaseDB.isInitialized = false;
-            window.SupabaseDB.client = null;
-            if (url && key) {
-              await window.SupabaseDB.init();
-            }
-          }
-
-          await updateDbStatus();
-          await runDiagnostics();
-        });
-      }
 
       if (testSupaBtn) {
         testSupaBtn.addEventListener("click", async () => {
